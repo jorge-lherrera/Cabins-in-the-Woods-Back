@@ -1,0 +1,61 @@
+"use strict";
+
+/** @type {import('sequelize-cli').Migration} */
+"use strict";
+
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("cabins", {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+      },
+      guestId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "guests",
+          key: "id",
+        },
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      maxCapacity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      regularPrice: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      discount: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      image: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+  },
+
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("cabins");
+  },
+};
