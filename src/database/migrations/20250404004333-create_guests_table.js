@@ -5,10 +5,10 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("guests", {
       id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
+        type: Sequelize.INTEGER,
       },
       fullName: {
         type: Sequelize.STRING,

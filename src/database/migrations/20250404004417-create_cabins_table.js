@@ -7,10 +7,10 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("cabins", {
       id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
+        type: Sequelize.INTEGER,
       },
       guestId: {
         type: Sequelize.INTEGER,
@@ -41,7 +41,7 @@ module.exports = {
         allowNull: true,
       },
       description: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       createdAt: {
