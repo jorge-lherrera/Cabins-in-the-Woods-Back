@@ -1,32 +1,30 @@
 const Worker = require("../models/Worker");
 const { sign } = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { loginSchema } = require("../validations/loginValidation");
+const { strict } = require("assert");
 
 class LoginController {
   async login(req, res) {
     try {
-      const email = req.body.email;
-      const password = req.body.password;
+      await loginSchema.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
-      if (!email) {
-        return res.status(400).json({ erro: "Informe seu email." });
-      }
-      if (!password) {
-        return res.status(400).json({ erro: "Informe sua senha." });
-      }
+      const { email, password } = req.body;
 
       const worker = await Worker.findOne({
         where: { email: email },
       });
+
       if (!worker) {
-        return res
-          .status(401)
-          .json({ erro: "Email e senha não correspondem a nenhum usuário." });
+        return res.status(401).json({ erro: "Email e senha inválida." });
       }
 
       const hashSenha = await bcrypt.compare(password, worker.password);
       if (!hashSenha) {
-        return res.status(400).json({ mensagem: "Senha inválida." });
+        return res.status(400).json({ mensagem: "Email e senha inválida." });
       }
 
       const payload = { sub: worker.id, name: worker.name };
