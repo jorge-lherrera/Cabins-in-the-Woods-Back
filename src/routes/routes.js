@@ -4,6 +4,7 @@ const guestRoutes = require("./guest.routes");
 const settingRoutes = require("./setting.routes");
 const workerRoutes = require("./worker.routes");
 const bookingRoutes = require("./booking.routes");
+const loginRoutes = require("./login.routes");
 
 const routes = Router();
 

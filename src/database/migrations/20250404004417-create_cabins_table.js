@@ -12,14 +12,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      guestId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "guests",
-          key: "id",
-        },
-      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,

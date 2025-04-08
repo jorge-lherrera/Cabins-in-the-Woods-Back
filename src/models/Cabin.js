@@ -2,14 +2,6 @@ const { DataTypes } = require("sequelize");
 const { connection } = require("../database/connection");
 
 const Cabin = connection.define("cabin", {
-  guestId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: "guest",
-      key: "id",
-    },
-  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
