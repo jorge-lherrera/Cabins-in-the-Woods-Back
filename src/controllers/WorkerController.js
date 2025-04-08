@@ -1,4 +1,5 @@
 const Worker = require("../models/Worker");
+const bcrypt = require("bcrypt");
 
 class WorkerController {
   async getWorkerById(req, res) {
@@ -17,11 +18,14 @@ class WorkerController {
   async createWorker(req, res) {
     try {
       const { name, email, avatar, password } = req.body;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const worker = await Worker.create({
         name,
         email,
         avatar,
-        password,
+        password: hashedPassword,
       });
       res.status(201).json(worker);
     } catch (error) {
