@@ -6,6 +6,7 @@ const { loginSchema } = require("../validations/validationSchemas");
 class LoginController {
   async login(req, res) {
     try {
+      // Validar os dados de entrada
       await loginSchema.validate(req.body, {
         abortEarly: false,
         strict: true,
@@ -13,27 +14,35 @@ class LoginController {
 
       const { email, password } = req.body;
 
+      // Buscar o usuário pelo e-mail
       const worker = await Worker.findOne({
         where: { email: email },
       });
 
       if (!worker) {
-        return res.status(401).json({ erro: "Email e senha inválida." });
+        return res
+          .status(401)
+          .json({ erro: "Usuário não encontrado ou senha inválida." });
       }
 
+      // Verificar a senha
       const hashSenha = await bcrypt.compare(password, worker.password);
       if (!hashSenha) {
-        return res.status(400).json({ mensagem: "Email e senha inválida." });
+        return res
+          .status(401)
+          .json({ erro: "Usuário não encontrado ou senha inválida." });
       }
 
+      // Gerar o token JWT
       const payload = { sub: worker.id, name: worker.name };
       const token = sign(payload, process.env.SECRET_JWT, { expiresIn: "60m" });
 
+      // Configurar o cookie com o token
       res.cookie("authToken", token, {
-        httpOnly: true, // La cookie no puede ser accedida desde JavaScript del cliente
-        secure: process.env.NODE_ENV === "production", // Solo se envía en HTTPS en producción
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 1000, // 1 hora
-        sameSite: "strict", // Protege contra ataques CSRF
+        sameSite: "strict",
       });
 
       return res.status(200).json({
@@ -42,11 +51,13 @@ class LoginController {
           name: worker.name,
         },
         token: token,
-        message: "Login exitoso, token guardado en cookies.",
+        message: "Login realizado com sucesso. Token armazenado no cookie.",
       });
     } catch (error) {
-      console.log(error.message);
-      return res.status(500).json({ erro: "Error al iniciar sesión." });
+      if (process.env.NODE_ENV !== "production") {
+        console.log(error.message);
+      }
+      return res.status(500).json({ erro: "Erro interno no servidor." });
     }
   }
 }

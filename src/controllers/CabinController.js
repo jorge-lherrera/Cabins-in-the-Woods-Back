@@ -1,79 +1,118 @@
 const Cabin = require("../models/Cabin");
 const Booking = require("../models/Booking");
+const cabinValidation = require("../validations/cabinValidation");
 
 class CabinController {
-  
   async getAllCabins(req, res) {
     try {
-      const cabins = await Cabin.findAll({
+      const { page = 1, limit = 10 } = req.query;
+      const offset = (page - 1) * limit;
+
+      const cabins = await Cabin.findAndCountAll({
         include: [{ model: Booking, as: "bookings" }],
+        limit: parseInt(limit),
+        offset: parseInt(offset),
       });
-      res.json(cabins);
+
+      res.json({
+        total: cabins.count,
+        page: parseInt(page),
+        totalPages: Math.ceil(cabins.count / limit),
+        data: cabins.rows,
+      });
     } catch (error) {
-      res.status(500).json({ error: "Error al obtener las cabañas" });
+      res.status(500).json({ error: "Erro ao obter as cabanas." });
     }
   }
 
-  
   async getCabinById(req, res) {
     try {
       const { id } = req.params;
+      if (isNaN(id)) {
+        return res
+          .status(400)
+          .json({ error: "O ID deve ser um número válido." });
+      }
+
       const cabin = await Cabin.findByPk(id, {
         include: [{ model: Booking, as: "bookings" }],
       });
+
       if (!cabin) {
-        return res.status(404).json({ error: "Cabaña no encontrada" });
+        return res.status(404).json({ error: "Cabana não encontrada." });
       }
+
       res.json(cabin);
     } catch (error) {
-      res.status(500).json({ error: "Error al obtener la cabaña" });
+      res.status(500).json({ error: "Erro ao obter a cabana." });
     }
   }
 
-  
   async createCabin(req, res) {
     try {
-      const { name, maxCapacity, regularPrice, discount, image, description } =
-        req.body;
-      const cabin = await Cabin.create({
-        name,
-        maxCapacity,
-        regularPrice,
-        discount,
-        image,
-        description,
-      });
+      await cabinValidation.validate(req.body, { abortEarly: false });
+
+      const cabin = await Cabin.create(req.body);
       res.status(201).json(cabin);
     } catch (error) {
-      res.status(500).json({ error: "Error al crear la cabaña" });
+      if (error.name === "ValidationError") {
+        return res.status(400).json({
+          message: "Erro de validação nos dados fornecidos.",
+          detalhes: error.errors,
+        });
+      }
+      if (error.name === "SequelizeUniqueConstraintError") {
+        return res.status(400).json({ error: "O nome da cabana já existe." });
+      }
+      res.status(500).json({ error: "Erro ao criar a cabana." });
     }
   }
 
-  
   async updateCabin(req, res) {
     try {
       const { id } = req.params;
+      if (isNaN(id)) {
+        return res
+          .status(400)
+          .json({ error: "O ID deve ser um número válido." });
+      }
+
+      await cabinValidation.validate(req.body, { abortEarly: false });
+
       const updated = await Cabin.update(req.body, { where: { id } });
       if (!updated[0]) {
-        return res.status(404).json({ error: "Cabaña no encontrada" });
+        return res.status(404).json({ error: "Cabana não encontrada." });
       }
-      res.json({ message: "Cabaña actualizada correctamente" });
+
+      res.json({ message: "Cabana atualizada com sucesso." });
     } catch (error) {
-      res.status(500).json({ error: "Error al actualizar la cabaña" });
+      if (error.name === "ValidationError") {
+        return res.status(400).json({
+          message: "Erro de validação nos dados fornecidos.",
+          detalhes: error.errors,
+        });
+      }
+      res.status(500).json({ error: "Erro ao atualizar a cabana." });
     }
   }
 
-  
   async deleteCabin(req, res) {
     try {
       const { id } = req.params;
+      if (isNaN(id)) {
+        return res
+          .status(400)
+          .json({ error: "O ID deve ser um número válido." });
+      }
+
       const deleted = await Cabin.destroy({ where: { id } });
       if (!deleted) {
-        return res.status(404).json({ error: "Cabaña no encontrada" });
+        return res.status(404).json({ error: "Cabana não encontrada." });
       }
-      res.json({ message: "Cabaña eliminada correctamente" });
+
+      res.json({ message: "Cabana excluída com sucesso." });
     } catch (error) {
-      res.status(500).json({ error: "Error al eliminar la cabaña" });
+      res.status(500).json({ error: "Erro ao excluir a cabana." });
     }
   }
 }
