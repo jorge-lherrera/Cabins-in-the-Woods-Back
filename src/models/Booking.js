@@ -25,20 +25,20 @@ const Booking = connection.define("booking", {
     type: DataTypes.DATE,
     allowNull: false,
     validate: {
-      isDate: true,
-      notNull: { msg: "La fecha de inicio es obligatoria" },
+      isDate: { msg: "A data de início deve ser válida." },
+      notNull: { msg: "A data de início é obrigatória." },
     },
   },
   endDate: {
     type: DataTypes.DATE,
     allowNull: false,
     validate: {
-      isDate: true,
-      notNull: { msg: "La fecha de fin es obligatoria" },
+      isDate: { msg: "A data de término deve ser válida." },
+      notNull: { msg: "A data de término é obrigatória." },
       isAfterStartDate(value) {
-        if (value <= this.startDate) {
+        if (!this.startDate || value <= this.startDate) {
           throw new Error(
-            "La fecha de fin debe ser posterior a la fecha de inicio"
+            "A data de término deve ser posterior à data de início."
           );
         }
       },
@@ -48,44 +48,44 @@ const Booking = connection.define("booking", {
     type: DataTypes.INTEGER,
     allowNull: false,
     validate: {
-      isInt: true,
-      min: 1,
-      notNull: { msg: "El número de noches es obligatorio" },
+      isInt: { msg: "O número de noites deve ser um número inteiro." },
+      min: { args: 1, msg: "O número de noites deve ser pelo menos 1." },
+      notNull: { msg: "O número de noites é obrigatório." },
     },
   },
   numGuests: {
     type: DataTypes.INTEGER,
     allowNull: false,
     validate: {
-      isInt: true,
-      min: 1,
-      notNull: { msg: "El número de huéspedes es obligatorio" },
+      isInt: { msg: "O número de hóspedes deve ser um número inteiro." },
+      min: { args: 1, msg: "O número de hóspedes deve ser pelo menos 1." },
+      notNull: { msg: "O número de hóspedes é obrigatório." },
     },
   },
   cabinPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
     validate: {
-      isFloat: true,
-      min: 0,
-      notNull: { msg: "El precio de la cabaña es obligatorio" },
+      isFloat: { msg: "O preço da cabana deve ser um número decimal." },
+      min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
+      notNull: { msg: "O preço da cabana é obrigatório." },
     },
   },
   extrasPrice: {
     type: DataTypes.FLOAT,
     allowNull: true,
     validate: {
-      isFloat: true,
-      min: 0,
+      isFloat: { msg: "O preço dos extras deve ser um número decimal." },
+      min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
     },
   },
   totalPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
     validate: {
-      isFloat: true,
-      min: 0,
-      notNull: { msg: "El precio total es obligatorio" },
+      isFloat: { msg: "O preço total deve ser um número decimal." },
+      min: { args: 0, msg: "O preço total não pode ser negativo." },
+      notNull: { msg: "O preço total é obrigatório." },
     },
   },
   hasBreakfast: {
@@ -97,7 +97,10 @@ const Booking = connection.define("booking", {
     type: DataTypes.STRING(255),
     allowNull: true,
     validate: {
-      len: [0, 255],
+      len: {
+        args: [0, 255],
+        msg: "As observações devem ter no máximo 255 caracteres.",
+      },
     },
   },
   isPaid: {

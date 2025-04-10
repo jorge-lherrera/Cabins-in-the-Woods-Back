@@ -6,8 +6,8 @@ const Guest = connection.define("guest", {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      notNull: { msg: "El nombre completo es obligatorio" },
-      len: [3, 100],
+      notNull: { msg: "O nome completo é obrigatório." },
+      len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres." },
     },
   },
   email: {
@@ -15,29 +15,38 @@ const Guest = connection.define("guest", {
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: { msg: "El correo electrónico no es válido" },
-      notNull: { msg: "El correo electrónico es obligatorio" },
+      isEmail: { msg: "O e-mail fornecido não é válido." },
+      notNull: { msg: "O e-mail é obrigatório." },
     },
   },
   nationality: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      notNull: { msg: "La nacionalidad es obligatoria" },
-      len: [2, 50],
+      notNull: { msg: "A nacionalidade é obrigatória." },
+      len: {
+        args: [2, 50],
+        msg: "A nacionalidade deve ter entre 2 e 50 caracteres.",
+      },
     },
   },
   countryFlag: {
     type: DataTypes.STRING,
     allowNull: true,
+    validate: {
+      isUrl: { msg: "A URL da bandeira do país não é válida." },
+    },
   },
   nationalIdNumber: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
     validate: {
-      notNull: { msg: "El número de identificación nacional es obligatorio" },
-      len: [5, 20],
+      notNull: { msg: "O número de identificação nacional é obrigatório." },
+      len: {
+        args: [5, 20],
+        msg: "O número de identificação deve ter entre 5 e 20 caracteres.",
+      },
     },
   },
 });

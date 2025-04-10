@@ -1,8 +1,5 @@
 "use strict";
 
-/** @type {import('sequelize-cli').Migration} */
-"use strict";
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("bookings", {
@@ -43,22 +40,37 @@ module.exports = {
       numNights: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        validate: {
+          min: 1,
+        },
       },
       numGuests: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        validate: {
+          min: 1,
+        },
       },
       cabinPrice: {
         type: Sequelize.FLOAT,
         allowNull: false,
+        validate: {
+          min: 0,
+        },
       },
       extrasPrice: {
         type: Sequelize.FLOAT,
         allowNull: true,
+        validate: {
+          min: 0,
+        },
       },
       totalPrice: {
         type: Sequelize.FLOAT,
         allowNull: false,
+        validate: {
+          min: 0,
+        },
       },
       hasBreakfast: {
         type: Sequelize.BOOLEAN,
@@ -66,7 +78,7 @@ module.exports = {
         defaultValue: false,
       },
       observations: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
         allowNull: true,
       },
       isPaid: {

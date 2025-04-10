@@ -7,49 +7,52 @@ const Cabin = connection.define("cabin", {
     allowNull: false,
     unique: true,
     validate: {
-      notNull: { msg: "El nombre de la cabaña es obligatorio" },
-      len: [3, 100],
+      notNull: { msg: "O nome da cabana é obrigatório." },
+      len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres." },
     },
   },
   maxCapacity: {
     type: DataTypes.INTEGER,
     allowNull: false,
     validate: {
-      isInt: true,
-      min: 1,
-      notNull: { msg: "La capacidad máxima es obligatoria" },
+      isInt: { msg: "A capacidade máxima deve ser um número inteiro." },
+      min: { args: 1, msg: "A capacidade máxima deve ser pelo menos 1." },
+      notNull: { msg: "A capacidade máxima é obrigatória." },
     },
   },
   regularPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
     validate: {
-      isFloat: true,
-      min: 0,
-      notNull: { msg: "El precio regular es obligatorio" },
+      isFloat: { msg: "O preço regular deve ser um número decimal." },
+      min: { args: 0, msg: "O preço regular não pode ser negativo." },
+      notNull: { msg: "O preço regular é obrigatório." },
     },
   },
   discount: {
     type: DataTypes.FLOAT,
     allowNull: true,
     validate: {
-      isFloat: true,
-      min: 0,
-      max: 100,
+      isFloat: { msg: "O desconto deve ser um número decimal." },
+      min: { args: 0, msg: "O desconto não pode ser negativo." },
+      max: { args: 100, msg: "O desconto não pode ser maior que 100%." },
     },
   },
   image: {
     type: DataTypes.STRING,
     allowNull: true,
     validate: {
-      isUrl: true,
+      isUrl: { msg: "A URL da imagem não é válida." },
     },
   },
   description: {
     type: DataTypes.STRING(500),
     allowNull: true,
     validate: {
-      len: [0, 500],
+      len: {
+        args: [0, 500],
+        msg: "A descrição deve ter no máximo 500 caracteres.",
+      },
     },
   },
 });

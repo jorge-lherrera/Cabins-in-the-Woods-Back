@@ -11,7 +11,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       fullName: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
         allowNull: false,
       },
       email: {
@@ -20,7 +20,7 @@ module.exports = {
         unique: true,
       },
       nationality: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         allowNull: false,
       },
       countryFlag: {
@@ -28,8 +28,9 @@ module.exports = {
         allowNull: true,
       },
       nationalIdNumber: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
         allowNull: false,
+        unique: true,
       },
       createdAt: {
         type: Sequelize.DATE,

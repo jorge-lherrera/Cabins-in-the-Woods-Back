@@ -6,8 +6,8 @@ const Worker = connection.define("worker", {
     type: DataTypes.STRING(100),
     allowNull: false,
     validate: {
-      notNull: { msg: "El nombre es obligatorio" },
-      len: [3, 100],
+      notNull: { msg: "O nome é obrigatório." },
+      len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres." },
     },
   },
   email: {
@@ -15,22 +15,23 @@ const Worker = connection.define("worker", {
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: { msg: "El correo electrónico no es válido" },
-      notNull: { msg: "El correo electrónico es obligatorio" },
+      isEmail: { msg: "O e-mail fornecido não é válido." },
+      notNull: { msg: "O e-mail é obrigatório." },
     },
   },
   avatar: {
     type: DataTypes.STRING,
     allowNull: true,
     validate: {
-      isUrl: { msg: "La URL del avatar no es válida" },
+      isUrl: { msg: "A URL fornecida não é válida." },
     },
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      notNull: { msg: "La contraseña es obligatoria" },
+      notNull: { msg: "A senha é obrigatória." },
+      len: { args: [8, 100], msg: "A senha deve ter pelo menos 8 caracteres." },
     },
   },
 });

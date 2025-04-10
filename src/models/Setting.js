@@ -7,9 +7,9 @@ const Setting = connection.define("setting", {
     allowNull: false,
     defaultValue: 1,
     validate: {
-      isInt: true,
-      min: 1,
-      notNull: { msg: "La longitud mínima de la reserva es obligatoria" },
+      isInt: { msg: "O comprimento mínimo deve ser um número inteiro." },
+      min: { args: 1, msg: "O comprimento mínimo deve ser pelo menos 1." },
+      notNull: { msg: "O comprimento mínimo é obrigatório." },
     },
   },
   maxBookingLength: {
@@ -17,12 +17,14 @@ const Setting = connection.define("setting", {
     allowNull: false,
     defaultValue: 30,
     validate: {
-      isInt: true,
-      min: 1,
-      notNull: { msg: "La longitud máxima de la reserva es obligatoria" },
+      isInt: { msg: "O comprimento máximo deve ser um número inteiro." },
+      min: { args: 1, msg: "O comprimento máximo deve ser pelo menos 1." },
+      notNull: { msg: "O comprimento máximo é obrigatório." },
       isGreaterThanMin(value) {
-        if (value <= this.minBookingLength) {
-          throw new Error("La longitud máxima debe ser mayor que la mínima");
+        if (!this.minBookingLength || value <= this.minBookingLength) {
+          throw new Error(
+            "O comprimento máximo deve ser maior que o comprimento mínimo."
+          );
         }
       },
     },
@@ -32,9 +34,13 @@ const Setting = connection.define("setting", {
     allowNull: false,
     defaultValue: 0.0,
     validate: {
-      isFloat: true,
-      min: 0,
-      notNull: { msg: "El precio del desayuno es obligatorio" },
+      isFloat: { msg: "O preço do café da manhã deve ser um número decimal." },
+      min: { args: 0, msg: "O preço do café da manhã não pode ser negativo." },
+      notNull: { msg: "O preço do café da manhã é obrigatório." },
+      max: {
+        args: 100,
+        msg: "O preço do café da manhã não pode ser maior que 100.",
+      },
     },
   },
 });
