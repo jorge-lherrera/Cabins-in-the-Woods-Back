@@ -1,12 +1,11 @@
 const Worker = require("../models/Worker");
 const { sign } = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { loginSchema } = require("../validations/validationSchemas");
+const { loginSchema } = require("../validations/loginValidation");
 
 class LoginController {
   async login(req, res) {
     try {
-      // Validar os dados de entrada
       await loginSchema.validate(req.body, {
         abortEarly: false,
         strict: true,
@@ -14,7 +13,6 @@ class LoginController {
 
       const { email, password } = req.body;
 
-      // Buscar o usuário pelo e-mail
       const worker = await Worker.findOne({
         where: { email: email },
       });
@@ -25,7 +23,6 @@ class LoginController {
           .json({ erro: "Usuário não encontrado ou senha inválida." });
       }
 
-      // Verificar a senha
       const hashSenha = await bcrypt.compare(password, worker.password);
       if (!hashSenha) {
         return res
@@ -33,15 +30,13 @@ class LoginController {
           .json({ erro: "Usuário não encontrado ou senha inválida." });
       }
 
-      // Gerar o token JWT
       const payload = { sub: worker.id, name: worker.name };
       const token = sign(payload, process.env.SECRET_JWT, { expiresIn: "60m" });
 
-      // Configurar o cookie com o token
       res.cookie("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 1000, // 1 hora
+        maxAge: 60 * 60 * 1000,
         sameSite: "strict",
       });
 
