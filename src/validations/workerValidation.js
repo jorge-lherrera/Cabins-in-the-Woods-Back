@@ -1,19 +1,13 @@
 const Yup = require("yup");
+const { validateStringLength } = require("./validationUtils");
 
 const workerValidation = Yup.object().shape({
-  name: Yup.string()
-    .min(3, "El nombre debe tener al menos 3 caracteres.")
-    .max(100, "El nombre no puede tener más de 100 caracteres.")
-    .required("El nombre es obligatorio."),
+  name: validateStringLength("nome", 3, 100),
   email: Yup.string()
-    .email("El correo electrónico no es válido.")
-    .required("El correo electrónico es obligatorio."),
-  avatar: Yup.string()
-    .url("La URL del avatar no es válida.")
-    .nullable(),
-  password: Yup.string()
-    .min(8, "La contraseña debe tener al menos 8 caracteres.")
-    .required("La contraseña es obligatoria."),
+    .email("O e-mail fornecido não é válido.")
+    .required("O e-mail é obrigatório."),
+  avatar: Yup.string().url("A URL do avatar não é válida.").nullable(),
+  password: validateStringLength("senha", 8, 100),
 });
 
 module.exports = workerValidation;

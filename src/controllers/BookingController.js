@@ -62,6 +62,7 @@ class BookingController {
       if (error.name === "ValidationError") {
         return res.status(400).json({ errors: error.errors });
       }
+      console.log(error);
       res.status(500).json({ error: "Erro ao criar a reserva." });
     }
   }

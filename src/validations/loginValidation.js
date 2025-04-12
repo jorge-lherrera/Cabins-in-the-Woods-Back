@@ -1,4 +1,5 @@
 const yup = require("yup");
+const { validateStringLength } = require("./validationUtils");
 
 const loginSchema = yup
   .object()
@@ -7,10 +8,7 @@ const loginSchema = yup
       .string()
       .email("O email fornecido não é válido.")
       .required("O email é obrigatório."),
-    password: yup
-      .string()
-      .min(8, "A senha deve ter pelo menos 8 caracteres.")
-      .required("A senha é obrigatória."),
+    password: validateStringLength("senha", 8, 100),
   })
   .noUnknown(
     true,

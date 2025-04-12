@@ -50,10 +50,35 @@ class CabinController {
 
   async createCabin(req, res) {
     try {
-      await cabinValidation.validate(req.body, { abortEarly: false });
+      await cabinValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
-      const cabin = await Cabin.create(req.body);
-      res.status(201).json(cabin);
+      const { name, maxCapacity, regularPrice, discount, image, description } =
+        req.body;
+
+      const existingCabin = await Cabin.findOne({ where: { name } });
+
+      if (existingCabin) {
+        return res.status(409).json({
+          message: "O nome da cabana já existe. Por favor, escolha outro.",
+        });
+      }
+
+      const cabin = await Cabin.create({
+        name,
+        maxCapacity: Number(maxCapacity),
+        regularPrice: Number(regularPrice),
+        discount: discount !== null ? Number(discount) : null,
+        image,
+        description,
+      });
+
+      res.status(201).json({
+        message: "Cabana criada com sucesso.",
+        cabin,
+      });
     } catch (error) {
       if (error.name === "ValidationError") {
         return res.status(400).json({
@@ -61,10 +86,17 @@ class CabinController {
           detalhes: error.errors,
         });
       }
+
       if (error.name === "SequelizeUniqueConstraintError") {
-        return res.status(400).json({ error: "O nome da cabana já existe." });
+        return res.status(400).json({
+          error: "O nome da cabana já existe.",
+        });
       }
-      res.status(500).json({ error: "Erro ao criar a cabana." });
+
+      console.error("Erro ao cadastrar cabana:", error);
+      res.status(500).json({
+        error: "Não foi possível efetuar o cadastro da cabana.",
+      });
     }
   }
 
