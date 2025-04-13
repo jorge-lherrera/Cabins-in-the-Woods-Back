@@ -46,7 +46,10 @@ class BookingController {
 
   async createBooking(req, res) {
     try {
-      await bookingValidation.validate(req.body, { abortEarly: false });
+      await bookingValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
       const { cabinId, guestId, ...data } = req.body;
 

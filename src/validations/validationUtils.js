@@ -18,4 +18,12 @@ const validateStringLength = (fieldName, min, max) =>
     .max(max, `O campo ${fieldName} não pode ter mais de ${max} caracteres`)
     .required(`O campo ${fieldName} é obrigatório`);
 
-module.exports = { positiveNumber, positiveInteger, validateStringLength };
+const applyNoUnknown = (schema, message) =>
+  schema.noUnknown(true, message || "Campos adicionais não são permitidos.");
+
+module.exports = {
+  positiveNumber,
+  positiveInteger,
+  validateStringLength,
+  applyNoUnknown,
+};

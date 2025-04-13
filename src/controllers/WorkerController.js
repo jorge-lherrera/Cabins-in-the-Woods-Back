@@ -24,7 +24,10 @@ class WorkerController {
 
   async createWorker(req, res) {
     try {
-      await workerValidation.validate(req.body, { abortEarly: false });
+      await workerValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
       const { name, email, avatar, password } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);

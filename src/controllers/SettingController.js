@@ -13,7 +13,10 @@ class SettingController {
 
   async createSetting(req, res) {
     try {
-      await settingValidation.validate(req.body, { abortEarly: false });
+      await settingValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
       const setting = await Setting.create(req.body);
       res.status(201).json(setting);

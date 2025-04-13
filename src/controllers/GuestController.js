@@ -50,7 +50,10 @@ class GuestController {
 
   async createGuest(req, res) {
     try {
-      await guestValidation.validate(req.body, { abortEarly: false });
+      await guestValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
       const guest = await Guest.create(req.body);
       res.status(201).json(guest);
