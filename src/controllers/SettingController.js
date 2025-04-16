@@ -1,6 +1,5 @@
 const Setting = require("../models/Setting");
 const settingValidation = require("../validations/settingValidation");
-
 const MESSAGES = require("../utils/messages");
 
 class SettingController {
@@ -16,7 +15,7 @@ class SettingController {
 
       return res.status(200).json(settings);
     } catch (error) {
-      res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
+      return res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
     }
   }
 
@@ -52,9 +51,9 @@ class SettingController {
           detalhes: error.errors,
         });
       }
-      res
+      return res
         .status(500)
-        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("configuração") });
+        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("Configuração") });
     }
   }
 
@@ -96,9 +95,9 @@ class SettingController {
           detalhes: error.errors,
         });
       }
-      res
+      return res
         .status(500)
-        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("configuração") });
+        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("Configuração") });
     }
   }
 }
