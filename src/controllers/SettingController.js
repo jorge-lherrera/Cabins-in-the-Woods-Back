@@ -1,6 +1,6 @@
 const Setting = require("../models/Setting");
 const settingValidation = require("../validations/settingValidation");
-<<<<<<< HEAD
+
 const MESSAGES = require("../utils/messages");
 =======
 >>>>>>> 078610e6bb36b363a5af1cfd0141ccc142b96f71
@@ -11,11 +11,7 @@ class SettingController {
       const settings = await Setting.findAll();
       res.json(settings);
     } catch (error) {
-<<<<<<< HEAD
-      return res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
-=======
-      res.status(500).json({ error: "Error al obtener las configuraciones" });
->>>>>>> 078610e6bb36b363a5af1cfd0141ccc142b96f71
+      res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
     }
   }
 
@@ -35,13 +31,9 @@ class SettingController {
           detalles: error.errors,
         });
       }
-<<<<<<< HEAD
-      return res
+      res
         .status(500)
-        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("Configuração") });
-=======
-      res.status(500).json({ error: "Error al crear la configuración" });
->>>>>>> 078610e6bb36b363a5af1cfd0141ccc142b96f71
+        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("configuração") });
     }
   }
 
@@ -69,13 +61,9 @@ class SettingController {
           detalles: error.errors,
         });
       }
-<<<<<<< HEAD
-      return res
+      res
         .status(500)
-        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("Configuração") });
-=======
-      res.status(500).json({ error: "Error al actualizar la configuración" });
->>>>>>> 078610e6bb36b363a5af1cfd0141ccc142b96f71
+        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("configuração") });
     }
   }
 }

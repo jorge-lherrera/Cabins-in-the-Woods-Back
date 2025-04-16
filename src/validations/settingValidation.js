@@ -8,13 +8,7 @@ const {
 const settingValidation = applyNoUnknown(
   Yup.object().shape({
     minBookingLength: positiveInteger("duração mínima"),
-    maxBookingLength: positiveInteger("duração máxima").test(
-      "is-greater-than-min",
-      "A duração máxima deve ser maior que a duração mínima.",
-      function (value) {
-        return value > this.parent.minBookingLength;
-      }
-    ),
+    maxBookingLength: positiveInteger("duração máxima"),
     breakfastPrice: positiveNumber("preço do café da manhã").required(
       "O preço do café da manhã é obrigatório."
     ),
