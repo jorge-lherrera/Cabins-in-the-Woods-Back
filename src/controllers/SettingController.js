@@ -1,104 +1,61 @@
 const Setting = require("../models/Setting");
 const settingValidation = require("../validations/settingValidation");
 
-const MESSAGES = require("../utils/messages");
-
 class SettingController {
-  async getSettings(req, res) {
+  async getAllSettings(req, res) {
     try {
-      const settings = await Setting.findOne();
-
-      if (!settings) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Configuração") });
-      }
-
-      return res.status(200).json(settings);
+      const settings = await Setting.findAll();
+      res.json(settings);
     } catch (error) {
-      res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
+      res.status(500).json({ error: "Error al obtener las configuraciones" });
     }
   }
 
   async createSetting(req, res) {
     try {
-      const existingSetting = await Setting.findOne();
-
-      if (existingSetting) {
-        return res.status(400).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
-      }
-
       await settingValidation.validate(req.body, {
         abortEarly: false,
         strict: true,
       });
 
-      const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
-
-      const setting = await Setting.create({
-        minBookingLength,
-        maxBookingLength,
-        breakfastPrice,
-      });
-
-      return res.status(201).json({
-        message: MESSAGES.GENERAL.CREATE_SUCCESS("Configuração"),
-        setting,
-      });
+      const setting = await Setting.create(req.body);
+      res.status(201).json(setting);
     } catch (error) {
       if (error.name === "ValidationError") {
         return res.status(400).json({
-          message: MESSAGES.GENERAL.VALIDATION_ERROR,
-          detalhes: error.errors,
+          message: "Errores de validación en los datos proporcionados.",
+          detalles: error.errors,
         });
       }
-      res
-        .status(500)
-        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("configuração") });
+      res.status(500).json({ error: "Error al crear la configuración" });
     }
   }
 
   async updateSetting(req, res) {
     try {
-      const existingSetting = await Setting.findOne();
-
-      if (!existingSetting) {
+      const { id } = req.params;
+      if (isNaN(id)) {
         return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Configuração") });
+          .status(400)
+          .json({ error: "El ID debe ser un número válido." });
       }
 
-      await settingValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
+      await settingValidation.validate(req.body, { abortEarly: false });
 
-      const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
+      const updated = await Setting.update(req.body, { where: { id } });
+      if (!updated[0]) {
+        return res.status(404).json({ error: "Configuración no encontrada" });
+      }
 
-      await Setting.update(
-        {
-          minBookingLength,
-          maxBookingLength,
-          breakfastPrice,
-        },
-        {
-          where: { id: existingSetting.id },
-        }
-      );
-
-      return res.status(200).json({
-        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
-      });
+      res.json({ message: "Configuración actualizada correctamente" });
     } catch (error) {
       if (error.name === "ValidationError") {
         return res.status(400).json({
-          message: MESSAGES.GENERAL.VALIDATION_ERROR,
-          detalhes: error.errors,
+          message: "Errores de validación en los datos proporcionados.",
+          detalles: error.errors,
         });
       }
-      res
-        .status(500)
-        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("configuração") });
+      res.status(500).json({ error: "Error al actualizar la configuración" });
     }
   }
 }
