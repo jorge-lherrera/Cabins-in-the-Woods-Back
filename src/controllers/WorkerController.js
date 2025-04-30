@@ -1,24 +1,26 @@
 const Worker = require("../models/Worker");
 const bcrypt = require("bcrypt");
 const workerValidation = require("../validations/workerValidation");
+const MESSAGES = require("../utils/messages");
 
 class WorkerController {
   async getWorkerById(req, res) {
     try {
       const { id } = req.params;
+
       if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ error: "El ID debe ser un número válido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       const worker = await Worker.findByPk(id);
+
       if (!worker) {
-        return res.status(404).json({ error: "Trabajador no encontrado" });
+        return res.status(404).json({ error: "Funcionarío não encontrado." });
       }
-      res.json(worker);
+
+      return res.status(200).json(worker);
     } catch (error) {
-      res.status(500).json({ error: "Error al obtener el trabajador" });
+      return res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
     }
   }
 
@@ -30,6 +32,17 @@ class WorkerController {
       });
 
       const { name, email, avatar, password } = req.body;
+
+      const existingWorker = await Worker.findOne({
+        where: { email },
+      });
+
+      if (existingWorker) {
+        return res.status(409).json({
+          message: "O email inserido já existe. Por favor, escolha outro.",
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const worker = await Worker.create({
@@ -38,68 +51,77 @@ class WorkerController {
         avatar,
         password: hashedPassword,
       });
-      res.status(201).json(worker);
+
+      return res.status(201).json({
+        message: MESSAGES.GENERAL.CREATE_SUCCESS("Funcionarío"),
+        worker,
+      });
     } catch (error) {
       if (error.name === "ValidationError") {
         return res.status(400).json({
-          message: "Errores de validación en los datos proporcionados.",
-          detalles: error.errors,
+          message: MESSAGES.GENERAL.VALIDATION_ERROR,
+          detalhes: error.errors,
         });
       }
-      if (error.name === "SequelizeUniqueConstraintError") {
-        return res
-          .status(400)
-          .json({ error: "El correo electrónico ya está en uso." });
-      }
-      res.status(500).json({ error: "Error al crear el trabajador" });
+      return res
+        .status(500)
+        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("Funcionarío") });
     }
   }
 
   async updateWorker(req, res) {
     try {
       const { id } = req.params;
+
       if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ error: "El ID debe ser un número válido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       await workerValidation.validate(req.body, { abortEarly: false });
 
       const updated = await Worker.update(req.body, { where: { id } });
+
       if (!updated[0]) {
-        return res.status(404).json({ error: "Trabajador no encontrado" });
+        return res.status(404).json({ error: "Funcionarío não encontrado." });
       }
 
-      res.json({ message: "Trabajador actualizado correctamente" });
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Funcionarío"),
+      });
     } catch (error) {
       if (error.name === "ValidationError") {
         return res.status(400).json({
-          message: "Errores de validación en los datos proporcionados.",
-          detalles: error.errors,
+          message: MESSAGES.GENERAL.VALIDATION_ERROR,
+          detalhes: error.errors,
         });
       }
-      res.status(500).json({ error: "Error al actualizar el trabajador" });
+      return res
+        .status(500)
+        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("Funcionarío") });
     }
   }
 
   async deleteWorker(req, res) {
     try {
       const { id } = req.params;
+
       if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ error: "El ID debe ser un número válido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       const deleted = await Worker.destroy({ where: { id } });
+
       if (!deleted) {
-        return res.status(404).json({ error: "Trabajador no encontrado" });
+        return res.status(404).json({ error: "Funcionarío não encontrado." });
       }
 
-      res.json({ message: "Trabajador eliminado correctamente" });
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.DELETE_SUCCESS("Funcionarío"),
+      });
     } catch (error) {
-      res.status(500).json({ error: "Error al eliminar el trabajador" });
+      return res
+        .status(500)
+        .json({ error: MESSAGES.GENERAL.DELETE_ERROR("Funcionarío") });
     }
   }
 }

@@ -14,6 +14,7 @@ const positiveInteger = (fieldName) =>
 
 const validateStringLength = (fieldName, min, max) =>
   Yup.string()
+    .typeError(`O campo ${fieldName} deve ser uma string`)
     .min(min, `O campo ${fieldName} deve ter pelo menos ${min} caracteres`)
     .max(max, `O campo ${fieldName} não pode ter mais de ${max} caracteres`)
     .required(`O campo ${fieldName} é obrigatório`);
