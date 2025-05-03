@@ -1,10 +1,9 @@
 const Setting = require("../models/Setting");
 const settingValidation = require("../validations/settingValidation");
-
 const MESSAGES = require("../utils/messages");
 
 class SettingController {
-  async getSettings(req, res) {
+  async getSettings(req, res, next) {
     try {
       const settings = await Setting.findOne();
 
@@ -16,16 +15,16 @@ class SettingController {
 
       return res.status(200).json(settings);
     } catch (error) {
-      return res.status(500).json({ error: MESSAGES.GENERAL.SERVER_ERROR });
+      next(error);
     }
   }
 
-  async createSetting(req, res) {
+  async createSetting(req, res, next) {
     try {
       const existingSetting = await Setting.findOne();
 
       if (existingSetting) {
-        return res.status(400).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
+        return res.status(409).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
       }
 
       await settingValidation.validate(req.body, {
@@ -46,19 +45,11 @@ class SettingController {
         setting,
       });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({
-          message: MESSAGES.GENERAL.VALIDATION_ERROR,
-          detalhes: error.errors,
-        });
-      }
-      return res
-        .status(500)
-        .json({ error: MESSAGES.GENERAL.CREATE_ERROR("Configuração") });
+      next(error);
     }
   }
 
-  async updateSetting(req, res) {
+  async updateSetting(req, res, next) {
     try {
       const existingSetting = await Setting.findOne();
 
@@ -90,15 +81,7 @@ class SettingController {
         message: MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
       });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({
-          message: MESSAGES.GENERAL.VALIDATION_ERROR,
-          detalhes: error.errors,
-        });
-      }
-      return res
-        .status(500)
-        .json({ error: MESSAGES.GENERAL.UPDATE_ERROR("Configuração") });
+      next(error);
     }
   }
 }

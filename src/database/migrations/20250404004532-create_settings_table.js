@@ -11,21 +11,20 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
         defaultValue: 1,
+        unique: true,
       },
       minBookingLength: {
         type: INTEGER,
         allowNull: false,
-        defaultValue: 1,
       },
       maxBookingLength: {
         type: INTEGER,
         allowNull: false,
-        defaultValue: 30,
       },
+
       breakfastPrice: {
         type: FLOAT,
         allowNull: false,
-        defaultValue: 0.0,
       },
       createdAt: {
         type: DATE,
@@ -50,7 +49,7 @@ module.exports = {
       fields: ["maxBookingLength"],
       type: "check",
       where: {
-        maxBookingLength: { [Op.gte]: Sequelize.col("minBookingLength") },
+        maxBookingLength: { [Op.gt]: Sequelize.col("minBookingLength") },
       },
       name: "check_max_booking_length",
     });

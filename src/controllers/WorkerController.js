@@ -1,5 +1,5 @@
-const Worker = require("../models/Worker");
 const bcrypt = require("bcrypt");
+const Worker = require("../models/Worker");
 const workerValidation = require("../validations/workerValidation");
 const MESSAGES = require("../utils/messages");
 
@@ -39,7 +39,7 @@ class WorkerController {
 
       if (existingWorker) {
         return res.status(409).json({
-          message: "O email inserido já existe. Por favor, escolha outro.",
+          error: MESSAGES.WORKER.EMAIL_IN_USE,
         });
       }
 

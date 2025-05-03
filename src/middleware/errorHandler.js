@@ -9,6 +9,7 @@ function errorHandler(err, req, res, next) {
 
   if (err instanceof ValidationError) {
     return res.status(400).json({
+      source: "validation - controllers",
       message: "Erro de validação",
       detalhes: err.errors,
     });
@@ -16,6 +17,7 @@ function errorHandler(err, req, res, next) {
 
   if (err instanceof SequelizeValidationError) {
     return res.status(400).json({
+      source: "validation - models",
       message: "Erro de validação do banco de dados",
       detalhes: err.errors.map((e) => e.message),
     });
@@ -23,12 +25,14 @@ function errorHandler(err, req, res, next) {
 
   if (err instanceof DatabaseError) {
     return res.status(500).json({
+      source: "database - migrations",
       message: "Erro no banco de dados",
       detalhes: err.message,
     });
   }
 
   return res.status(500).json({
+    source: "server - unknown",
     message: "Erro interno no servidor",
     detalhes: err.message || "Algo inesperado aconteceu.",
   });

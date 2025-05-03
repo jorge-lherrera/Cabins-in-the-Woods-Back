@@ -68,9 +68,9 @@ class CabinController {
 
       const cabin = await Cabin.create({
         name,
-        maxCapacity: Number(maxCapacity),
-        regularPrice: Number(regularPrice),
-        discount: discount !== null ? Number(discount) : null,
+        maxCapacity,
+        regularPrice,
+        discount,
         image,
         description,
       });

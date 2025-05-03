@@ -4,12 +4,16 @@ const { connection } = require("./database/connection");
 const routes = require("./routes/routes");
 const cookieParser = require("cookie-parser");
 const PORT_API = process.env.PORT_API;
+// const successHandler = require("./middleware/successHandler");
+const errorHandler = require("./middleware/errorHandler");
 
 class Server {
   constructor(server = express()) {
     this.middlewares(server);
-    this.database();
     server.use(routes);
+    this.errorMiddleware(server);
+
+    this.database();
     this.initializeServer(server);
   }
 
@@ -17,6 +21,10 @@ class Server {
     app.use(cors());
     app.use(express.json());
     app.use(cookieParser());
+  }
+
+  errorMiddleware(app) {
+    app.use(errorHandler);
   }
 
   async database() {
