@@ -25,6 +25,9 @@ const MESSAGES = {
   },
   WORKER: {
     EMAIL_IN_USE: "O e-mail já está em uso.",
+    INVALID_CURRENT_PASSWORD: "A senha atual está incorreta.",
+    CURRENT_PASSWORD_REQUIRED:
+      "A senha atual é obrigatória para atualizar a senha.",
   },
   GUEST: {
     EMAIL_OR_ID_EXISTS: "O e-mail ou número de identificação já existe.",

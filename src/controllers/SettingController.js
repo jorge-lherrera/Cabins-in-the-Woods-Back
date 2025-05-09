@@ -21,18 +21,18 @@ class SettingController {
 
   async createSetting(req, res, next) {
     try {
-      const existingSetting = await Setting.findOne();
-
-      if (existingSetting) {
-        return res.status(409).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
-      }
-
       await settingValidation.validate(req.body, {
         abortEarly: false,
         strict: true,
       });
 
       const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
+
+      const existingSetting = await Setting.findOne();
+
+      if (existingSetting) {
+        return res.status(409).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
+      }
 
       const setting = await Setting.create({
         minBookingLength,
