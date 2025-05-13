@@ -78,6 +78,17 @@ module.exports = {
       },
       name: "check_avatar_url",
     });
+
+    await queryInterface.addConstraint("workers", {
+      fields: ["password"],
+      type: "check",
+      where: {
+        password: {
+          [Op.and]: [{ [Op.ne]: "" }, { [Op.gte]: 8 }, { [Op.lte]: 100 }],
+        },
+      },
+      name: "check_password_length",
+    });
   },
 
   async down(queryInterface) {
