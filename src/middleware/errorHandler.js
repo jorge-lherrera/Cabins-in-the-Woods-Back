@@ -23,6 +23,14 @@ function errorHandler(err, req, res, next) {
     });
   }
 
+  if (err.name === "SequelizeUniqueConstraintError") {
+    return res.status(400).json({
+      source: "validation - models",
+      message: "Erro de unicidade",
+      detalhes: err.errors.map((e) => e.message),
+    });
+  }
+
   if (err instanceof DatabaseError) {
     return res.status(500).json({
       source: "database - migrations",

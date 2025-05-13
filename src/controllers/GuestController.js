@@ -1,9 +1,10 @@
-const Guest = require("../models/Guest");
 const Booking = require("../models/Booking");
+const Guest = require("../models/Guest");
 const guestValidation = require("../validations/guestValidation");
+const MESSAGES = require("../utils/messages");
 
 class GuestController {
-  async getAllGuests(req, res) {
+  async getAllGuests(req, res, next) {
     try {
       const { page = 1, limit = 10 } = req.query;
       const offset = (page - 1) * limit;
@@ -14,24 +15,22 @@ class GuestController {
         offset: parseInt(offset),
       });
 
-      res.json({
+      return res.status(200).json({
         total: guests.count,
         page: parseInt(page),
         totalPages: Math.ceil(guests.count / limit),
         data: guests.rows,
       });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao obter os hóspedes." });
+      next(error);
     }
   }
 
-  async getGuestById(req, res) {
+  async getGuestById(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       const guest = await Guest.findByPk(id, {
@@ -39,85 +38,122 @@ class GuestController {
       });
 
       if (!guest) {
-        return res.status(404).json({ error: "Hóspede não encontrado." });
+        return res
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
       }
 
-      res.json(guest);
+      return res.status(200).json(guest);
     } catch (error) {
-      res.status(500).json({ error: "Erro ao obter o hóspede." });
+      next(error);
     }
   }
 
-  async createGuest(req, res) {
+  async createGuest(req, res, next) {
     try {
       await guestValidation.validate(req.body, {
         abortEarly: false,
         strict: true,
       });
 
-      const guest = await Guest.create(req.body);
-      res.status(201).json(guest);
-    } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({
-          message: "Erro de validação nos dados fornecidos.",
-          detalhes: error.errors,
-        });
-      }
-      if (error.name === "SequelizeUniqueConstraintError") {
+      const { fullName, email, nationality, countryFlag, nationalIdNumber } =
+        req.body;
+
+      const existingGuest = await Guest.findOne({
+        where: {
+          email,
+          nationalIdNumber,
+        },
+      });
+
+      if (existingGuest) {
         return res
-          .status(400)
-          .json({ error: "O e-mail ou número de identificação já existe." });
+          .status(409)
+          .json({ error: MESSAGES.GUEST.EMAIL_OR_ID_EXISTS });
       }
-      res.status(500).json({ error: "Erro ao criar o hóspede." });
+
+      const guest = await Guest.create({
+        fullName,
+        email,
+        nationality,
+        countryFlag,
+        nationalIdNumber,
+      });
+
+      return res.status(201).json({
+        message: MESSAGES.GENERAL.CREATE_SUCCESS("Hóspede"),
+        guest,
+      });
+    } catch (error) {
+      next(error);
     }
   }
 
-  async updateGuest(req, res) {
+  async updateGuest(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+      }
+
+      const existingGuest = await Guest.findByPk(id);
+      if (!existingGuest) {
         return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
       }
 
-      await guestValidation.validate(req.body, { abortEarly: false });
+      await guestValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
-      const updated = await Guest.update(req.body, { where: { id } });
-      if (!updated[0]) {
-        return res.status(404).json({ error: "Hóspede não encontrado." });
+      const { fullName, email, nationality, countryFlag, nationalIdNumber } =
+        req.body;
+
+      if (
+        existingGuest.email === email ||
+        existingGuest.nationalIdNumber === nationalIdNumber
+      ) {
+        return res
+          .status(409)
+          .json({ error: MESSAGES.GUEST.EMAIL_OR_ID_EXISTS });
       }
 
-      res.json({ message: "Hóspede atualizado com sucesso." });
+      await Guest.update(
+        { fullName, email, nationality, countryFlag, nationalIdNumber },
+        { where: { id } }
+      );
+
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Hóspede"),
+      });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({
-          message: "Erro de validação nos dados fornecidos.",
-          detalhes: error.errors,
-        });
-      }
-      res.status(500).json({ error: "Erro ao atualizar o hóspede." });
+      next(error);
     }
   }
 
-  async deleteGuest(req, res) {
+  async deleteGuest(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+      }
+
+      const existingGuest = await Guest.findByPk(id);
+      if (!existingGuest) {
         return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
       }
 
-      const deleted = await Guest.destroy({ where: { id } });
-      if (!deleted) {
-        return res.status(404).json({ error: "Hóspede não encontrado." });
-      }
+      await Guest.destroy({ where: { id } });
 
-      res.json({ message: "Hóspede excluído com sucesso." });
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.DELETE_SUCCESS("Hóspede"),
+      });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao excluir o hóspede." });
+      next(error);
     }
   }
 }
