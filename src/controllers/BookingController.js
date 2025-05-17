@@ -2,29 +2,41 @@ const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
 const bookingValidation = require("../validations/bookingValidation");
+const MESSAGES = require("../utils/messages");
+const { Op } = require("sequelize");
 
 class BookingController {
-  async getAllBookings(req, res) {
+  async getAllBookings(req, res, next) {
     try {
-      const bookings = await Booking.findAll({
+      const { page = 1, limit = 10 } = req.query;
+      const parsedLimit = parseInt(limit);
+      const offset = (page - 1) * parsedLimit;
+
+      const bookings = await Booking.findAndCountAll({
         include: [
           { model: Cabin, as: "cabin" },
           { model: Guest, as: "guest" },
         ],
+        limit: parsedLimit,
+        offset: offset,
       });
-      res.json(bookings);
+
+      return res.status(200).json({
+        total: bookings.count,
+        page: parseInt(page),
+        totalPages: Math.ceil(bookings.count / parsedLimit),
+        data: bookings.rows,
+      });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao obter as reservas." });
+      next(error);
     }
   }
 
-  async getBookingById(req, res) {
+  async getBookingById(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       const booking = await Booking.findByPk(id, {
@@ -35,83 +47,231 @@ class BookingController {
       });
 
       if (!booking) {
-        return res.status(404).json({ error: "Reserva não encontrada." });
+        return res
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
       }
 
-      res.json(booking);
+      return res.status(200).json(booking);
     } catch (error) {
-      res.status(500).json({ error: "Erro ao obter a reserva." });
+      next(error);
     }
   }
 
-  async createBooking(req, res) {
+  async createBooking(req, res, next) {
     try {
+      if (typeof req.body.startDate === "string") {
+        req.body.startDate = new Date(req.body.startDate);
+      }
+      if (typeof req.body.endDate === "string") {
+        req.body.endDate = new Date(req.body.endDate);
+      }
+
       await bookingValidation.validate(req.body, {
         abortEarly: false,
         strict: true,
       });
 
-      const { cabinId, guestId, ...data } = req.body;
+      const {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+      } = req.body;
 
       const cabin = await Cabin.findByPk(cabinId);
       const guest = await Guest.findByPk(guestId);
+
       if (!cabin || !guest) {
-        return res.status(400).json({ error: "Cabana ou hóspede inválido." });
+        return res.status(409).json({
+          error: MESSAGES.GENERAL.NOT_FOUND(!cabin ? "Cabana" : "Hóspede"),
+        });
       }
 
-      const booking = await Booking.create({ cabinId, guestId, ...data });
-      res.status(201).json(booking);
-    } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({ errors: error.errors });
+      const overlappingBooking = await Booking.findOne({
+        where: {
+          cabinId,
+          [Op.or]: [
+            {
+              startDate: {
+                [Op.between]: [startDate, endDate],
+              },
+            },
+            {
+              endDate: {
+                [Op.between]: [startDate, endDate],
+              },
+            },
+            {
+              [Op.and]: [
+                { startDate: { [Op.lte]: startDate } },
+                { endDate: { [Op.gte]: endDate } },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (overlappingBooking) {
+        return res.status(409).json({
+          error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
+        });
       }
-      console.log(error);
-      res.status(500).json({ error: "Erro ao criar a reserva." });
+
+      const booking = await Booking.create({
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+      });
+
+      return res.status(201).json({
+        message: MESSAGES.GENERAL.CREATE_SUCCESS("Reserva"),
+        booking,
+      });
+    } catch (error) {
+      next(error);
     }
   }
 
-  async updateBooking(req, res) {
+  async updateBooking(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+      }
+
+      const existingBooking = await Booking.findByPk(id);
+      if (!existingBooking) {
         return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
+      }
+      if (typeof req.body.startDate === "string") {
+        req.body.startDate = new Date(req.body.startDate);
+      }
+      if (typeof req.body.endDate === "string") {
+        req.body.endDate = new Date(req.body.endDate);
       }
 
-      await bookingValidation.validate(req.body, { abortEarly: false });
+      await bookingValidation.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
-      const updated = await Booking.update(req.body, { where: { id } });
-      if (!updated[0]) {
-        return res.status(404).json({ error: "Reserva não encontrada." });
+      const {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+      } = req.body;
+
+      const datesChanged =
+        existingBooking.startDate.getTime() !== new Date(startDate).getTime() ||
+        existingBooking.endDate.getTime() !== new Date(endDate).getTime();
+
+      if (datesChanged) {
+        const overlappingBooking = await Booking.findOne({
+          where: {
+            cabinId,
+            id: { [Op.ne]: id },
+            [Op.or]: [
+              {
+                startDate: {
+                  [Op.between]: [startDate, endDate],
+                },
+              },
+              {
+                endDate: {
+                  [Op.between]: [startDate, endDate],
+                },
+              },
+              {
+                [Op.and]: [
+                  { startDate: { [Op.lte]: startDate } },
+                  { endDate: { [Op.gte]: endDate } },
+                ],
+              },
+            ],
+          },
+        });
+
+        if (overlappingBooking) {
+          return res.status(409).json({
+            error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
+          });
+        }
       }
+      await Booking.update(
+        {
+          cabinId,
+          guestId,
+          startDate,
+          endDate,
+          numNights,
+          numGuests,
+          cabinPrice,
+          extrasPrice,
+          totalPrice,
+          hasBreakfast,
+          observations,
+          isPaid,
+        },
+        { where: { id } }
+      );
 
-      res.json({ message: "Reserva atualizada com sucesso." });
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Reserva"),
+      });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json({ errors: error.errors });
-      }
-      res.status(500).json({ error: "Erro ao atualizar a reserva." });
+      next(error);
     }
   }
 
-  async deleteBooking(req, res) {
+  async deleteBooking(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+      }
+
+      const existingBooking = await Booking.findByPk(id);
+      if (!existingBooking) {
         return res
-          .status(400)
-          .json({ error: "O ID deve ser um número válido." });
+          .status(404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
       }
 
-      const deleted = await Booking.destroy({ where: { id } });
-      if (!deleted) {
-        return res.status(404).json({ error: "Reserva não encontrada." });
-      }
-
-      res.json({ message: "Reserva excluída com sucesso." });
+      await Booking.destroy({ where: { id } });
+      return res.status(200).json({
+        message: MESSAGES.GENERAL.DELETE_SUCCESS("Reserva"),
+      });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao excluir a reserva." });
+      next(error);
     }
   }
 }

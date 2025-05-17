@@ -14,6 +14,8 @@ const MESSAGES = {
   },
   BOOKING: {
     INVALID_CABIN_OR_GUEST: "Cabana ou hóspede inválido.",
+    DUPLICATE_BOOKING:
+      "Já existe uma reserva para esta cabana nas datas selecionadas.",
   },
   CABIN: {
     NAME_EXISTS: "O nome da cabana já existe. Por favor, escolha outro.",
