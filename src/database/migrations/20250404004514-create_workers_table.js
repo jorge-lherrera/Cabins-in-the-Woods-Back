@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, STRING, DATE, Op } = Sequelize;
+    const { INTEGER, STRING, DATE, BOOLEAN } = Sequelize;
 
     await queryInterface.createTable("workers", {
       id: {
@@ -28,6 +28,11 @@ module.exports = {
         type: STRING,
         allowNull: false,
       },
+      status: {
+        type: BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       createdAt: {
         type: DATE,
         allowNull: false,
@@ -41,52 +46,37 @@ module.exports = {
     await queryInterface.addConstraint("workers", {
       fields: ["name"],
       type: "check",
-      where: {
-        name: { [Op.and]: [{ [Op.ne]: "" }, { [Op.lte]: 100 }] },
-      },
+      where: Sequelize.literal('char_length("name") BETWEEN 1 AND 100'),
       name: "check_name_length",
     });
 
     await queryInterface.addConstraint("workers", {
       fields: ["email"],
       type: "check",
-      where: {
-        email: { [Op.lte]: 150 },
-      },
+      where: Sequelize.literal('char_length("email") <= 150'),
       name: "check_email_length",
     });
 
     await queryInterface.addConstraint("workers", {
       fields: ["email"],
       type: "check",
-      where: {
-        email: { [Op.regexp]: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
-      },
+      where: Sequelize.literal("\"email\" ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'"),
       name: "check_email_format",
     });
 
     await queryInterface.addConstraint("workers", {
       fields: ["avatar"],
       type: "check",
-      where: {
-        avatar: {
-          [Op.or]: [
-            { [Op.is]: null },
-            { [Op.regexp]: "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$" },
-          ],
-        },
-      },
+      where: Sequelize.literal(
+        '("avatar" IS NULL OR "avatar" ~ \'^https?://\')'
+      ),
       name: "check_avatar_url",
     });
 
     await queryInterface.addConstraint("workers", {
       fields: ["password"],
       type: "check",
-      where: {
-        password: {
-          [Op.and]: [{ [Op.ne]: "" }, { [Op.gte]: 8 }, { [Op.lte]: 100 }],
-        },
-      },
+      where: Sequelize.literal('char_length("password") BETWEEN 8 AND 100'),
       name: "check_password_length",
     });
   },

@@ -2,16 +2,16 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, STRING, DATE, Op } = Sequelize;
+    const { INTEGER, STRING, DATE } = Sequelize;
 
-    await queryInterface.createTable("workers", {
+    await queryInterface.createTable("guests", {
       id: {
         type: INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
-      name: {
+      fullName: {
         type: STRING(100),
         allowNull: false,
       },
@@ -20,12 +20,18 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      avatar: {
-        type: STRING,
-      },
-      password: {
-        type: STRING,
+      nationality: {
+        type: STRING(50),
         allowNull: false,
+      },
+      countryFlag: {
+        type: STRING,
+        allowNull: true,
+      },
+      nationalIdNumber: {
+        type: STRING(20),
+        allowNull: false,
+        unique: true,
       },
       createdAt: {
         type: DATE,
@@ -37,60 +43,54 @@ module.exports = {
       },
     });
 
-    await queryInterface.addConstraint("workers", {
-      fields: ["name"],
+    await queryInterface.addConstraint("guests", {
+      fields: ["fullName"],
       type: "check",
-      where: {
-        name: { [Op.and]: [{ [Op.ne]: "" }, { [Op.lte]: 100 }] },
-      },
-      name: "check_name_length",
+      where: Sequelize.literal('char_length("fullName") BETWEEN 3 AND 100'),
+      name: "check_fullName_length",
     });
 
-    await queryInterface.addConstraint("workers", {
+    await queryInterface.addConstraint("guests", {
       fields: ["email"],
       type: "check",
-      where: {
-        email: { [Op.lte]: 150 },
-      },
+      where: Sequelize.literal('char_length("email") <= 150'),
       name: "check_email_length",
     });
 
-    await queryInterface.addConstraint("workers", {
+    await queryInterface.addConstraint("guests", {
       fields: ["email"],
       type: "check",
-      where: {
-        email: { [Op.regexp]: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
-      },
+      where: Sequelize.literal("\"email\" ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'"),
       name: "check_email_format",
     });
 
-    await queryInterface.addConstraint("workers", {
-      fields: ["avatar"],
+    await queryInterface.addConstraint("guests", {
+      fields: ["nationality"],
       type: "check",
-      where: {
-        avatar: {
-          [Op.or]: [
-            { [Op.is]: null },
-            { [Op.regexp]: "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$" },
-          ],
-        },
-      },
-      name: "check_avatar_url",
+      where: Sequelize.literal('char_length("nationality") BETWEEN 2 AND 50'),
+      name: "check_nationality_length",
     });
 
-    await queryInterface.addConstraint("workers", {
-      fields: ["password"],
+    await queryInterface.addConstraint("guests", {
+      fields: ["countryFlag"],
       type: "check",
-      where: {
-        password: {
-          [Op.and]: [{ [Op.ne]: "" }, { [Op.gte]: 8 }, { [Op.lte]: 100 }],
-        },
-      },
-      name: "check_password_length",
+      where: Sequelize.literal(
+        '("countryFlag" IS NULL OR "countryFlag" ~ \'^https?://\')'
+      ),
+      name: "check_countryFlag_url",
+    });
+
+    await queryInterface.addConstraint("guests", {
+      fields: ["nationalIdNumber"],
+      type: "check",
+      where: Sequelize.literal(
+        'char_length("nationalIdNumber") BETWEEN 5 AND 20'
+      ),
+      name: "check_nationalIdNumber_length",
     });
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable("workers");
+    await queryInterface.dropTable("guests");
   },
 };

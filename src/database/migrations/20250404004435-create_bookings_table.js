@@ -2,15 +2,17 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const { INTEGER, STRING, FLOAT, DATE, BOOLEAN } = Sequelize;
+
     await queryInterface.createTable("bookings", {
       id: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
       cabinId: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         allowNull: false,
         references: {
           model: "cabins",
@@ -20,7 +22,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       guestId: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         allowNull: false,
         references: {
           model: "guests",
@@ -30,74 +32,111 @@ module.exports = {
         onDelete: "CASCADE",
       },
       startDate: {
-        type: Sequelize.DATE,
+        type: DATE,
         allowNull: false,
       },
       endDate: {
-        type: Sequelize.DATE,
+        type: DATE,
         allowNull: false,
       },
       numNights: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         allowNull: false,
-        validate: {
-          min: 1,
-        },
       },
       numGuests: {
-        type: Sequelize.INTEGER,
+        type: INTEGER,
         allowNull: false,
-        validate: {
-          min: 1,
-        },
       },
       cabinPrice: {
-        type: Sequelize.FLOAT,
+        type: FLOAT,
         allowNull: false,
-        validate: {
-          min: 0,
-        },
       },
       extrasPrice: {
-        type: Sequelize.FLOAT,
+        type: FLOAT,
         allowNull: true,
-        validate: {
-          min: 0,
-        },
       },
       totalPrice: {
-        type: Sequelize.FLOAT,
+        type: FLOAT,
         allowNull: false,
-        validate: {
-          min: 0,
-        },
       },
       hasBreakfast: {
-        type: Sequelize.BOOLEAN,
+        type: BOOLEAN,
         allowNull: false,
         defaultValue: false,
       },
       observations: {
-        type: Sequelize.STRING(255),
+        type: STRING(255),
         allowNull: true,
       },
       isPaid: {
-        type: Sequelize.BOOLEAN,
+        type: BOOLEAN,
         allowNull: false,
         defaultValue: false,
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: DATE,
         allowNull: false,
       },
       updatedAt: {
-        type: Sequelize.DATE,
+        type: DATE,
         allowNull: false,
       },
     });
+
+    // Constraints
+    await queryInterface.addConstraint("bookings", {
+      fields: ["numNights"],
+      type: "check",
+      where: Sequelize.literal('"numNights" >= 1'),
+      name: "check_num_nights_positive",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["numGuests"],
+      type: "check",
+      where: Sequelize.literal('"numGuests" >= 1'),
+      name: "check_num_guests_positive",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["cabinPrice"],
+      type: "check",
+      where: Sequelize.literal('"cabinPrice" >= 0'),
+      name: "check_cabin_price_non_negative",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["extrasPrice"],
+      type: "check",
+      where: Sequelize.literal('("extrasPrice" IS NULL OR "extrasPrice" >= 0)'),
+      name: "check_extras_price_non_negative",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["totalPrice"],
+      type: "check",
+      where: Sequelize.literal('"totalPrice" >= 0'),
+      name: "check_total_price_non_negative",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["observations"],
+      type: "check",
+      where: Sequelize.literal(
+        '("observations" IS NULL OR char_length("observations") <= 255)'
+      ),
+      name: "check_observations_length",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["startDate", "endDate"],
+      type: "check",
+      where: Sequelize.literal('"endDate" > "startDate"'),
+      name: "check_endDate_after_startDate",
+    });
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable("bookings");
   },
 };

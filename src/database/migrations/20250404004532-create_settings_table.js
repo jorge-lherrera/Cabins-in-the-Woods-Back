@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, FLOAT, DATE, Op } = Sequelize;
+    const { INTEGER, FLOAT, DATE } = Sequelize;
 
     await queryInterface.createTable("settings", {
       id: {
@@ -21,7 +21,6 @@ module.exports = {
         type: INTEGER,
         allowNull: false,
       },
-
       breakfastPrice: {
         type: FLOAT,
         allowNull: false,
@@ -39,27 +38,21 @@ module.exports = {
     await queryInterface.addConstraint("settings", {
       fields: ["minBookingLength"],
       type: "check",
-      where: {
-        minBookingLength: { [Op.gte]: 1 },
-      },
+      where: Sequelize.literal('"minBookingLength" >= 1'),
       name: "check_min_booking_length",
     });
 
     await queryInterface.addConstraint("settings", {
-      fields: ["maxBookingLength"],
+      fields: ["maxBookingLength", "minBookingLength"],
       type: "check",
-      where: {
-        maxBookingLength: { [Op.gt]: Sequelize.col("minBookingLength") },
-      },
+      where: Sequelize.literal('"maxBookingLength" > "minBookingLength"'),
       name: "check_max_booking_length",
     });
 
     await queryInterface.addConstraint("settings", {
       fields: ["breakfastPrice"],
       type: "check",
-      where: {
-        breakfastPrice: { [Op.gte]: 0 },
-      },
+      where: Sequelize.literal('"breakfastPrice" >= 0'),
       name: "check_breakfast_price_positive",
     });
   },
