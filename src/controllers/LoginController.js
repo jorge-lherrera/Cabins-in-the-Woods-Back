@@ -40,9 +40,6 @@ class LoginController {
         sameSite: "strict",
       });
 
-      worker.status = true;
-      await worker.save();
-
       return res.status(200).json({
         worker: {
           id: worker.id,

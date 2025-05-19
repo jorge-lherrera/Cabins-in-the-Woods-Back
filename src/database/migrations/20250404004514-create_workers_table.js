@@ -28,11 +28,7 @@ module.exports = {
         type: STRING,
         allowNull: false,
       },
-      status: {
-        type: BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
+
       createdAt: {
         type: DATE,
         allowNull: false,

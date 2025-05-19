@@ -55,11 +55,6 @@ const Worker = connection.define("worker", {
       },
     },
   },
-  status: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
-  },
 });
 
 module.exports = Worker;
