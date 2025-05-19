@@ -39,6 +39,15 @@ function errorHandler(err, req, res, next) {
     });
   }
 
+  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+    return res.status(401).json({
+      source: "auth - session",
+      message: "Sessão inválida ou expirada",
+      detalhes: err.message,
+      loggedIn: false,
+    });
+  }
+
   return res.status(500).json({
     source: "server - unknown",
     message: "Erro interno no servidor",
