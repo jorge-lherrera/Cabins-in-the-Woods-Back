@@ -31,8 +31,7 @@ class LoginController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 1000,
-        sameSite: "strict",
-        domain: process.env.DOMAIN,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
 
       return res.status(200).json({
