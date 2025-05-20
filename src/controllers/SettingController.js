@@ -1,5 +1,5 @@
 const Setting = require("../models/Setting");
-const settingValidation = require("../validations/settingValidation");
+
 const MESSAGES = require("../utils/messages");
 
 class SettingController {
@@ -21,11 +21,6 @@ class SettingController {
 
   async createSetting(req, res, next) {
     try {
-      await settingValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
 
       const existingSetting = await Setting.findOne();
@@ -58,11 +53,6 @@ class SettingController {
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Configuração") });
       }
-
-      await settingValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
 

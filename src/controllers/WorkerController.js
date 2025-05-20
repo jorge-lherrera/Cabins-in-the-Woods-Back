@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const Worker = require("../models/Worker");
-const workerValidation = require("../validations/workerValidation");
+
 const MESSAGES = require("../utils/messages");
 
 class WorkerController {
@@ -28,11 +28,6 @@ class WorkerController {
 
   async createWorker(req, res, next) {
     try {
-      await workerValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const { name, email, avatar, password } = req.body;
 
       const existingWorker = await Worker.findOne({
@@ -76,11 +71,6 @@ class WorkerController {
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionarío") });
       }
-
-      await workerValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const { name, email, avatar, password, currentPassword } = req.body;
 

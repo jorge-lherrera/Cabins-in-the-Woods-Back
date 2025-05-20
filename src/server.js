@@ -4,6 +4,7 @@ const { connection } = require("./database/connection");
 const routes = require("./routes/routes");
 const cookieParser = require("cookie-parser");
 const PORT_API = process.env.PORT_API;
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
 // const successHandler = require("./middleware/successHandler");
 const errorHandler = require("./middleware/errorHandler");
 
@@ -20,7 +21,7 @@ class Server {
   async middlewares(app) {
     app.use(
       cors({
-        origin: process.env.CORS_ORIGIN,
+        origin: CORS_ORIGIN,
         credentials: true,
       })
     );

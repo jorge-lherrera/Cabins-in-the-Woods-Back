@@ -1,6 +1,6 @@
 const Booking = require("../models/Booking");
 const Guest = require("../models/Guest");
-const guestValidation = require("../validations/guestValidation");
+
 const MESSAGES = require("../utils/messages");
 
 class GuestController {
@@ -51,11 +51,6 @@ class GuestController {
 
   async createGuest(req, res, next) {
     try {
-      await guestValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const { fullName, email, nationality, countryFlag, nationalIdNumber } =
         req.body;
 
@@ -102,11 +97,6 @@ class GuestController {
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
       }
-
-      await guestValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const { fullName, email, nationality, countryFlag, nationalIdNumber } =
         req.body;

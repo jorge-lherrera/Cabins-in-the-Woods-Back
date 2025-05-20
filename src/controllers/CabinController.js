@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Cabin = require("../models/Cabin");
 const Booking = require("../models/Booking");
-const cabinValidation = require("../validations/cabinValidation");
+
 const MESSAGES = require("../utils/messages");
 
 class CabinController {
@@ -53,11 +53,6 @@ class CabinController {
 
   async createCabin(req, res, next) {
     try {
-      await cabinValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const { name, maxCapacity, regularPrice, discount, image, description } =
         req.body;
 
@@ -100,11 +95,6 @@ class CabinController {
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Cabana") });
       }
-
-      await cabinValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const { name, maxCapacity, regularPrice, discount, image, description } =
         req.body;

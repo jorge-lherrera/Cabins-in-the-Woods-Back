@@ -1,7 +1,7 @@
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
-const bookingValidation = require("../validations/bookingValidation");
+
 const MESSAGES = require("../utils/messages");
 const { Op } = require("sequelize");
 
@@ -66,11 +66,6 @@ class BookingController {
       if (typeof req.body.endDate === "string") {
         req.body.endDate = new Date(req.body.endDate);
       }
-
-      await bookingValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const {
         cabinId,
@@ -169,11 +164,6 @@ class BookingController {
       if (typeof req.body.endDate === "string") {
         req.body.endDate = new Date(req.body.endDate);
       }
-
-      await bookingValidation.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const {
         cabinId,

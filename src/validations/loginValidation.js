@@ -1,7 +1,7 @@
 const yup = require("yup");
 const { validateStringLength, applyNoUnknown } = require("./validationUtils");
 
-const loginSchema = applyNoUnknown(
+const loginValidation = applyNoUnknown(
   yup.object().shape({
     email: yup
       .string()
@@ -13,5 +13,5 @@ const loginSchema = applyNoUnknown(
 );
 
 module.exports = {
-  loginSchema,
+  loginValidation,
 };

@@ -1,16 +1,10 @@
 const Worker = require("../models/Worker");
 const { sign } = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { loginSchema } = require("../validations/loginValidation");
 
 class LoginController {
   async login(req, res) {
     try {
-      await loginSchema.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const { email, password } = req.body;
 
       const worker = await Worker.findOne({
@@ -38,6 +32,7 @@ class LoginController {
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 1000,
         sameSite: "strict",
+        domain: process.env.DOMAIN,
       });
 
       return res.status(200).json({
