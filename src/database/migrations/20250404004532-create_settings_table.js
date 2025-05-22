@@ -21,6 +21,11 @@ module.exports = {
         type: INTEGER,
         allowNull: false,
       },
+      maxGuestsPerBooking: {
+        type: INTEGER,
+        allowNull: false,
+      },
+
       breakfastPrice: {
         type: FLOAT,
         allowNull: false,

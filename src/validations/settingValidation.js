@@ -15,6 +15,9 @@ const settingValidation = applyNoUnknown(
         return value > this.parent.minBookingLength;
       }
     ),
+    maxGuestsPerBooking: positiveInteger("máximo de hóspedes por reserva")
+      .required("O campo máximo de hóspedes por reserva é obrigatório.")
+      .min(1, "O número mínimo de hóspedes por reserva deve ser pelo menos 1."),
     breakfastPrice: positiveNumber("preço do café da manhã").required(
       "O preço do café da manhã é obrigatório."
     ),

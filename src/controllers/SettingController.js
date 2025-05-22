@@ -32,6 +32,7 @@ class SettingController {
       const setting = await Setting.create({
         minBookingLength,
         maxBookingLength,
+        maxGuestsPerBooking,
         breakfastPrice,
       });
 
@@ -60,6 +61,7 @@ class SettingController {
         {
           minBookingLength,
           maxBookingLength,
+          maxGuestsPerBooking,
           breakfastPrice,
         },
         {

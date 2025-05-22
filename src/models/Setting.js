@@ -27,6 +27,18 @@ const Setting = connection.define("setting", {
       },
     },
   },
+  maxGuestsPerBooking: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: {
+      isInt: { msg: "O número máximo de hóspedes deve ser um número inteiro." },
+      min: {
+        args: 1,
+        msg: "O número máximo de hóspedes deve ser pelo menos 1.",
+      },
+      notNull: { msg: "O número máximo de hóspedes é obrigatório." },
+    },
+  },
   breakfastPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
