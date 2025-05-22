@@ -21,12 +21,7 @@ bookingRoutes.get(
   "/stays-today-activity",
   BookingController.getStaysTodayActivity
 );
-bookingRoutes.post(
-  "/",
-  validate(bookingValidation),
-  auth,
-  BookingController.createBooking
-);
+bookingRoutes.post("/", auth, BookingController.createBooking);
 bookingRoutes.put(
   "/:id",
   validate(bookingValidation),

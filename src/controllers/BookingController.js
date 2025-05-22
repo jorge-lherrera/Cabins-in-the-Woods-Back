@@ -5,6 +5,8 @@ const Guest = require("../models/Guest");
 const MESSAGES = require("../utils/messages");
 const { Op } = require("sequelize");
 
+const bookingSchema = require("../validations/bookingValidation");
+
 class BookingController {
   async getAllBookings(req, res, next) {
     try {
@@ -90,6 +92,11 @@ class BookingController {
       if (typeof req.body.endDate === "string") {
         req.body.endDate = new Date(req.body.endDate);
       }
+
+      await bookingSchema.validate(req.body, {
+        abortEarly: false,
+        strict: true,
+      });
 
       const {
         cabinId,
