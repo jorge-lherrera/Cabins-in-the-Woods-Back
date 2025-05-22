@@ -10,7 +10,7 @@ const bookingSchema = require("../validations/bookingValidation");
 class BookingController {
   async getAllBookings(req, res, next) {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { page = 1, limit = 10, filter, sortBy } = req.query;
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
 
@@ -39,12 +39,14 @@ class BookingController {
       }
 
       const bookings = await Booking.findAndCountAll({
+        where,
         include: [
           { model: Cabin, as: "cabin" },
           { model: Guest, as: "guest" },
         ],
         limit: parsedLimit,
         offset: offset,
+        order,
       });
 
       return res.status(200).json({
@@ -175,10 +177,11 @@ class BookingController {
       next(error);
     }
   }
+
   async getStaysAfterDate(req, res, next) {
     try {
       const { date } = req.query;
-      if (!date || isNaN(new Date(date))) {
+      if (!date || isNaN(Date.parse(date))) {
         return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
       }
 
@@ -193,15 +196,22 @@ class BookingController {
         order: [["startDate", "ASC"]],
       });
 
+      if (!stays || stays.length === 0) {
+        return res.status(404).json({
+          message: "No se encontraron estancias para la fecha indicada.",
+        });
+      }
+
       return res.status(200).json(stays);
     } catch (error) {
       next(error);
     }
   }
+
   async getBookingsAfterDate(req, res, next) {
     try {
       const { date } = req.query;
-      if (!date || isNaN(new Date(date))) {
+      if (!date || isNaN(Date.parse(date))) {
         return res
           .status(400)
           .json({ error: MESSAGES.GENERAL.INVALID_DATE || "Data inválida" });
@@ -209,29 +219,50 @@ class BookingController {
 
       const bookings = await Booking.findAll({
         where: {
-          created_at: {
+          createdAt: {
             [Op.gte]: new Date(date),
-            [Op.lte]: new Date(), // Hasta hoy
+            [Op.lte]: new Date(),
           },
         },
-        attributes: ["created_at", "totalPrice", "extrasPrice"],
-        order: [["created_at", "ASC"]],
+        attributes: ["createdAt", "totalPrice", "extrasPrice"],
+        order: [["createdAt", "ASC"]],
       });
+
+      if (!bookings || bookings.length === 0) {
+        return res.status(404).json({
+          message: "No se encontraron reservas para la fecha indicada.",
+        });
+      }
 
       return res.status(200).json(bookings);
     } catch (error) {
       next(error);
     }
   }
+
   async getStaysTodayActivity(req, res, next) {
     try {
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      // Rango de hoy (00:00:00 a 23:59:59)
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
 
       const bookings = await Booking.findAll({
         where: {
           [Op.or]: [
-            { status: "unconfirmed", startDate: today },
-            { status: "checked-in", endDate: today },
+            {
+              status: "unconfirmed",
+              startDate: {
+                [Op.between]: [todayStart, todayEnd],
+              },
+            },
+            {
+              status: "checked-in",
+              endDate: {
+                [Op.between]: [todayStart, todayEnd],
+              },
+            },
           ],
         },
         include: [
@@ -248,6 +279,7 @@ class BookingController {
       next(error);
     }
   }
+
   async updateBooking(req, res, next) {
     try {
       const { id } = req.params;
