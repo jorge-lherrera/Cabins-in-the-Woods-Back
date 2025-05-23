@@ -19,7 +19,7 @@ cabinRoutes.post(
   "/:id/duplicate",
   validate(cabinValidation),
   auth,
-  CabinController.createBooking
+  CabinController.duplicateCabin
 );
 cabinRoutes.put(
   "/:id",

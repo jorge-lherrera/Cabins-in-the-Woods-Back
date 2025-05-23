@@ -3,6 +3,7 @@ const MESSAGES = {
     SERVER_ERROR: "Erro interno do servidor.",
     VALIDATION_ERROR: "Erros de validação nos dados fornecidos.",
     INVALID_ID: "O ID deve ser um número válido.",
+    INVALID_DATE: "Data inválida.",
     NOT_FOUND: (resource) => `${resource} não encontrado.`,
     CREATE_SUCCESS: (resource) => `${resource} criado com sucesso.`,
     UPDATE_SUCCESS: (resource) => `${resource} atualizado com sucesso.`,
@@ -12,7 +13,9 @@ const MESSAGES = {
       `Erro ao atualizar o ${resource.toLowerCase()}.`,
     DELETE_ERROR: (resource) => `Erro ao excluir o ${resource.toLowerCase()}.`,
     ASSOCIATED_BOOKINGS:
-      "Não é possível excluir a cabana porque existem reservas associadas.",
+      "Não é possível excluir o hóspede porque existem reservas associadas.",
+    NO_STAYS_FOUND: "Nenhuma estadia encontrada para a data indicada.",
+    NO_BOOKINGS_FOUND: "Nenhuma reserva encontrada para a data indicada.",
   },
   BOOKING: {
     INVALID_CABIN_OR_GUEST: "Cabana ou hóspede inválido.",

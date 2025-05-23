@@ -5,7 +5,6 @@ const validate = require("../middleware/validationsYup");
 const guestValidation = require("../validations/guestValidation");
 const auth = require("../middleware/auth");
 
-// guestRoutes.get("/", auth, GuestController.getAllGuests);
 guestRoutes.get("/:id", auth, GuestController.getGuestById);
 guestRoutes.post(
   "/",

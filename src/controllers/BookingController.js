@@ -120,7 +120,9 @@ class BookingController {
 
       if (!cabin || !guest) {
         return res.status(409).json({
-          error: MESSAGES.GENERAL.NOT_FOUND(!cabin ? "Cabana" : "Hóspede"),
+          error: !cabin
+            ? MESSAGES.GENERAL.NOT_FOUND("Cabana")
+            : MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
         });
       }
 
@@ -198,7 +200,7 @@ class BookingController {
 
       if (!stays || stays.length === 0) {
         return res.status(404).json({
-          message: "No se encontraron estancias para la fecha indicada.",
+          message: MESSAGES.GENERAL.NO_STAYS_FOUND,
         });
       }
 
@@ -212,9 +214,7 @@ class BookingController {
     try {
       const { date } = req.query;
       if (!date || isNaN(Date.parse(date))) {
-        return res
-          .status(400)
-          .json({ error: MESSAGES.GENERAL.INVALID_DATE || "Data inválida" });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
       }
 
       const bookings = await Booking.findAll({
@@ -230,7 +230,7 @@ class BookingController {
 
       if (!bookings || bookings.length === 0) {
         return res.status(404).json({
-          message: "No se encontraron reservas para la fecha indicada.",
+          message: MESSAGES.GENERAL.NO_BOOKINGS_FOUND,
         });
       }
 
@@ -242,7 +242,7 @@ class BookingController {
 
   async getStaysTodayActivity(req, res, next) {
     try {
-      // Rango de hoy (00:00:00 a 23:59:59)
+      // Rango de hoje (00:00:00 a 23:59:59)
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date();

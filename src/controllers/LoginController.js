@@ -1,6 +1,7 @@
 const Worker = require("../models/Worker");
 const { sign } = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const MESSAGES = require("../utils/messages");
 
 class LoginController {
   async login(req, res) {
@@ -14,14 +15,14 @@ class LoginController {
       if (!worker) {
         return res
           .status(401)
-          .json({ erro: "Usuário não encontrado ou senha inválida." });
+          .json({ erro: MESSAGES.LOGIN.INVALID_CREDENTIALS });
       }
 
       const hashSenha = await bcrypt.compare(password, worker.password);
       if (!hashSenha) {
         return res
           .status(401)
-          .json({ erro: "Usuário não encontrado ou senha inválida." });
+          .json({ erro: MESSAGES.LOGIN.INVALID_CREDENTIALS });
       }
 
       const payload = { sub: worker.id, name: worker.name };
@@ -40,13 +41,13 @@ class LoginController {
           name: worker.name,
         },
         token: token,
-        message: "Login realizado com sucesso. Token armazenado no cookie.",
+        message: MESSAGES.LOGIN.LOGIN_SUCCESS,
       });
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.log(error.message);
       }
-      return res.status(500).json({ erro: "Erro interno no servidor." });
+      return res.status(500).json({ erro: MESSAGES.GENERAL.SERVER_ERROR });
     }
   }
 }

@@ -1,5 +1,6 @@
 const Worker = require("../models/Worker");
 const { verify } = require("jsonwebtoken");
+const MESSAGES = require("../utils/messages");
 
 class SessionController {
   async getSession(req, res, next) {
@@ -14,7 +15,10 @@ class SessionController {
       if (!worker) {
         return res
           .status(401)
-          .json({ message: "Usuário não encontrado", loggedIn: false });
+          .json({
+            message: MESSAGES.GENERAL.NOT_FOUND("Usuário"),
+            loggedIn: false,
+          });
       }
 
       return res.status(200).json({

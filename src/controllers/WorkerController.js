@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const Worker = require("../models/Worker");
-
 const MESSAGES = require("../utils/messages");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
 class WorkerController {
   async getWorkerById(req, res, next) {
@@ -17,7 +18,7 @@ class WorkerController {
       if (!worker) {
         return res
           .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionarío") });
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionário") });
       }
 
       return res.status(200).json(worker);
@@ -28,7 +29,21 @@ class WorkerController {
 
   async createWorker(req, res, next) {
     try {
-      const { name, email, avatar, password } = req.body;
+      const { name, email, password } = req.body;
+      let avatarUrl = null;
+
+      if (req.file) {
+        avatarUrl = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "workers" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        });
+      }
 
       const existingWorker = await Worker.findOne({
         where: { email },
@@ -43,12 +58,12 @@ class WorkerController {
       const worker = await Worker.create({
         name,
         email,
-        avatar,
+        avatar: avatarUrl,
         password: hashedPassword,
       });
 
       return res.status(201).json({
-        message: MESSAGES.GENERAL.CREATE_SUCCESS("Funcionarío"),
+        message: MESSAGES.GENERAL.CREATE_SUCCESS("Funcionário"),
         worker,
       });
     } catch (error) {
@@ -69,10 +84,24 @@ class WorkerController {
       if (!existingWorker) {
         return res
           .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionarío") });
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionário") });
       }
 
-      const { name, email, avatar, password, currentPassword } = req.body;
+      const { name, email, password, currentPassword } = req.body;
+      let avatarUrl = existingWorker.avatar;
+
+      if (req.file) {
+        avatarUrl = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "workers" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        });
+      }
 
       if (password && currentPassword) {
         const isPasswordCorrect = await bcrypt.compare(
@@ -90,10 +119,11 @@ class WorkerController {
           .status(400)
           .json({ error: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED });
       }
+
       const updatedData = {
         name,
         email,
-        avatar,
+        avatar: avatarUrl,
       };
 
       if (password) {
@@ -103,7 +133,7 @@ class WorkerController {
       await Worker.update(updatedData, { where: { id } });
 
       return res.status(200).json({
-        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Funcionarío"),
+        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Funcionário"),
       });
     } catch (error) {
       next(error);
@@ -123,13 +153,13 @@ class WorkerController {
       if (!existingWorker) {
         return res
           .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionarío") });
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Funcionário") });
       }
 
       await Worker.destroy({ where: { id } });
 
       return res.status(200).json({
-        message: MESSAGES.GENERAL.DELETE_SUCCESS("Funcionarío"),
+        message: MESSAGES.GENERAL.DELETE_SUCCESS("Funcionário"),
       });
     } catch (error) {
       next(error);
