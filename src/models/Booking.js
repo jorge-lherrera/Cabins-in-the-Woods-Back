@@ -108,6 +108,17 @@ const Booking = connection.define("booking", {
     allowNull: false,
     defaultValue: false,
   },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "unconfirmed",
+    validate: {
+      isIn: {
+        args: [["unconfirmed", "checked-in", "checked-out"]],
+        msg: "Status inválido para a reserva.",
+      },
+    },
+  },
 });
 
 Cabin.hasMany(Booking, { foreignKey: "cabinId", as: "bookings" });

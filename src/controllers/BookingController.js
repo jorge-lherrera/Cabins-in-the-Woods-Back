@@ -249,6 +249,7 @@ class BookingController {
         hasBreakfast,
         observations,
         isPaid,
+        status: "unconfirmed",
       });
 
       return res.status(201).json({
@@ -293,6 +294,7 @@ class BookingController {
         hasBreakfast,
         observations,
         isPaid,
+        status,
       } = req.body;
 
       const datesChanged =
@@ -345,6 +347,7 @@ class BookingController {
           hasBreakfast,
           observations,
           isPaid,
+          status: status || existingBooking.status,
         },
         { where: { id } }
       );

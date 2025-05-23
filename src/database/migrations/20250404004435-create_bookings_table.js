@@ -73,6 +73,17 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+      status: {
+        type: STRING,
+        allowNull: false,
+        defaultValue: "unconfirmed",
+        validate: {
+          isIn: {
+            args: [["unconfirmed", "checked-in", "checked-out"]],
+            msg: "Status inválido para a reserva.",
+          },
+        },
+      },
       createdAt: {
         type: DATE,
         allowNull: false,
