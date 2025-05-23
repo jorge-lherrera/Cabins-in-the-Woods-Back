@@ -11,6 +11,8 @@ const MESSAGES = {
     UPDATE_ERROR: (resource) =>
       `Erro ao atualizar o ${resource.toLowerCase()}.`,
     DELETE_ERROR: (resource) => `Erro ao excluir o ${resource.toLowerCase()}.`,
+    ASSOCIATED_BOOKINGS:
+      "Não é possível excluir a cabana porque existem reservas associadas.",
   },
   BOOKING: {
     INVALID_CABIN_OR_GUEST: "Cabana ou hóspede inválido.",
@@ -20,6 +22,12 @@ const MESSAGES = {
   CABIN: {
     NAME_EXISTS: "O nome da cabana já existe. Por favor, escolha outro.",
     CREATE_ERROR: "Não foi possível efetuar o cadastro da cabana.",
+    NOT_FOUND: "Cabana não encontrada.",
+    DUPLICATE_NAME: "Já existe uma cabana duplicada com esse nome.",
+    DUPLICATE_SUCCESS: "Cabana duplicada com sucesso.",
+    CREATE_SUCCESS: "Cabana criada com sucesso.",
+    UPDATE_SUCCESS: "Cabana atualizada com sucesso.",
+    DELETE_SUCCESS: "Cabana excluída com sucesso.",
   },
   SETTINGS: {
     CONFIG_EXISTS:

@@ -1,8 +1,9 @@
 const { Op } = require("sequelize");
 const Cabin = require("../models/Cabin");
 const Booking = require("../models/Booking");
-
 const MESSAGES = require("../utils/messages");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
 class CabinController {
   async getAllCabins(req, res, next) {
@@ -16,7 +17,6 @@ class CabinController {
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
 
-      // Validar campos permitidos para ordenar
       const allowedOrderFields = {
         name: "name",
         value: "regularPrice",
@@ -55,9 +55,7 @@ class CabinController {
       });
 
       if (!cabin) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Cabana") });
+        return res.status(404).json({ error: MESSAGES.CABIN.NOT_FOUND });
       }
 
       return res.status(200).json(cabin);
@@ -68,8 +66,22 @@ class CabinController {
 
   async createCabin(req, res, next) {
     try {
-      const { name, maxCapacity, regularPrice, discount, image, description } =
+      const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
+      let imageUrl = null;
+
+      if (req.file) {
+        imageUrl = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "cabins" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        });
+      }
 
       const existingCabin = await Cabin.findOne({ where: { name } });
 
@@ -84,12 +96,12 @@ class CabinController {
         maxCapacity,
         regularPrice,
         discount,
-        image,
+        image: imageUrl,
         description,
       });
 
       return res.status(201).json({
-        message: MESSAGES.GENERAL.CREATE_SUCCESS("Cabana"),
+        message: MESSAGES.CABIN.CREATE_SUCCESS,
         cabin,
       });
     } catch (error) {
@@ -101,19 +113,19 @@ class CabinController {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res.status(400).json({ error: "ID inválido." });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
       const cabin = await Cabin.findByPk(id);
       if (!cabin) {
-        return res.status(404).json({ error: "Cabana não encontrada." });
+        return res.status(404).json({ error: MESSAGES.CABIN.NOT_FOUND });
       }
 
       const newName = `${cabin.name} (Cópia)`;
       const nameExists = await Cabin.findOne({ where: { name: newName } });
       if (nameExists) {
         return res.status(409).json({
-          error: "Já existe uma cabana duplicada com esse nome.",
+          error: MESSAGES.CABIN.DUPLICATE_NAME,
         });
       }
 
@@ -127,7 +139,7 @@ class CabinController {
       });
 
       return res.status(201).json({
-        message: "Cabana duplicada com sucesso.",
+        message: MESSAGES.CABIN.DUPLICATE_SUCCESS,
         cabin: duplicatedCabin,
       });
     } catch (error) {
@@ -144,13 +156,25 @@ class CabinController {
 
       const existingCabin = await Cabin.findByPk(id);
       if (!existingCabin) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Cabana") });
+        return res.status(404).json({ error: MESSAGES.CABIN.NOT_FOUND });
       }
 
-      const { name, maxCapacity, regularPrice, discount, image, description } =
+      const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
+      let imageUrl = existingCabin.image;
+
+      if (req.file) {
+        imageUrl = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "cabins" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        });
+      }
 
       const nameConflict = await Cabin.findOne({
         where: {
@@ -171,14 +195,14 @@ class CabinController {
           maxCapacity,
           regularPrice,
           discount,
-          image,
+          image: imageUrl,
           description,
         },
         { where: { id } }
       );
 
       return res.status(200).json({
-        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Cabana"),
+        message: MESSAGES.CABIN.UPDATE_SUCCESS,
       });
     } catch (error) {
       next(error);
@@ -194,22 +218,17 @@ class CabinController {
 
       const existingCabin = await Cabin.findByPk(id);
       if (!existingCabin) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Cabana") });
+        return res.status(404).json({ error: MESSAGES.CABIN.NOT_FOUND });
       }
       const bookingsCount = await Booking.count({ where: { guestId: id } });
       if (bookingsCount > 0) {
         return res.status(409).json({
-          error:
-            "No se puede eliminar la cabana porque tiene reservas asociadas.",
+          error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS,
         });
       }
       await Cabin.destroy({ where: { id } });
 
-      return res
-        .status(200)
-        .json({ message: MESSAGES.GENERAL.DELETE_SUCCESS("Cabana") });
+      return res.status(200).json({ message: MESSAGES.CABIN.DELETE_SUCCESS });
     } catch (error) {
       next(error);
     }
