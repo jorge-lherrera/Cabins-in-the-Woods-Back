@@ -1,30 +1,29 @@
 const Booking = require("../models/Booking");
 const Guest = require("../models/Guest");
-
 const MESSAGES = require("../utils/messages");
 
 class GuestController {
-  async getAllGuests(req, res, next) {
-    try {
-      const { page = 1, limit = 10 } = req.query;
-      const offset = (page - 1) * limit;
+  // async getAllGuests(req, res, next) {
+  //   try {
+  //     const { page = 1, limit = 10 } = req.query;
+  //     const offset = (page - 1) * limit;
 
-      const guests = await Guest.findAndCountAll({
-        include: [{ model: Booking, as: "bookings" }],
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-      });
+  //     const guests = await Guest.findAndCountAll({
+  //       include: [{ model: Booking, as: "bookings" }],
+  //       limit: parseInt(limit),
+  //       offset: parseInt(offset),
+  //     });
 
-      return res.status(200).json({
-        total: guests.count,
-        page: parseInt(page),
-        totalPages: Math.ceil(guests.count / limit),
-        data: guests.rows,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  //     return res.status(200).json({
+  //       total: guests.count,
+  //       page: parseInt(page),
+  //       totalPages: Math.ceil(guests.count / limit),
+  //       data: guests.rows,
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 
   async getGuestById(req, res, next) {
     try {
@@ -135,6 +134,14 @@ class GuestController {
         return res
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
+      }
+
+      const bookingsCount = await Booking.count({ where: { guestId: id } });
+      if (bookingsCount > 0) {
+        return res.status(409).json({
+          error:
+            "No se puede eliminar el huésped porque tiene reservas asociadas.",
+        });
       }
 
       await Guest.destroy({ where: { id } });

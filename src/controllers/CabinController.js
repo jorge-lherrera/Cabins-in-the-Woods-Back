@@ -82,6 +82,45 @@ class CabinController {
     }
   }
 
+  async duplicateCabin(req, res, next) {
+    try {
+      const { id } = req.params;
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "ID inválido." });
+      }
+
+      const cabin = await Cabin.findByPk(id);
+      if (!cabin) {
+        return res.status(404).json({ error: "Cabana não encontrada." });
+      }
+
+      // Verifica se já existe uma cópia
+      const newName = `${cabin.name} (Cópia)`;
+      const nameExists = await Cabin.findOne({ where: { name: newName } });
+      if (nameExists) {
+        return res.status(409).json({
+          error: "Já existe uma cabana duplicada com esse nome.",
+        });
+      }
+
+      const duplicatedCabin = await Cabin.create({
+        name: newName,
+        maxCapacity: cabin.maxCapacity,
+        regularPrice: cabin.regularPrice,
+        discount: cabin.discount,
+        image: cabin.image,
+        description: cabin.description,
+      });
+
+      return res.status(201).json({
+        message: "Cabana duplicada com sucesso.",
+        cabin: duplicatedCabin,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateCabin(req, res, next) {
     try {
       const { id } = req.params;
@@ -145,7 +184,13 @@ class CabinController {
           .status(404)
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Cabana") });
       }
-
+      const bookingsCount = await Booking.count({ where: { guestId: id } });
+      if (bookingsCount > 0) {
+        return res.status(409).json({
+          error:
+            "No se puede eliminar la cabana porque tiene reservas asociadas.",
+        });
+      }
       await Cabin.destroy({ where: { id } });
 
       return res

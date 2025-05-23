@@ -1,5 +1,4 @@
 const Setting = require("../models/Setting");
-
 const MESSAGES = require("../utils/messages");
 
 class SettingController {
