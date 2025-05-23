@@ -7,14 +7,29 @@ const MESSAGES = require("../utils/messages");
 class CabinController {
   async getAllCabins(req, res, next) {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        orderBy = "name",
+        order = "ASC",
+      } = req.query;
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
+
+      // Validar campos permitidos para ordenar
+      const allowedOrderFields = {
+        name: "name",
+        value: "regularPrice",
+        guests: "maxCapacity",
+      };
+      const orderField = allowedOrderFields[orderBy] || "name";
+      const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
       const cabins = await Cabin.findAndCountAll({
         include: [{ model: Booking, as: "bookings" }],
         limit: parsedLimit,
         offset: offset,
+        order: [[orderField, orderDirection]],
       });
 
       return res.status(200).json({
@@ -94,7 +109,6 @@ class CabinController {
         return res.status(404).json({ error: "Cabana não encontrada." });
       }
 
-      // Verifica se já existe uma cópia
       const newName = `${cabin.name} (Cópia)`;
       const nameExists = await Cabin.findOne({ where: { name: newName } });
       if (nameExists) {
