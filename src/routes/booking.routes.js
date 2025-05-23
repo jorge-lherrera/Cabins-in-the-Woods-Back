@@ -6,21 +6,6 @@ const bookingValidation = require("../validations/bookingValidation");
 const auth = require("../middleware/auth");
 
 bookingRoutes.get("/", auth, BookingController.getAllBookings);
-
-bookingRoutes.get(
-  "/stays-after-date",
-  auth,
-  BookingController.getStaysAfterDate
-);
-bookingRoutes.get(
-  "/bookings-after-date",
-  auth,
-  BookingController.getBookingsAfterDate
-);
-bookingRoutes.get(
-  "/stays-today-activity",
-  BookingController.getStaysTodayActivity
-);
 bookingRoutes.get("/:id", auth, BookingController.getBookingById);
 bookingRoutes.post("/", auth, BookingController.createBooking);
 bookingRoutes.put(

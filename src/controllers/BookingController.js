@@ -1,20 +1,32 @@
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
-
 const MESSAGES = require("../utils/messages");
 const { Op } = require("sequelize");
-
 const bookingSchema = require("../validations/bookingValidation");
 
 class BookingController {
   async getAllBookings(req, res, next) {
     try {
-      const { page = 1, limit = 10, filter, sortBy } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        filter,
+        sortBy,
+        startDateFrom,
+        startDateTo,
+        createdAtFrom,
+        createdAtTo,
+        status,
+        staysAfterDate,
+        staysTodayActivity,
+      } = req.query;
+
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
 
       let where = {};
+
       if (filter) {
         const parsedFilter =
           typeof filter === "string" ? JSON.parse(filter) : filter;
@@ -25,6 +37,52 @@ class BookingController {
         ) {
           where[parsedFilter.field] = parsedFilter.value;
         }
+      }
+
+      if (startDateFrom || startDateTo) {
+        where.startDate = {};
+        if (startDateFrom) where.startDate[Op.gte] = new Date(startDateFrom);
+        if (startDateTo) where.startDate[Op.lte] = new Date(startDateTo);
+      }
+
+      if (createdAtFrom || createdAtTo) {
+        where.createdAt = {};
+        if (createdAtFrom) where.createdAt[Op.gte] = new Date(createdAtFrom);
+        if (createdAtTo) where.createdAt[Op.lte] = new Date(createdAtTo);
+      }
+
+      if (status) {
+        where.status = status;
+      }
+
+      if (staysAfterDate) {
+        const date = new Date(staysAfterDate);
+        if (isNaN(date)) {
+          return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
+        }
+        where.startDate = { [Op.gte]: date, [Op.lte]: new Date() };
+      }
+
+      if (staysTodayActivity === "true") {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        where[Op.or] = [
+          {
+            status: "unconfirmed",
+            startDate: {
+              [Op.between]: [todayStart, todayEnd],
+            },
+          },
+          {
+            status: "checked-in",
+            endDate: {
+              [Op.between]: [todayStart, todayEnd],
+            },
+          },
+        ];
       }
 
       let order = [];
@@ -38,16 +96,38 @@ class BookingController {
         order.push(["startDate", "DESC"]);
       }
 
+      const include = [
+        { model: Cabin, as: "cabin" },
+        { model: Guest, as: "guest" },
+      ];
+
+      if (staysAfterDate) {
+        include[1].attributes = ["fullName"];
+      }
+      if (staysTodayActivity === "true") {
+        include[1].attributes = ["fullName", "nationality", "countryFlag"];
+      }
+
       const bookings = await Booking.findAndCountAll({
         where,
-        include: [
-          { model: Cabin, as: "cabin" },
-          { model: Guest, as: "guest" },
-        ],
+        include,
         limit: parsedLimit,
         offset: offset,
         order,
       });
+
+      if (
+        (staysAfterDate && (!bookings.rows || bookings.rows.length === 0)) ||
+        (staysTodayActivity === "true" &&
+          (!bookings.rows || bookings.rows.length === 0))
+      ) {
+        return res.status(404).json({
+          message:
+            staysAfterDate === undefined
+              ? MESSAGES.GENERAL.NO_BOOKINGS_FOUND
+              : MESSAGES.GENERAL.NO_STAYS_FOUND,
+        });
+      }
 
       return res.status(200).json({
         count: bookings.count,
@@ -175,106 +255,6 @@ class BookingController {
         message: MESSAGES.GENERAL.CREATE_SUCCESS("Reserva"),
         booking,
       });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async getStaysAfterDate(req, res, next) {
-    try {
-      const { date } = req.query;
-      if (!date || isNaN(Date.parse(date))) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
-      }
-
-      const stays = await Booking.findAll({
-        where: {
-          startDate: {
-            [Op.gte]: new Date(date),
-            [Op.lte]: new Date(),
-          },
-        },
-        include: [{ model: Guest, as: "guest", attributes: ["fullName"] }],
-        order: [["startDate", "ASC"]],
-      });
-
-      if (!stays || stays.length === 0) {
-        return res.status(404).json({
-          message: MESSAGES.GENERAL.NO_STAYS_FOUND,
-        });
-      }
-
-      return res.status(200).json(stays);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async getBookingsAfterDate(req, res, next) {
-    try {
-      const { date } = req.query;
-      if (!date || isNaN(Date.parse(date))) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
-      }
-
-      const bookings = await Booking.findAll({
-        where: {
-          createdAt: {
-            [Op.gte]: new Date(date),
-            [Op.lte]: new Date(),
-          },
-        },
-        attributes: ["createdAt", "totalPrice", "extrasPrice"],
-        order: [["createdAt", "ASC"]],
-      });
-
-      if (!bookings || bookings.length === 0) {
-        return res.status(404).json({
-          message: MESSAGES.GENERAL.NO_BOOKINGS_FOUND,
-        });
-      }
-
-      return res.status(200).json(bookings);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async getStaysTodayActivity(req, res, next) {
-    try {
-      // Rango de hoje (00:00:00 a 23:59:59)
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date();
-      todayEnd.setHours(23, 59, 59, 999);
-
-      const bookings = await Booking.findAll({
-        where: {
-          [Op.or]: [
-            {
-              status: "unconfirmed",
-              startDate: {
-                [Op.between]: [todayStart, todayEnd],
-              },
-            },
-            {
-              status: "checked-in",
-              endDate: {
-                [Op.between]: [todayStart, todayEnd],
-              },
-            },
-          ],
-        },
-        include: [
-          {
-            model: Guest,
-            attributes: ["fullName", "nationality", "countryFlag"],
-          },
-        ],
-        order: [["createdAt", "ASC"]],
-      });
-
-      res.json(bookings);
     } catch (error) {
       next(error);
     }
