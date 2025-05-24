@@ -193,6 +193,7 @@ class BookingController {
         hasBreakfast,
         observations,
         isPaid,
+        status,
       } = req.body;
 
       const cabin = await Cabin.findByPk(cabinId);
@@ -249,7 +250,7 @@ class BookingController {
         hasBreakfast,
         observations,
         isPaid,
-        status: "unconfirmed",
+        status,
       });
 
       return res.status(201).json({
