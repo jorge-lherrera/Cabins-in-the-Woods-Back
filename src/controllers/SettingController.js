@@ -1,17 +1,21 @@
-const Setting = require("../models/Setting");
+const BaseController = require("./BaseController");
+const settingService = require("../services/settingService");
 const MESSAGES = require("../utils/messages");
+const Setting = require("../models/Setting");
 
-class SettingController {
+class SettingController extends BaseController {
+  constructor() {
+    super(Setting, "Configuração", MESSAGES);
+  }
+
   async getSettings(req, res, next) {
     try {
-      const settings = await Setting.findOne();
-
+      const settings = await settingService.getUniqueSetting();
       if (!settings) {
         return res
           .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Configuração") });
+          .json({ error: this.messages.SETTINGS.CONFIG_NOT_FOUND });
       }
-
       return res.status(200).json(settings);
     } catch (error) {
       next(error);
@@ -20,58 +24,33 @@ class SettingController {
 
   async createSetting(req, res, next) {
     try {
-      const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
-
-      const existingSetting = await Setting.findOne();
-
-      if (existingSetting) {
-        return res.status(409).json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
-      }
-
-      const setting = await Setting.create({
-        minBookingLength,
-        maxBookingLength,
-        maxGuestsPerBooking,
-        breakfastPrice,
-      });
-
+      const setting = await settingService.createUniqueSetting(req.body);
       return res.status(201).json({
-        message: MESSAGES.GENERAL.CREATE_SUCCESS("Configuração"),
+        message: this.messages.GENERAL.CREATE_SUCCESS(this.resourceName),
         setting,
       });
     } catch (error) {
+      if (error.message === settingService.SETTING_ERRORS.EXISTS) {
+        return res
+          .status(409)
+          .json({ error: this.messages.SETTINGS.CONFIG_EXISTS });
+      }
       next(error);
     }
   }
 
   async updateSetting(req, res, next) {
     try {
-      const existingSetting = await Setting.findOne();
-
-      if (!existingSetting) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Configuração") });
-      }
-
-      const { minBookingLength, maxBookingLength, breakfastPrice } = req.body;
-
-      await Setting.update(
-        {
-          minBookingLength,
-          maxBookingLength,
-          maxGuestsPerBooking,
-          breakfastPrice,
-        },
-        {
-          where: { id: existingSetting.id },
-        }
-      );
-
+      await settingService.updateUniqueSetting(req.body);
       return res.status(200).json({
-        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
+        message: this.messages.GENERAL.UPDATE_SUCCESS(this.resourceName),
       });
     } catch (error) {
+      if (error.message === settingService.SETTING_ERRORS.NOT_FOUND) {
+        return res
+          .status(404)
+          .json({ error: this.messages.SETTINGS.CONFIG_NOT_FOUND });
+      }
       next(error);
     }
   }

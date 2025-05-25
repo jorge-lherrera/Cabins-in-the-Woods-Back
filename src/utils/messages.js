@@ -35,6 +35,7 @@ const MESSAGES = {
   SETTINGS: {
     CONFIG_EXISTS:
       "Já existe uma configuração no sistema. Apenas atualizações são permitidas.",
+    CONFIG_NOT_FOUND: "Configuração não encontrada.",
   },
   WORKER: {
     EMAIL_IN_USE: "O e-mail já está em uso.",
