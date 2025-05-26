@@ -10,8 +10,8 @@ bookingRoutes.get("/:id", auth, BookingController.getBookingById);
 bookingRoutes.post("/", auth, BookingController.createBooking);
 bookingRoutes.put(
   "/:id",
-  validate(bookingValidation),
   auth,
+
   BookingController.updateBooking
 );
 bookingRoutes.delete("/:id", auth, BookingController.deleteBooking);

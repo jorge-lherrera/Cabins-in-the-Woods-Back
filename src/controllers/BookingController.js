@@ -1,169 +1,55 @@
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
-const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
-const { Op } = require("sequelize");
 const bookingSchema = require("../validations/bookingValidation");
+const bookingService = require("../services/bookingService");
+const successResponse = require("../utils/successResponse");
 
 class BookingController {
-    async getAllBookings(req, res, next) {
+  async getAllBookings(req, res, next) {
     try {
       const {
         page = 1,
         limit = 10,
-        filter,
-        sortBy,
-        startDateFrom,
-        startDateTo,
-        createdAtFrom,
-        createdAtTo,
+        orderBy = "startDate",
+        order = "ASC",
+        cabinId,
+        guestId,
         status,
-        staysAfterDate,
-        staysTodayActivity,
       } = req.query;
-  
+
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
-  
-      let where = {};
-  
-      if (filter) {
-        const parsedFilter =
-          typeof filter === "string" ? JSON.parse(filter) : filter;
-        if (
-          parsedFilter &&
-          parsedFilter.field &&
-          parsedFilter.value !== undefined
-        ) {
-          where[parsedFilter.field] = parsedFilter.value;
-        }
-      }
-  
-      if (startDateFrom || startDateTo) {
-        where.startDate = {};
-        if (startDateFrom) where.startDate[Op.gte] = new Date(startDateFrom);
-        if (startDateTo) where.startDate[Op.lte] = new Date(startDateTo);
-      }
-  
-      if (createdAtFrom || createdAtTo) {
-        where.createdAt = {};
-        if (createdAtFrom) where.createdAt[Op.gte] = new Date(createdAtFrom);
-        if (createdAtTo) where.createdAt[Op.lte] = new Date(createdAtTo);
-      }
-  
-      if (status) {
-        where.status = status;
-      }
-  
-      if (staysAfterDate) {
-        const date = new Date(staysAfterDate);
-        if (isNaN(date)) {
-          return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_DATE });
-        }
-        where.startDate = { [Op.gte]: date, [Op.lte]: new Date() };
-      }
-  
-      if (staysTodayActivity === "true") {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-  
-        where[Op.or] = [
-          {
-            status: "unconfirmed",
-            startDate: {
-              [Op.between]: [todayStart, todayEnd],
-            },
-          },
-          {
-            status: "checked-in",
-            endDate: {
-              [Op.between]: [todayStart, todayEnd],
-            },
-          },
-        ];
-      }
-  
-      let order = [];
-      if (sortBy) {
-        const parsedSort =
-          typeof sortBy === "string" ? JSON.parse(sortBy) : sortBy;
-        if (parsedSort && parsedSort.field && parsedSort.direction) {
-          order.push([parsedSort.field, parsedSort.direction.toUpperCase()]);
-        }
-      } else {
-        order.push(["startDate", "DESC"]);
-      }
-  
-      const include = [
-        { model: Cabin, as: "cabin" },
-        { model: Guest, as: "guest" },
-      ];
-  
-      if (staysAfterDate) {
-        include[1].attributes = ["fullName"];
-      }
-      if (staysTodayActivity === "true") {
-        include[1].attributes = ["fullName", "nationality", "countryFlag"];
-      }
-  
+
+      const where = {};
+      if (cabinId) where.cabinId = cabinId;
+      if (guestId) where.guestId = guestId;
+      if (status) where.status = status;
+
       const bookings = await Booking.findAndCountAll({
         where,
-        include,
-        limit: parsedLimit,
-        offset: offset,
-        order,
-      });
-  
-      // Suma total de todas las bookings (sin paginación ni filtros)
-      const totalSumResult = await Booking.findAll({
-        attributes: [
-          [
-            Booking.sequelize.fn("SUM", Booking.sequelize.col("totalPrice")),
-            "totalSum",
-          ],
+        include: [
+          { model: Cabin, as: "cabin" },
+          { model: Guest, as: "guest" },
         ],
-        raw: true,
+        order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+        limit: parsedLimit,
+        offset,
       });
-      const totalSum = Number(totalSumResult[0].totalSum) || 0;
-  
-      // Tasa de ocupación: cantidad de bookings / cantidad de cabinas
-      const totalCabins = await Cabin.count();
-      const occupancyRate = totalCabins > 0 ? bookings.count / totalCabins : 0;
-  
-      // Cantidad de bookings con status "checked-in"
-      const checkedInCount = await Booking.count({
-        where: { status: "checked-in" },
-      });
-  
-      if (
-        (staysAfterDate && (!bookings.rows || bookings.rows.length === 0)) ||
-        (staysTodayActivity === "true" &&
-          (!bookings.rows || bookings.rows.length === 0))
-      ) {
-        return res.status(404).json({
-          message:
-            staysAfterDate === undefined
-              ? MESSAGES.GENERAL.NO_BOOKINGS_FOUND
-              : MESSAGES.GENERAL.NO_STAYS_FOUND,
-        });
-      }
-  
+
       return res.status(200).json({
-        count: bookings.count,
-        page: parseInt(page),
-        totalPages: Math.ceil(bookings.count / parsedLimit),
-        data: bookings.rows,
-        totalSum,
-        occupancyRate,
-        checkedInCount,
+        success: true,
+        total: bookings.count,
+        bookings: bookings.rows,
+        page: Number(page),
+        limit: parsedLimit,
       });
     } catch (error) {
       next(error);
     }
   }
+
   async getBookingById(req, res, next) {
     try {
       const { id } = req.params;
@@ -184,7 +70,10 @@ class BookingController {
           .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
       }
 
-      return res.status(200).json(booking);
+      return res.status(200).json({
+        success: true,
+        booking,
+      });
     } catch (error) {
       next(error);
     }
@@ -204,107 +93,17 @@ class BookingController {
         strict: true,
       });
 
-      const {
-        cabinId,
-        guestId,
-        startDate,
-        endDate,
-        numNights,
-        numGuests,
-        cabinPrice,
-        extrasPrice,
-        totalPrice,
-        hasBreakfast,
-        observations,
-        isPaid,
-        status,
-      } = req.body;
-
-      const setting = await Setting.findOne();
-      if (!setting) {
-        return res.status(500).json({ error: "Configuração não encontrada." });
+      const result = await bookingService.createBooking(req.body);
+      if (result.error) {
+        return res.status(result.status || 400).json({ error: result.error });
       }
-
-      if (
-        numNights < setting.minBookingLength ||
-        numNights > setting.maxBookingLength
-      ) {
-        return res.status(400).json({
-          error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
-        });
-      }
-      if (numGuests > setting.maxGuestsPerBooking) {
-        return res.status(400).json({
-          error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
-        });
-      }
-
-      let finalTotalPrice = totalPrice;
-      if (hasBreakfast) {
-        finalTotalPrice += setting.breakfastPrice;
-      }
-
-      const cabin = await Cabin.findByPk(cabinId);
-      const guest = await Guest.findByPk(guestId);
-
-      if (!cabin || !guest) {
-        return res.status(409).json({
-          error: !cabin
-            ? MESSAGES.GENERAL.NOT_FOUND("Cabana")
-            : MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
-        });
-      }
-
-      const overlappingBooking = await Booking.findOne({
-        where: {
-          cabinId,
-          [Op.or]: [
-            {
-              startDate: {
-                [Op.between]: [startDate, endDate],
-              },
-            },
-            {
-              endDate: {
-                [Op.between]: [startDate, endDate],
-              },
-            },
-            {
-              [Op.and]: [
-                { startDate: { [Op.lte]: startDate } },
-                { endDate: { [Op.gte]: endDate } },
-              ],
-            },
-          ],
-        },
-      });
-
-      if (overlappingBooking) {
-        return res.status(409).json({
-          error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
-        });
-      }
-
-      const booking = await Booking.create({
-        cabinId,
-        guestId,
-        startDate,
-        endDate,
-        numNights,
-        numGuests,
-        cabinPrice,
-        extrasPrice,
-        totalPrice: finalTotalPrice,
-        hasBreakfast,
-        observations,
-        isPaid,
-        status,
-      });
-
-      return res.status(201).json({
-        message: MESSAGES.GENERAL.CREATE_SUCCESS("Reserva"),
-        booking,
-      });
+      return successResponse(
+        res,
+        201,
+        MESSAGES.GENERAL.CREATE_SUCCESS("Reserva"),
+        result.booking,
+        "booking"
+      );
     } catch (error) {
       next(error);
     }
@@ -317,12 +116,6 @@ class BookingController {
         return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
-      const existingBooking = await Booking.findByPk(id);
-      if (!existingBooking) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
-      }
       if (typeof req.body.startDate === "string") {
         req.body.startDate = new Date(req.body.startDate);
       }
@@ -330,104 +123,22 @@ class BookingController {
         req.body.endDate = new Date(req.body.endDate);
       }
 
-      const {
-        cabinId,
-        guestId,
-        startDate,
-        endDate,
-        numNights,
-        numGuests,
-        cabinPrice,
-        extrasPrice,
-        totalPrice,
-        hasBreakfast,
-        observations,
-        isPaid,
-        status,
-      } = req.body;
-
-      const setting = await Setting.findOne();
-      if (!setting) {
-        return res.status(500).json({ error: "Configuração não encontrada." });
-      }
-
-      if (
-        numNights < setting.minBookingLength ||
-        numNights > setting.maxBookingLength
-      ) {
-        return res.status(400).json({
-          error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
-        });
-      }
-      if (numGuests > setting.maxGuestsPerBooking) {
-        return res.status(400).json({
-          error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
-        });
-      }
-
-      let finalTotalPrice = totalPrice;
-      if (hasBreakfast) {
-        finalTotalPrice += setting.breakfastPrice;
-      }
-
-      const datesChanged =
-        existingBooking.startDate.getTime() !== new Date(startDate).getTime() ||
-        existingBooking.endDate.getTime() !== new Date(endDate).getTime();
-
-      if (datesChanged) {
-        const overlappingBooking = await Booking.findOne({
-          where: {
-            cabinId,
-            id: { [Op.ne]: id },
-            [Op.or]: [
-              {
-                startDate: {
-                  [Op.between]: [startDate, endDate],
-                },
-              },
-              {
-                endDate: {
-                  [Op.between]: [startDate, endDate],
-                },
-              },
-              {
-                [Op.and]: [
-                  { startDate: { [Op.lte]: startDate } },
-                  { endDate: { [Op.gte]: endDate } },
-                ],
-              },
-            ],
-          },
-        });
-
-        if (overlappingBooking) {
-          return res.status(409).json({
-            error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
-          });
-        }
-      }
-      await Booking.update(
-        {
-          cabinId,
-          guestId,
-          startDate,
-          endDate,
-          numNights,
-          numGuests,
-          cabinPrice,
-          extrasPrice,
-          totalPrice: finalTotalPrice,
-          hasBreakfast,
-          observations,
-          isPaid,
-          status: status || existingBooking.status,
-        },
-        { where: { id } }
-      );
-
-      return res.status(200).json({
-        message: MESSAGES.GENERAL.UPDATE_SUCCESS("Reserva"),
+      await bookingSchema.validate(req.body, {
+        abortEarly: false,
+        strict: true,
       });
+
+      const result = await bookingService.updateBooking(id, req.body);
+      if (result.error) {
+        return res.status(result.status || 400).json({ error: result.error });
+      }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.UPDATE_SUCCESS("Reserva"),
+        result.booking,
+        "booking"
+      );
     } catch (error) {
       next(error);
     }
@@ -440,17 +151,15 @@ class BookingController {
         return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
 
-      const existingBooking = await Booking.findByPk(id);
-      if (!existingBooking) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
+      const result = await bookingService.deleteBooking(id);
+      if (result.error) {
+        return res.status(result.status || 400).json({ error: result.error });
       }
-
-      await Booking.destroy({ where: { id } });
-      return res.status(200).json({
-        message: MESSAGES.GENERAL.DELETE_SUCCESS("Reserva"),
-      });
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.DELETE_SUCCESS("Reserva")
+      );
     } catch (error) {
       next(error);
     }
