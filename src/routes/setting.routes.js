@@ -5,18 +5,14 @@ const validate = require("../middleware/validationsYup");
 const settingValidation = require("../validations/settingValidation");
 const auth = require("../middleware/auth");
 
-settingRoutes.get("/", auth, SettingController.getSettings);
-settingRoutes.post(
-  "/",
-  validate(settingValidation),
-  auth,
-  SettingController.createSetting
+settingRoutes.get("/", auth, (req, res, next) =>
+  SettingController.getSettings(req, res, next)
 );
-settingRoutes.put(
-  "/",
-  validate(settingValidation),
-  auth,
-  SettingController.updateSetting
+settingRoutes.post("/", validate(settingValidation), auth, (req, res, next) =>
+  SettingController.createSetting(req, res, next)
+);
+settingRoutes.put("/", validate(settingValidation), auth, (req, res, next) =>
+  SettingController.updateSetting(req, res, next)
 );
 
 module.exports = settingRoutes;

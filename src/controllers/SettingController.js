@@ -24,7 +24,18 @@ class SettingController extends BaseController {
 
   async createSetting(req, res, next) {
     try {
-      const setting = await settingService.createUniqueSetting(req.body);
+      const {
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      } = req.body;
+      const setting = await settingService.createUniqueSetting({
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      });
       return res.status(201).json({
         message: this.messages.GENERAL.CREATE_SUCCESS(this.resourceName),
         setting,
@@ -41,7 +52,19 @@ class SettingController extends BaseController {
 
   async updateSetting(req, res, next) {
     try {
-      await settingService.updateUniqueSetting(req.body);
+      const {
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      } = req.body;
+
+      await settingService.updateUniqueSetting({
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      });
       return res.status(200).json({
         message: this.messages.GENERAL.UPDATE_SUCCESS(this.resourceName),
       });

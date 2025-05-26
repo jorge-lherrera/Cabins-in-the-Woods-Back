@@ -6,7 +6,7 @@ const { Op } = require("sequelize");
 const bookingSchema = require("../validations/bookingValidation");
 
 class BookingController {
-  async getAllBookings(req, res, next) {
+   async getAllBookings(req, res, next) {
     try {
       const {
         page = 1,
@@ -21,12 +21,12 @@ class BookingController {
         staysAfterDate,
         staysTodayActivity,
       } = req.query;
-
+  
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
-
+  
       let where = {};
-
+  
       if (filter) {
         const parsedFilter =
           typeof filter === "string" ? JSON.parse(filter) : filter;
@@ -38,23 +38,23 @@ class BookingController {
           where[parsedFilter.field] = parsedFilter.value;
         }
       }
-
+  
       if (startDateFrom || startDateTo) {
         where.startDate = {};
         if (startDateFrom) where.startDate[Op.gte] = new Date(startDateFrom);
         if (startDateTo) where.startDate[Op.lte] = new Date(startDateTo);
       }
-
+  
       if (createdAtFrom || createdAtTo) {
         where.createdAt = {};
         if (createdAtFrom) where.createdAt[Op.gte] = new Date(createdAtFrom);
         if (createdAtTo) where.createdAt[Op.lte] = new Date(createdAtTo);
       }
-
+  
       if (status) {
         where.status = status;
       }
-
+  
       if (staysAfterDate) {
         const date = new Date(staysAfterDate);
         if (isNaN(date)) {
@@ -62,13 +62,13 @@ class BookingController {
         }
         where.startDate = { [Op.gte]: date, [Op.lte]: new Date() };
       }
-
+  
       if (staysTodayActivity === "true") {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
         const todayEnd = new Date();
         todayEnd.setHours(23, 59, 59, 999);
-
+  
         where[Op.or] = [
           {
             status: "unconfirmed",
@@ -84,7 +84,7 @@ class BookingController {
           },
         ];
       }
-
+  
       let order = [];
       if (sortBy) {
         const parsedSort =
@@ -95,19 +95,19 @@ class BookingController {
       } else {
         order.push(["startDate", "DESC"]);
       }
-
+  
       const include = [
         { model: Cabin, as: "cabin" },
         { model: Guest, as: "guest" },
       ];
-
+  
       if (staysAfterDate) {
         include[1].attributes = ["fullName"];
       }
       if (staysTodayActivity === "true") {
         include[1].attributes = ["fullName", "nationality", "countryFlag"];
       }
-
+  
       const bookings = await Booking.findAndCountAll({
         where,
         include,
@@ -115,7 +115,24 @@ class BookingController {
         offset: offset,
         order,
       });
-
+  
+     
+      const totalSumResult = await Booking.findAll({
+        attributes: [
+          [
+            Booking.sequelize.fn("SUM", Booking.sequelize.col("totalPrice")),
+            "totalSum",
+          ],
+        ],
+        raw: true,
+      });
+      const totalSum = Number(totalSumResult[0].totalSum) || 0;
+  
+      
+      const totalCabins = await Cabin.count();
+      const occupancyRate =
+        totalCabins > 0 ? bookings.count / totalCabins : 0;
+  
       if (
         (staysAfterDate && (!bookings.rows || bookings.rows.length === 0)) ||
         (staysTodayActivity === "true" &&
@@ -128,19 +145,19 @@ class BookingController {
               : MESSAGES.GENERAL.NO_STAYS_FOUND,
         });
       }
-
+  
       return res.status(200).json({
         count: bookings.count,
         page: parseInt(page),
         totalPages: Math.ceil(bookings.count / parsedLimit),
         data: bookings.rows,
+        totalSum, // suma total de todas las bookings
+        occupancyRate, // tasa de ocupación
       });
     } catch (error) {
       next(error);
     }
-  }
-
-  async getBookingById(req, res, next) {
+  } async getBookingById(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
