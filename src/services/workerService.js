@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const Worker = require("../models/Worker");
-const uploadAvatar = require("../utils/uploadAvatar");
+const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 const findById = require("../utils/findById");
 const MESSAGES = require("../utils/messages");
 
@@ -13,7 +13,7 @@ async function getWorkerById(id) {
 }
 
 async function createWorker({ name, email, password, file }) {
-  const avatarUrl = await uploadAvatar(file);
+  const avatarUrl = await uploadFileCloudinary(file, "workers");
 
   const existingWorker = await Worker.findOne({ where: { email } });
   if (existingWorker) {
@@ -43,7 +43,7 @@ async function updateWorker(
 
   let avatarUrl = existingWorker.avatar;
   if (file) {
-    avatarUrl = await uploadAvatar(file);
+    avatarUrl = await uploadFileCloudinary(file, "workers");
   }
 
   if (password && currentPassword) {

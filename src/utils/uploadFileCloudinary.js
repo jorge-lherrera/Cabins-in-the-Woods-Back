@@ -1,11 +1,11 @@
 const cloudinary = require("./cloudinary");
 const streamifier = require("streamifier");
 
-async function uploadAvatar(file) {
+async function uploadFileCloudinary(file, folder) {
   if (!file) return null;
   return await new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "workers" },
+      { folder },
       (error, result) => {
         if (error) return reject(error);
         resolve(result.secure_url);
@@ -15,4 +15,4 @@ async function uploadAvatar(file) {
   });
 }
 
-module.exports = uploadAvatar;
+module.exports = uploadFileCloudinary;
