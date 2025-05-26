@@ -30,22 +30,21 @@ class SettingController extends BaseController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-      const setting = await settingService.createUniqueSetting({
-        minBookingLength,
-        maxBookingLength,
-        maxGuestsPerBooking,
-        breakfastPrice,
-      });
+      const { setting, error, status } =
+        await settingService.createUniqueSetting({
+          minBookingLength,
+          maxBookingLength,
+          maxGuestsPerBooking,
+          breakfastPrice,
+        });
+      if (error) {
+        return res.status(status || 400).json({ error });
+      }
       return res.status(201).json({
         message: this.messages.GENERAL.CREATE_SUCCESS(this.resourceName),
         setting,
       });
     } catch (error) {
-      if (error.message === settingService.SETTING_ERRORS.EXISTS) {
-        return res
-          .status(409)
-          .json({ error: this.messages.SETTINGS.CONFIG_EXISTS });
-      }
       next(error);
     }
   }
@@ -59,21 +58,21 @@ class SettingController extends BaseController {
         breakfastPrice,
       } = req.body;
 
-      await settingService.updateUniqueSetting({
-        minBookingLength,
-        maxBookingLength,
-        maxGuestsPerBooking,
-        breakfastPrice,
-      });
+      const { setting, error, status } =
+        await settingService.updateUniqueSetting({
+          minBookingLength,
+          maxBookingLength,
+          maxGuestsPerBooking,
+          breakfastPrice,
+        });
+      if (error) {
+        return res.status(status || 400).json({ error });
+      }
       return res.status(200).json({
         message: this.messages.GENERAL.UPDATE_SUCCESS(this.resourceName),
+        setting,
       });
     } catch (error) {
-      if (error.message === settingService.SETTING_ERRORS.NOT_FOUND) {
-        return res
-          .status(404)
-          .json({ error: this.messages.SETTINGS.CONFIG_NOT_FOUND });
-      }
       next(error);
     }
   }

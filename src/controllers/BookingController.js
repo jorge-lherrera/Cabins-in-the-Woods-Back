@@ -1,12 +1,13 @@
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
+const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
 const { Op } = require("sequelize");
 const bookingSchema = require("../validations/bookingValidation");
 
 class BookingController {
-   async getAllBookings(req, res, next) {
+    async getAllBookings(req, res, next) {
     try {
       const {
         page = 1,
@@ -116,7 +117,7 @@ class BookingController {
         order,
       });
   
-     
+      // Suma total de todas las bookings (sin paginación ni filtros)
       const totalSumResult = await Booking.findAll({
         attributes: [
           [
@@ -128,10 +129,14 @@ class BookingController {
       });
       const totalSum = Number(totalSumResult[0].totalSum) || 0;
   
-      
+      // Tasa de ocupación: cantidad de bookings / cantidad de cabinas
       const totalCabins = await Cabin.count();
-      const occupancyRate =
-        totalCabins > 0 ? bookings.count / totalCabins : 0;
+      const occupancyRate = totalCabins > 0 ? bookings.count / totalCabins : 0;
+  
+      // Cantidad de bookings con status "checked-in"
+      const checkedInCount = await Booking.count({
+        where: { status: "checked-in" },
+      });
   
       if (
         (staysAfterDate && (!bookings.rows || bookings.rows.length === 0)) ||
@@ -151,13 +156,15 @@ class BookingController {
         page: parseInt(page),
         totalPages: Math.ceil(bookings.count / parsedLimit),
         data: bookings.rows,
-        totalSum, // suma total de todas las bookings
-        occupancyRate, // tasa de ocupación
+        totalSum,
+        occupancyRate,
+        checkedInCount,
       });
     } catch (error) {
       next(error);
     }
-  } async getBookingById(req, res, next) {
+  }
+  async getBookingById(req, res, next) {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
@@ -213,6 +220,30 @@ class BookingController {
         status,
       } = req.body;
 
+      const setting = await Setting.findOne();
+      if (!setting) {
+        return res.status(500).json({ error: "Configuração não encontrada." });
+      }
+
+      if (
+        numNights < setting.minBookingLength ||
+        numNights > setting.maxBookingLength
+      ) {
+        return res.status(400).json({
+          error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
+        });
+      }
+      if (numGuests > setting.maxGuestsPerBooking) {
+        return res.status(400).json({
+          error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
+        });
+      }
+
+      let finalTotalPrice = totalPrice;
+      if (hasBreakfast) {
+        finalTotalPrice += setting.breakfastPrice;
+      }
+
       const cabin = await Cabin.findByPk(cabinId);
       const guest = await Guest.findByPk(guestId);
 
@@ -263,7 +294,7 @@ class BookingController {
         numGuests,
         cabinPrice,
         extrasPrice,
-        totalPrice,
+        totalPrice: finalTotalPrice,
         hasBreakfast,
         observations,
         isPaid,
@@ -315,6 +346,30 @@ class BookingController {
         status,
       } = req.body;
 
+      const setting = await Setting.findOne();
+      if (!setting) {
+        return res.status(500).json({ error: "Configuração não encontrada." });
+      }
+
+      if (
+        numNights < setting.minBookingLength ||
+        numNights > setting.maxBookingLength
+      ) {
+        return res.status(400).json({
+          error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
+        });
+      }
+      if (numGuests > setting.maxGuestsPerBooking) {
+        return res.status(400).json({
+          error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
+        });
+      }
+
+      let finalTotalPrice = totalPrice;
+      if (hasBreakfast) {
+        finalTotalPrice += setting.breakfastPrice;
+      }
+
       const datesChanged =
         existingBooking.startDate.getTime() !== new Date(startDate).getTime() ||
         existingBooking.endDate.getTime() !== new Date(endDate).getTime();
@@ -361,7 +416,7 @@ class BookingController {
           numGuests,
           cabinPrice,
           extrasPrice,
-          totalPrice,
+          totalPrice: finalTotalPrice,
           hasBreakfast,
           observations,
           isPaid,
