@@ -10,22 +10,22 @@ cabinRoutes.get("/", auth, CabinController.getAllCabins);
 cabinRoutes.get("/:id", auth, CabinController.getCabinById);
 cabinRoutes.post(
   "/",
+  auth,
   upload.single("image"),
   validate(cabinValidation),
-  auth,
   CabinController.createCabin
 );
 cabinRoutes.post(
   "/:id/duplicate",
-  validate(cabinValidation),
   auth,
+  validate(cabinValidation),
   CabinController.duplicateCabin
 );
 cabinRoutes.put(
   "/:id",
+  auth,
   upload.single("image"),
   validate(cabinValidation),
-  auth,
   CabinController.updateCabin
 );
 cabinRoutes.delete("/:id", auth, CabinController.deleteCabin);

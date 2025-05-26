@@ -81,13 +81,6 @@ class BookingController {
 
   async createBooking(req, res, next) {
     try {
-      if (typeof req.body.startDate === "string") {
-        req.body.startDate = new Date(req.body.startDate);
-      }
-      if (typeof req.body.endDate === "string") {
-        req.body.endDate = new Date(req.body.endDate);
-      }
-
       await bookingSchema.validate(req.body, {
         abortEarly: false,
         strict: true,
@@ -114,13 +107,6 @@ class BookingController {
       const { id } = req.params;
       if (isNaN(id)) {
         return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
-      }
-
-      if (typeof req.body.startDate === "string") {
-        req.body.startDate = new Date(req.body.startDate);
-      }
-      if (typeof req.body.endDate === "string") {
-        req.body.endDate = new Date(req.body.endDate);
       }
 
       await bookingSchema.validate(req.body, {

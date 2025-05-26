@@ -8,14 +8,14 @@ const auth = require("../middleware/auth");
 guestRoutes.get("/:id", auth, GuestController.getGuestById);
 guestRoutes.post(
   "/",
-  validate(guestValidation),
   auth,
+  validate(guestValidation),
   GuestController.createGuest
 );
 guestRoutes.put(
   "/:id",
-  validate(guestValidation),
   auth,
+  validate(guestValidation),
   GuestController.updateGuest
 );
 guestRoutes.delete("/:id", auth, GuestController.deleteGuest);

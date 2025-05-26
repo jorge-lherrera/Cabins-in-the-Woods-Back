@@ -1,17 +1,10 @@
-const { verify } = require("jsonwebtoken");
 const Worker = require("../models/Worker");
 const MESSAGES = require("../utils/messages");
 
 class SessionController {
   async getSession(req, res, next) {
     try {
-      const token = req.cookies?.authToken || null;
-      if (!token) {
-        return res.status(401).json({ success: false, loggedIn: false });
-      }
-
-      const decoded = verify(token, process.env.SECRET_JWT);
-      const worker = await Worker.findByPk(decoded.sub);
+      const worker = await Worker.findByPk(req.user.id);
       if (!worker) {
         return res.status(401).json({
           success: false,
@@ -26,9 +19,6 @@ class SessionController {
         user: { id: worker.id, name: worker.name },
       });
     } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log(error.message);
-      }
       return res.status(401).json({ success: false, loggedIn: false });
     }
   }
