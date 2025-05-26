@@ -15,14 +15,14 @@ class LoginController {
       if (!worker) {
         return res
           .status(401)
-          .json({ erro: MESSAGES.LOGIN.INVALID_CREDENTIALS });
+          .json({ success: false, error: MESSAGES.LOGIN.INVALID_CREDENTIALS });
       }
 
       const hashSenha = await bcrypt.compare(password, worker.password);
       if (!hashSenha) {
         return res
           .status(401)
-          .json({ erro: MESSAGES.LOGIN.INVALID_CREDENTIALS });
+          .json({ success: false, error: MESSAGES.LOGIN.INVALID_CREDENTIALS });
       }
 
       const payload = { sub: worker.id, name: worker.name };
@@ -36,6 +36,7 @@ class LoginController {
       });
 
       return res.status(200).json({
+        success: true,
         worker: {
           id: worker.id,
           name: worker.name,
@@ -47,7 +48,9 @@ class LoginController {
       if (process.env.NODE_ENV !== "production") {
         console.log(error.message);
       }
-      return res.status(500).json({ erro: MESSAGES.GENERAL.SERVER_ERROR });
+      return res
+        .status(500)
+        .json({ success: false, error: MESSAGES.GENERAL.SERVER_ERROR });
     }
   }
 }

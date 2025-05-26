@@ -5,8 +5,8 @@ function validate(schema) {
       next();
     } catch (error) {
       return res.status(400).json({
-        sucesso: false,
-        mensagem: "Erros de validação nos dados fornecidos.",
+        success: false,
+        message: "Erros de validação nos dados fornecidos.",
         detalhes: error.errors,
       });
     }
