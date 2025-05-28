@@ -1,6 +1,3 @@
-const Booking = require("../models/Booking");
-const Cabin = require("../models/Cabin");
-const Guest = require("../models/Guest");
 const MESSAGES = require("../utils/messages");
 const bookingSchema = require("../validations/bookingValidation");
 const bookingService = require("../services/bookingService");
@@ -27,24 +24,16 @@ class BookingController {
       if (guestId) where.guestId = guestId;
       if (status) where.status = status;
 
-      const bookings = await Booking.findAndCountAll({
+      const result = await bookingService.getAllBookingsWithStats({
         where,
-        include: [
-          { model: Cabin, as: "cabin" },
-          { model: Guest, as: "guest" },
-        ],
-        order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+        orderBy,
+        order,
         limit: parsedLimit,
         offset,
+        page: Number(page),
       });
 
-      return res.status(200).json({
-        success: true,
-        total: bookings.count,
-        bookings: bookings.rows,
-        page: Number(page),
-        limit: parsedLimit,
-      });
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -56,24 +45,11 @@ class BookingController {
       if (isNaN(id)) {
         return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
       }
-
-      const booking = await Booking.findByPk(id, {
-        include: [
-          { model: Cabin, as: "cabin" },
-          { model: Guest, as: "guest" },
-        ],
-      });
-
+      const booking = await bookingService.getBookingById(id);
       if (!booking) {
-        return res
-          .status(404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Reserva") });
+        return res.status(404).json({ error: "Reserva não encontrada" });
       }
-
-      return res.status(200).json({
-        success: true,
-        booking,
-      });
+      return res.status(200).json(booking);
     } catch (error) {
       next(error);
     }

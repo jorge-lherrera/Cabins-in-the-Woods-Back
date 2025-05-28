@@ -1,20 +1,14 @@
-const BaseController = require("./BaseController");
 const settingService = require("../services/settingService");
 const MESSAGES = require("../utils/messages");
-const Setting = require("../models/Setting");
 
-class SettingController extends BaseController {
-  constructor() {
-    super(Setting, "Configuração", MESSAGES);
-  }
-
+class SettingController {
   async getSettings(req, res, next) {
     try {
       const settings = await settingService.getUniqueSetting();
       if (!settings) {
         return res
           .status(404)
-          .json({ error: this.messages.SETTINGS.CONFIG_NOT_FOUND });
+          .json({ error: MESSAGES.SETTINGS.CONFIG_NOT_FOUND });
       }
       return res.status(200).json(settings);
     } catch (error) {
@@ -30,20 +24,25 @@ class SettingController extends BaseController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-      const { setting, error, status } =
-        await settingService.createUniqueSetting({
+      try {
+        const setting = await settingService.createUniqueSetting({
           minBookingLength,
           maxBookingLength,
           maxGuestsPerBooking,
           breakfastPrice,
         });
-      if (error) {
-        return res.status(status || 400).json({ error });
+        return res.status(201).json({
+          message: MESSAGES.GENERAL.CREATE_SUCCESS("Configuração"),
+          setting,
+        });
+      } catch (err) {
+        if (err.message === settingService.SETTING_ERRORS.EXISTS) {
+          return res
+            .status(400)
+            .json({ error: MESSAGES.SETTINGS.ALREADY_EXISTS });
+        }
+        throw err;
       }
-      return res.status(201).json({
-        message: this.messages.GENERAL.CREATE_SUCCESS(this.resourceName),
-        setting,
-      });
     } catch (error) {
       next(error);
     }
@@ -57,21 +56,24 @@ class SettingController extends BaseController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-
-      const { setting, error, status } =
+      try {
         await settingService.updateUniqueSetting({
           minBookingLength,
           maxBookingLength,
           maxGuestsPerBooking,
           breakfastPrice,
         });
-      if (error) {
-        return res.status(status || 400).json({ error });
+        return res.status(200).json({
+          message: MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
+        });
+      } catch (err) {
+        if (err.message === settingService.SETTING_ERRORS.NOT_FOUND) {
+          return res
+            .status(404)
+            .json({ error: MESSAGES.SETTINGS.CONFIG_NOT_FOUND });
+        }
+        throw err;
       }
-      return res.status(200).json({
-        message: this.messages.GENERAL.UPDATE_SUCCESS(this.resourceName),
-        setting,
-      });
     } catch (error) {
       next(error);
     }
