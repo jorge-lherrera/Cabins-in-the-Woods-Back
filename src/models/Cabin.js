@@ -23,20 +23,20 @@ const Cabin = connection.define("cabin", {
   regularPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
-    validate: {
-      isFloat: { msg: "O preço regular deve ser um número decimal." },
-      min: { args: 0, msg: "O preço regular não pode ser negativo." },
-      notNull: { msg: "O preço regular é obrigatório." },
-    },
+    // validate: {
+    //   isFloat: { msg: "O preço regular deve ser um número decimal." },
+    //   min: { args: 0, msg: "O preço regular não pode ser negativo." },
+    //   notNull: { msg: "O preço regular é obrigatório." },
+    // },
   },
   discount: {
     type: DataTypes.FLOAT,
     allowNull: true,
-    validate: {
-      isFloat: { msg: "O desconto deve ser um número decimal." },
-      min: { args: 0, msg: "O desconto não pode ser negativo." },
-      max: { args: 100, msg: "O desconto não pode ser maior que 100%." },
-    },
+    // validate: {
+    //   isFloat: { msg: "O desconto deve ser um número decimal." },
+    //   min: { args: 0, msg: "O desconto não pode ser negativo." },
+    //   max: { args: 100, msg: "O desconto não pode ser maior que 100%." },
+    // },
   },
   image: {
     type: DataTypes.STRING,

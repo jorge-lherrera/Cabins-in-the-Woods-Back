@@ -65,28 +65,28 @@ const Booking = connection.define("booking", {
   cabinPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
-    validate: {
-      isFloat: { msg: "O preço da cabana deve ser um número decimal." },
-      min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
-      notNull: { msg: "O preço da cabana é obrigatório." },
-    },
+    // validate: {
+    //   isFloat: { msg: "O preço da cabana deve ser um número decimal." },
+    //   min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
+    //   notNull: { msg: "O preço da cabana é obrigatório." },
+    // },
   },
   extrasPrice: {
     type: DataTypes.FLOAT,
     allowNull: true,
-    validate: {
-      isFloat: { msg: "O preço dos extras deve ser um número decimal." },
-      min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
-    },
+    // validate: {
+    //   isFloat: { msg: "O preço dos extras deve ser um número decimal." },
+    //   min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
+    // },
   },
   totalPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
-    validate: {
-      isFloat: { msg: "O preço total deve ser um número decimal." },
-      min: { args: 0, msg: "O preço total não pode ser negativo." },
-      notNull: { msg: "O preço total é obrigatório." },
-    },
+    // validate: {
+    //   isFloat: { msg: "O preço total deve ser um número decimal." },
+    //   min: { args: 0, msg: "O preço total não pode ser negativo." },
+    //   notNull: { msg: "O preço total é obrigatório." },
+    // },
   },
   hasBreakfast: {
     type: DataTypes.BOOLEAN,

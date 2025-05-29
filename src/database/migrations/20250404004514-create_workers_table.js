@@ -19,68 +19,6 @@ module.exports = {
       createdAt: { type: DATE, allowNull: false },
       updatedAt: { type: DATE, allowNull: false },
     });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["name"],
-      type: "check",
-      where: Sequelize.literal(
-        `char_length("name") BETWEEN 3 AND 100 AND "name" ~ '^[\\p{L}\\s]+$'`
-      ),
-      name: "check_name_letters_spaces_no_emojis",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["email"],
-      type: "check",
-      where: Sequelize.literal('char_length("email") <= 150'),
-      name: "check_email_length",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["email"],
-      type: "check",
-      where: Sequelize.literal("\"email\" ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'"),
-      name: "check_email_format",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["email"],
-      type: "check",
-      where: Sequelize.literal("\"email\" ~ '^[\\p{L}\\d@._-]+$'"),
-      name: "check_email_no_emojis",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["avatar"],
-      type: "check",
-      where: Sequelize.literal(
-        '("avatar" IS NULL OR "avatar" ~ \'^https?://\')'
-      ),
-      name: "check_avatar_url",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["avatar"],
-      type: "check",
-      where: Sequelize.literal(
-        '("avatar" IS NULL OR "avatar" ~ \'^[\\p{L}\\d@._\\-:/]+$\')'
-      ),
-      name: "check_avatar_no_emojis",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["password"],
-      type: "check",
-      where: Sequelize.literal('char_length("password") BETWEEN 8 AND 100'),
-      name: "check_password_length",
-    });
-
-    await queryInterface.addConstraint("workers", {
-      fields: ["password"],
-      type: "check",
-      where: Sequelize.literal("\"password\" ~ '^[\\p{L}\\d@._-]+$'"),
-      name: "check_password_no_emojis",
-    });
   },
 
   async down(queryInterface) {
