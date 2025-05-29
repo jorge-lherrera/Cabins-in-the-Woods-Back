@@ -1,4 +1,5 @@
 const Yup = require("yup");
+const emojiRegex = require("emoji-regex");
 
 const positiveNumber = (fieldName) =>
   Yup.number()
@@ -19,6 +20,13 @@ const validateStringLength = (fieldName, min, max) =>
     .max(max, `O campo ${fieldName} não pode ter mais de ${max} caracteres`)
     .required(`O campo ${fieldName} é obrigatório`);
 
+const noEmojis = (fieldName) =>
+  Yup.string().test(
+    "no-emojis",
+    `O campo ${fieldName} não pode conter emoticonos.`,
+    (value) => !value || !emojiRegex().test(value)
+  );
+
 const applyNoUnknown = (schema, message) =>
   schema.noUnknown(true, message || "Campos adicionais não são permitidos.");
 
@@ -26,5 +34,6 @@ module.exports = {
   positiveNumber,
   positiveInteger,
   validateStringLength,
+  noEmojis,
   applyNoUnknown,
 };

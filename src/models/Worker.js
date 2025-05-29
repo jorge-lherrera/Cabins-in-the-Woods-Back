@@ -1,20 +1,26 @@
 const { DataTypes } = require("sequelize");
 const { connection } = require("../database/connection");
+const emojiRegex = require("emoji-regex");
+
+function noEmojis(value, field) {
+  if (typeof value === "string" && emojiRegex().test(value)) {
+    throw new Error(`O campo ${field} não pode conter emoticonos.`);
+  }
+}
 
 const Worker = connection.define("worker", {
   name: {
     type: DataTypes.STRING(100),
     allowNull: false,
     validate: {
-      notNull: {
-        msg: "O nome é obrigatório.",
+      notNull: { msg: "O nome é obrigatório." },
+      notEmpty: { msg: "O nome não pode estar vazio." },
+      len: {
+        args: [3, 100],
+        msg: "O nome deve ter entre 3 e 100 caracteres.",
       },
-      notEmpty: {
-        msg: "O nome não pode estar vazio.",
-      },
-      is: {
-        args: /^[a-zA-ZÀ-ÿ\s]+$/i,
-        msg: "O nome deve conter apenas letras e espaços.",
+      noEmojis(value) {
+        noEmojis(value, "nome");
       },
     },
   },
@@ -23,19 +29,23 @@ const Worker = connection.define("worker", {
     allowNull: false,
     unique: true,
     validate: {
-      notNull: {
-        msg: "O e-mail é obrigatório.",
+      notNull: { msg: "O e-mail é obrigatório." },
+      isEmail: { msg: "O e-mail fornecido não é válido." },
+      len: {
+        args: [1, 150],
+        msg: "O e-mail não pode ter mais de 150 caracteres.",
       },
-      isEmail: {
-        msg: "O e-mail fornecido não é válido.",
+      noEmojis(value) {
+        noEmojis(value, "e-mail");
       },
     },
   },
   avatar: {
     type: DataTypes.STRING,
     validate: {
-      isUrl: {
-        msg: "O avatar deve ser uma URL válida.",
+      isUrl: { msg: "O avatar deve ser uma URL válida." },
+      noEmojis(value) {
+        noEmojis(value, "avatar");
       },
     },
   },
@@ -43,15 +53,14 @@ const Worker = connection.define("worker", {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      notNull: {
-        msg: "A senha é obrigatória.",
-      },
-      notEmpty: {
-        msg: "A senha não pode estar vazia.",
-      },
+      notNull: { msg: "A senha é obrigatória." },
+      notEmpty: { msg: "A senha não pode estar vazia." },
       len: {
         args: [8, 100],
-        msg: "A senha deve ter pelo menos 8 caracteres.",
+        msg: "A senha deve ter entre 8 e 100 caracteres.",
+      },
+      noEmojis(value) {
+        noEmojis(value, "senha");
       },
     },
   },
