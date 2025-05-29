@@ -4,6 +4,15 @@ const Booking = require("../models/Booking");
 const MESSAGES = require("../utils/messages");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 
+async function getAllCabins({ limit, offset, orderField, orderDirection }) {
+  return await Cabin.findAll({
+    limit,
+    offset,
+    order: [[orderField, orderDirection]],
+    include: [{ model: Booking, as: "bookings" }],
+  });
+}
+
 async function getCabinById(id) {
   if (isNaN(id)) {
     return { error: MESSAGES.GENERAL.INVALID_ID, status: 400 };
@@ -134,6 +143,7 @@ async function deleteCabin(id) {
 }
 
 module.exports = {
+  getAllCabins,
   getCabinById,
   createCabin,
   duplicateCabin,

@@ -1,4 +1,5 @@
 const settingService = require("../services/settingService");
+const { SETTING_ERRORS } = require("../services/settingService");
 const MESSAGES = require("../utils/messages");
 
 class SettingController {
@@ -36,10 +37,10 @@ class SettingController {
           setting,
         });
       } catch (err) {
-        if (err.message === settingService.SETTING_ERRORS.EXISTS) {
+        if (err.message === SETTING_ERRORS.EXISTS) {
           return res
             .status(400)
-            .json({ error: MESSAGES.SETTINGS.ALREADY_EXISTS });
+            .json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
         }
         throw err;
       }

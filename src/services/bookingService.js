@@ -5,6 +5,82 @@ const Guest = require("../models/Guest");
 const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
 
+async function getAllBookingsWithStats({
+  where,
+  orderBy,
+  order,
+  limit,
+  offset,
+  page,
+}) {
+  // Bookings paginadas
+  const bookings = await Booking.findAndCountAll({
+    where,
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+    limit,
+    offset,
+  });
+
+  // Bookings del día
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const bookingsToday = await Booking.findAll({
+    where: {
+      ...where,
+      startDate: { [Op.between]: [todayStart, todayEnd] },
+    },
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+  });
+
+  // Cálculo de rangos de noches para gráfico
+  const nightRanges = {
+    "2-3": 0,
+    "4-5": 0,
+    "8-14": 0,
+  };
+
+  bookings.rows.forEach((booking) => {
+    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
+    else if (booking.numNights >= 4 && booking.numNights <= 5)
+      nightRanges["4-5"]++;
+    else if (booking.numNights >= 8 && booking.numNights <= 14)
+      nightRanges["8-14"]++;
+  });
+
+  return {
+    success: true,
+    total: bookings.count,
+    bookings: bookings.rows,
+    bookingsToday,
+    nightRanges,
+    page,
+    limit,
+  };
+}
+
+async function getBookingById(id) {
+  if (isNaN(id)) {
+    return null;
+  }
+  return await Booking.findByPk(id, {
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+  });
+}
+
 async function validateBusinessRules({
   numNights,
   numGuests,
@@ -197,73 +273,10 @@ async function deleteBooking(id) {
   return { success: true };
 }
 
-async function getAllBookingsWithStats({
-  where,
-  orderBy,
-  order,
-  limit,
-  offset,
-  page,
-}) {
-  // Bookings paginadas
-  const bookings = await Booking.findAndCountAll({
-    where,
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
-    limit,
-    offset,
-  });
-
-  // Bookings del día
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const bookingsToday = await Booking.findAll({
-    where: {
-      ...where,
-      startDate: { [Op.between]: [todayStart, todayEnd] },
-    },
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
-  });
-
-  // Cálculo de rangos de noches para gráfico
-  const nightRanges = {
-    "2-3": 0,
-    "4-5": 0,
-    "8-14": 0,
-  };
-
-  bookings.rows.forEach((booking) => {
-    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
-    else if (booking.numNights >= 4 && booking.numNights <= 5)
-      nightRanges["4-5"]++;
-    else if (booking.numNights >= 8 && booking.numNights <= 14)
-      nightRanges["8-14"]++;
-  });
-
-  return {
-    success: true,
-    total: bookings.count,
-    bookings: bookings.rows,
-    bookingsToday,
-    nightRanges,
-    page,
-    limit,
-  };
-}
-
 module.exports = {
+  getAllBookingsWithStats,
+  getBookingById,
   createBooking,
   updateBooking,
   deleteBooking,
-  getAllBookingsWithStats,
 };
