@@ -74,6 +74,13 @@ class WorkerController {
       if (error) {
         return res.status(status || 400).json({ error });
       }
+
+      res.clearCookie("authToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      });
+
       return successResponse(
         res,
         200,

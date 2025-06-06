@@ -1,19 +1,17 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { connection } = require("./database/connection");
 const routes = require("./routes/routes");
-const cookieParser = require("cookie-parser");
+const errorHandler = require("./middleware/errorHandler");
 const PORT_API = process.env.PORT_API;
 const CORS_ORIGIN = process.env.CORS_ORIGIN;
-// const successHandler = require("./middleware/successHandler");
-const errorHandler = require("./middleware/errorHandler");
 
 class Server {
   constructor(server = express()) {
     this.middlewares(server);
     server.use(routes);
     this.errorMiddleware(server);
-
     this.database();
     this.initializeServer(server);
   }

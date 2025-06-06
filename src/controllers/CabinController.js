@@ -10,7 +10,9 @@ class CabinController {
         limit = 10,
         orderBy = "name",
         order = "ASC",
+        discountFilter,
       } = req.query;
+
       const parsedLimit = parseInt(limit);
       const offset = (page - 1) * parsedLimit;
 
@@ -27,6 +29,7 @@ class CabinController {
         offset,
         orderField,
         orderDirection,
+        discountFilter, // Pasar el filtro al servicio
       });
 
       return res.status(200).json(cabins);
@@ -99,6 +102,15 @@ class CabinController {
       const { id } = req.params;
       const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
+
+      // Validar que la cabina no tenga bookings asociadas antes de editar
+      const hasBookings = await cabinService.hasBookings(id);
+      if (hasBookings) {
+        return res
+          .status(409)
+          .json({ error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS });
+      }
+
       const { success, error, status } = await cabinService.updateCabin(id, {
         name,
         maxCapacity,

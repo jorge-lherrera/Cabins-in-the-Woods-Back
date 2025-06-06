@@ -72,6 +72,14 @@ class GuestController {
   async deleteGuest(req, res, next) {
     try {
       const { id } = req.params;
+
+      const hasBookings = await guestService.hasBookings(id);
+      if (hasBookings) {
+        return res
+          .status(409)
+          .json({ error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS });
+      }
+
       const { success, error, status } = await guestService.deleteGuest(id);
       if (error) {
         return res.status(status || 400).json({ error });

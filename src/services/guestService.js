@@ -13,7 +13,10 @@ async function getGuestById(id) {
   }
   return { guest };
 }
-
+async function hasBookings(guestId) {
+  const bookingsCount = await Booking.count({ where: { guestId } });
+  return bookingsCount > 0;
+}
 async function createGuest({
   fullName,
   email,
@@ -89,6 +92,7 @@ async function deleteGuest(id) {
 
 module.exports = {
   getGuestById,
+  hasBookings,
   createGuest,
   updateGuest,
   deleteGuest,

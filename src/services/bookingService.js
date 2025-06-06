@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
@@ -13,7 +13,6 @@ async function getAllBookingsWithStats({
   offset,
   page,
 }) {
-  // Bookings paginadas
   const bookings = await Booking.findAndCountAll({
     where,
     include: [
@@ -25,7 +24,6 @@ async function getAllBookingsWithStats({
     offset,
   });
 
-  // Bookings del día
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date();
@@ -43,7 +41,79 @@ async function getAllBookingsWithStats({
     order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
   });
 
-  // Cálculo de rangos de noches para gráfico
+  // CÁLCULOS PARA DASHBOARD
+
+  // 1. Suma del valor total de las bookings
+  const totalRevenue = await Booking.sum("totalPrice", { where });
+
+  // 2. Cantidad de bookings con check-in realizado
+  const checkedInBookings = await Booking.count({
+    where: { ...where, status: "checked-in" },
+  });
+
+  // 3. Tasa de ocupación
+  const totalCabins = await Cabin.count();
+  const activeBookings = await Booking.count({
+    where: {
+      ...where,
+      status: ["checked-in", "unconfirmed"],
+    },
+  });
+  const occupancyRate =
+    totalCabins > 0 ? (activeBookings / totalCabins) * 100 : 0;
+
+  // 4. Datos para gráfico de ventas (últimos 30 días)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const salesData = await Booking.findAll({
+    where: {
+      ...where,
+      startDate: {
+        [Op.gte]: thirtyDaysAgo,
+      },
+    },
+    attributes: [
+      [Sequelize.fn("DATE", Sequelize.col("startDate")), "date"],
+      [Sequelize.fn("SUM", Sequelize.col("totalPrice")), "revenue"],
+    ],
+    group: [Sequelize.fn("DATE", Sequelize.col("startDate"))],
+    order: [[Sequelize.fn("DATE", Sequelize.col("startDate")), "ASC"]],
+    raw: true,
+  });
+
+  // CALCULAR DÍAS FALTANTES PARA CADA BOOKING
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const bookingsWithDays = bookings.rows.map((booking) => {
+    const startDate = new Date(booking.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    // Calcular días faltantes (puede ser negativo si ya empezó)
+    const timeDiff = startDate.getTime() - today.getTime();
+    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return {
+      ...booking.toJSON(),
+      daysUntilStart: daysUntilStart,
+    };
+  });
+
+  // CALCULAR DÍAS FALTANTES PARA BOOKINGS DE HOY
+  const bookingsTodayWithDays = bookingsToday.map((booking) => {
+    const startDate = new Date(booking.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const timeDiff = startDate.getTime() - today.getTime();
+    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return {
+      ...booking.toJSON(),
+      daysUntilStart: daysUntilStart,
+    };
+  });
+
   const nightRanges = {
     "2-3": 0,
     "4-5": 0,
@@ -61,9 +131,14 @@ async function getAllBookingsWithStats({
   return {
     success: true,
     total: bookings.count,
-    bookings: bookings.rows,
-    bookingsToday,
+    bookings: bookingsWithDays, // Con días faltantes incluidos
+    bookingsToday: bookingsTodayWithDays, // Con días faltantes incluidos
     nightRanges,
+    // NUEVAS MÉTRICAS CALCULADAS
+    totalRevenue: totalRevenue || 0,
+    checkedInBookings,
+    occupancyRate: Math.round(occupancyRate * 100) / 100, // 2 decimales
+    salesChart: salesData,
     page,
     limit,
   };
@@ -73,12 +148,32 @@ async function getBookingById(id) {
   if (isNaN(id)) {
     return null;
   }
-  return await Booking.findByPk(id, {
+
+  const booking = await Booking.findByPk(id, {
     include: [
       { model: Cabin, as: "cabin" },
       { model: Guest, as: "guest" },
     ],
   });
+
+  if (!booking) {
+    return null;
+  }
+
+  // CALCULAR DÍAS FALTANTES PARA LA BOOKING INDIVIDUAL
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const startDate = new Date(booking.startDate);
+  startDate.setHours(0, 0, 0, 0);
+
+  const timeDiff = startDate.getTime() - today.getTime();
+  const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+  return {
+    ...booking.toJSON(),
+    daysUntilStart: daysUntilStart,
+  };
 }
 
 async function validateBusinessRules({
