@@ -4,177 +4,7 @@ const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
 const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
-
-async function getAllBookingsWithStats({
-  where,
-  orderBy,
-  order,
-  limit,
-  offset,
-  page,
-}) {
-  const bookings = await Booking.findAndCountAll({
-    where,
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
-    limit,
-    offset,
-  });
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const bookingsToday = await Booking.findAll({
-    where: {
-      ...where,
-      startDate: { [Op.between]: [todayStart, todayEnd] },
-    },
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
-  });
-
-  // CÁLCULOS PARA DASHBOARD
-
-  // 1. Suma del valor total de las bookings
-  const totalRevenue = await Booking.sum("totalPrice", { where });
-
-  // 2. Cantidad de bookings con check-in realizado
-  const checkedInBookings = await Booking.count({
-    where: { ...where, status: "checked-in" },
-  });
-
-  // 3. Tasa de ocupación
-  const totalCabins = await Cabin.count();
-  const activeBookings = await Booking.count({
-    where: {
-      ...where,
-      status: ["checked-in", "unconfirmed"],
-    },
-  });
-  const occupancyRate =
-    totalCabins > 0 ? (activeBookings / totalCabins) * 100 : 0;
-
-  // 4. Datos para gráfico de ventas (últimos 30 días)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const salesData = await Booking.findAll({
-    where: {
-      ...where,
-      startDate: {
-        [Op.gte]: thirtyDaysAgo,
-      },
-    },
-    attributes: [
-      [Sequelize.fn("DATE", Sequelize.col("startDate")), "date"],
-      [Sequelize.fn("SUM", Sequelize.col("totalPrice")), "revenue"],
-    ],
-    group: [Sequelize.fn("DATE", Sequelize.col("startDate"))],
-    order: [[Sequelize.fn("DATE", Sequelize.col("startDate")), "ASC"]],
-    raw: true,
-  });
-
-  // CALCULAR DÍAS FALTANTES PARA CADA BOOKING
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const bookingsWithDays = bookings.rows.map((booking) => {
-    const startDate = new Date(booking.startDate);
-    startDate.setHours(0, 0, 0, 0);
-
-    // Calcular días faltantes (puede ser negativo si ya empezó)
-    const timeDiff = startDate.getTime() - today.getTime();
-    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-    return {
-      ...booking.toJSON(),
-      daysUntilStart: daysUntilStart,
-    };
-  });
-
-  // CALCULAR DÍAS FALTANTES PARA BOOKINGS DE HOY
-  const bookingsTodayWithDays = bookingsToday.map((booking) => {
-    const startDate = new Date(booking.startDate);
-    startDate.setHours(0, 0, 0, 0);
-
-    const timeDiff = startDate.getTime() - today.getTime();
-    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-    return {
-      ...booking.toJSON(),
-      daysUntilStart: daysUntilStart,
-    };
-  });
-
-  const nightRanges = {
-    "2-3": 0,
-    "4-5": 0,
-    "8-14": 0,
-  };
-
-  bookings.rows.forEach((booking) => {
-    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
-    else if (booking.numNights >= 4 && booking.numNights <= 5)
-      nightRanges["4-5"]++;
-    else if (booking.numNights >= 8 && booking.numNights <= 14)
-      nightRanges["8-14"]++;
-  });
-
-  return {
-    success: true,
-    total: bookings.count,
-    bookings: bookingsWithDays, // Con días faltantes incluidos
-    bookingsToday: bookingsTodayWithDays, // Con días faltantes incluidos
-    nightRanges,
-    // NUEVAS MÉTRICAS CALCULADAS
-    totalRevenue: totalRevenue || 0,
-    checkedInBookings,
-    occupancyRate: Math.round(occupancyRate * 100) / 100, // 2 decimales
-    salesChart: salesData,
-    page,
-    limit,
-  };
-}
-
-async function getBookingById(id) {
-  if (isNaN(id)) {
-    return null;
-  }
-
-  const booking = await Booking.findByPk(id, {
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-  });
-
-  if (!booking) {
-    return null;
-  }
-
-  // CALCULAR DÍAS FALTANTES PARA LA BOOKING INDIVIDUAL
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const startDate = new Date(booking.startDate);
-  startDate.setHours(0, 0, 0, 0);
-
-  const timeDiff = startDate.getTime() - today.getTime();
-  const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-  return {
-    ...booking.toJSON(),
-    daysUntilStart: daysUntilStart,
-  };
-}
+const findById = require("../utils/findById");
 
 async function validateBusinessRules({
   numNights,
@@ -184,7 +14,7 @@ async function validateBusinessRules({
 }) {
   const setting = await Setting.findOne();
   if (!setting) {
-    return { error: "Configuração não encontrada.", status: 500 };
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Configuração"), status: 500 };
   }
   if (
     numNights < setting.minBookingLength ||
@@ -230,6 +60,165 @@ async function checkOverlap({ cabinId, startDate, endDate, excludeId = null }) {
     return { error: MESSAGES.BOOKING.DUPLICATE_BOOKING, status: 409 };
   }
   return {};
+}
+
+async function getAllBookingsWithStats({
+  where,
+  orderBy,
+  order,
+  limit,
+  offset,
+  page,
+}) {
+  const bookings = await Booking.findAndCountAll({
+    where,
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+    limit,
+    offset,
+  });
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const bookingsToday = await Booking.findAll({
+    where: {
+      ...where,
+      startDate: { [Op.between]: [todayStart, todayEnd] },
+    },
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
+  });
+
+  const totalRevenue = await Booking.sum("totalPrice", { where });
+
+  const checkedInBookings = await Booking.count({
+    where: { ...where, status: "checked-in" },
+  });
+
+  const totalCabins = await Cabin.count();
+  const activeBookings = await Booking.count({
+    where: {
+      ...where,
+      status: ["checked-in", "unconfirmed"],
+    },
+  });
+  const occupancyRate =
+    totalCabins > 0 ? (activeBookings / totalCabins) * 100 : 0;
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const salesData = await Booking.findAll({
+    where: {
+      ...where,
+      startDate: {
+        [Op.gte]: thirtyDaysAgo,
+      },
+    },
+    attributes: [
+      [Sequelize.fn("DATE", Sequelize.col("startDate")), "date"],
+      [Sequelize.fn("SUM", Sequelize.col("totalPrice")), "revenue"],
+    ],
+    group: [Sequelize.fn("DATE", Sequelize.col("startDate"))],
+    order: [[Sequelize.fn("DATE", Sequelize.col("startDate")), "ASC"]],
+    raw: true,
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const bookingsWithDays = bookings.rows.map((booking) => {
+    const startDate = new Date(booking.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const timeDiff = startDate.getTime() - today.getTime();
+    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return {
+      ...booking.toJSON(),
+      daysUntilStart: daysUntilStart,
+    };
+  });
+
+  const bookingsTodayWithDays = bookingsToday.map((booking) => {
+    const startDate = new Date(booking.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const timeDiff = startDate.getTime() - today.getTime();
+    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return {
+      ...booking.toJSON(),
+      daysUntilStart,
+    };
+  });
+
+  const nightRanges = {
+    "2-3": 0,
+    "4-5": 0,
+    "8-14": 0,
+  };
+
+  bookings.rows.forEach((booking) => {
+    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
+    else if (booking.numNights >= 4 && booking.numNights <= 5)
+      nightRanges["4-5"]++;
+    else if (booking.numNights >= 8 && booking.numNights <= 14)
+      nightRanges["8-14"]++;
+  });
+
+  return {
+    success: true,
+    total: bookings.count,
+    bookings: bookingsWithDays,
+    bookingsToday: bookingsTodayWithDays,
+    nightRanges,
+    totalRevenue: totalRevenue || 0,
+    checkedInBookings,
+    occupancyRate: Math.round(occupancyRate * 100) / 100,
+    salesChart: salesData,
+    page,
+    limit,
+  };
+}
+
+async function getBookingById(id) {
+  const existingBooking = await findById(Booking, id);
+  if (!existingBooking) {
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Reserva"), status: 404 };
+  }
+
+  const booking = await Booking.findByPk(id, {
+    include: [
+      { model: Cabin, as: "cabin" },
+      { model: Guest, as: "guest" },
+    ],
+  });
+
+  if (!booking) {
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Reserva"), status: 404 };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = new Date(booking.startDate);
+  startDate.setHours(0, 0, 0, 0);
+  const timeDiff = startDate.getTime() - today.getTime();
+  const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+  return {
+    ...booking.toJSON(),
+    daysUntilStart,
+  };
 }
 
 async function createBooking(data) {
@@ -292,7 +281,7 @@ async function createBooking(data) {
 }
 
 async function updateBooking(id, data) {
-  const existingBooking = await Booking.findByPk(id);
+  const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return { error: MESSAGES.GENERAL.NOT_FOUND("Reserva"), status: 404 };
   }
@@ -360,7 +349,7 @@ async function updateBooking(id, data) {
 }
 
 async function deleteBooking(id) {
-  const existingBooking = await Booking.findByPk(id);
+  const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return { error: MESSAGES.GENERAL.NOT_FOUND("Reserva"), status: 404 };
   }

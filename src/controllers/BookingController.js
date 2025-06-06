@@ -33,7 +33,13 @@ class BookingController {
         page: Number(page),
       });
 
-      return res.status(200).json(result);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Reservas"),
+        result,
+        "bookings"
+      );
     } catch (error) {
       next(error);
     }
@@ -43,13 +49,19 @@ class BookingController {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
       }
-      const booking = await bookingService.getBookingById(id);
-      if (!booking) {
-        return res.status(404).json({ error: "Reserva não encontrada" });
+      const result = await bookingService.getBookingById(id);
+      if (result.error) {
+        return res.status(result.status || 404).json({ error: result.error });
       }
-      return res.status(200).json(booking);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Reserva"),
+        result.booking,
+        "booking"
+      );
     } catch (error) {
       next(error);
     }
@@ -57,11 +69,6 @@ class BookingController {
 
   async createBooking(req, res, next) {
     try {
-      await bookingSchema.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
-
       const result = await bookingService.createBooking(req.body);
       if (result.error) {
         return res.status(result.status || 400).json({ error: result.error });
@@ -82,13 +89,8 @@ class BookingController {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
       }
-
-      await bookingSchema.validate(req.body, {
-        abortEarly: false,
-        strict: true,
-      });
 
       const result = await bookingService.updateBooking(id, req.body);
       if (result.error) {
@@ -110,7 +112,7 @@ class BookingController {
     try {
       const { id } = req.params;
       if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID_ID });
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
       }
 
       const result = await bookingService.deleteBooking(id);

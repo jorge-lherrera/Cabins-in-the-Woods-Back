@@ -10,6 +10,7 @@ const MESSAGES = {
       `Já existe ${resource}. Por favor, escolha outro.`,
     ASSOCIATED: (resource) =>
       `Não é possível excluir o ${resource.toLowerCase()} porque existem registros associados.`,
+    FOUND: (resource) => `${resource} encontrado com sucesso.`,
 
     CREATE_SUCCESS: (resource) => `${resource} criado com sucesso.`,
     UPDATE_SUCCESS: (resource) => `${resource} atualizado com sucesso.`,
