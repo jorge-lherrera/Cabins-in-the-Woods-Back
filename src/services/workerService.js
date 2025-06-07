@@ -5,15 +5,15 @@ const findById = require("../utils/findById");
 const MESSAGES = require("../utils/messages");
 
 async function getWorkerById(id) {
-  const worker = await findById(Worker, id);
-  if (!worker) {
+  const existingWorker = await findById(Worker, id);
+  if (!existingWorker) {
     return {
       resource: null,
       error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
       status: 404,
     };
   }
-  return { resource: worker, error: null, status: 200 };
+  return { resource: existingWorker, error: null, status: 200 };
 }
 
 async function createWorker(data) {

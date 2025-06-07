@@ -4,13 +4,32 @@ const Booking = require("../models/Booking");
 const MESSAGES = require("../utils/messages");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 
-async function getAllCabins({ limit, offset, orderField, orderDirection }) {
-  return await Cabin.findAll({
-    limit,
+async function getAllCabins({ page = 1, limit = 10, orderBy = "name", order = "ASC", discountFilter }) {
+  const parsedLimit = parseInt(limit);
+  const offset = (page - 1) * parsedLimit;
+
+  const allowedOrderFields = {
+    name: "name",
+    value: "regularPrice",
+    guests: "maxCapacity",
+  };
+  const orderField = allowedOrderFields[orderBy] || "name";
+  const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
+
+  const where = {};
+  if (discountFilter) {
+    where.discount = { [Op.gte]: Number(discountFilter) };
+  }
+
+  const cabins = await Cabin.findAll({
+    limit: parsedLimit,
     offset,
     order: [[orderField, orderDirection]],
+    where,
     include: [{ model: Booking, as: "bookings" }],
   });
+
+  return { resource: cabins, error: null, status: 200 };
 }
 
 async function getCabinById(id) {
@@ -61,6 +80,8 @@ async function duplicateCabin(id) {
       status: 404,
     };
   }
+  const { maxCapacity, regularPrice, discount, image, description } =
+    existingCabin;
 
   const newName = `${existingCabin.name} (Cópia)`;
   const nameExists = await Cabin.findOne({ where: { name: newName } });
@@ -74,11 +95,11 @@ async function duplicateCabin(id) {
 
   const duplicatedCabin = await Cabin.create({
     name: newName,
-    maxCapacity: existingCabin.maxCapacity,
-    regularPrice: existingCabin.regularPrice,
-    discount: existingCabin.discount,
-    image: existingCabin.image,
-    description: existingCabin.description,
+    maxCapacity,
+    regularPrice,
+    discount,
+    image,
+    description,
   });
 
   return { resource: duplicatedCabin, error: null, status: 201 };

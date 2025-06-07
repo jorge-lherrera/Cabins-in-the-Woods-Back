@@ -3,40 +3,32 @@ const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
 class CabinController {
-  async getAllCabins(req, res, next) {
-    try {
-      const {
-        page = 1,
-        limit = 10,
-        orderBy = "name",
-        order = "ASC",
-        discountFilter,
-      } = req.query;
+ async getAllCabins(req, res, next) {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      orderBy = "name",
+      order = "ASC",
+      discountFilter,
+    } = req.query;
 
-      const parsedLimit = parseInt(limit);
-      const offset = (page - 1) * parsedLimit;
+    const result = await cabinService.getAllCabins({
+      page,
+      limit,
+      orderBy,
+      order,
+      discountFilter,
+    });
 
-      const allowedOrderFields = {
-        name: "name",
-        value: "regularPrice",
-        guests: "maxCapacity",
-      };
-      const orderField = allowedOrderFields[orderBy] || "name";
-      const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
-
-      const cabins = await cabinService.getAllCabins({
-        limit: parsedLimit,
-        offset,
-        orderField,
-        orderDirection,
-        discountFilter, // Pasar el filtro al servicio
-      });
-
-      return res.status(200).json(cabins);
-    } catch (error) {
-      next(error);
+    if (result.error) {
+      return res.status(result.status || 400).json({ error: result.error });
     }
+    return res.status(200).json(result.resource);
+  } catch (error) {
+    next(error);
   }
+}
 
   async getCabinById(req, res, next) {
     try {
