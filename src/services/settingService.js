@@ -1,25 +1,76 @@
 const Setting = require("../models/Setting");
-
-const SETTING_ERRORS = {
-  EXISTS: "SETTING_ALREADY_EXISTS",
-  NOT_FOUND: "SETTING_NOT_FOUND",
-};
+const MESSAGES = require("../utils/messages");
 
 async function getUniqueSetting() {
-  return await Setting.findOne();
+  const setting = await Setting.findOne();
+  if (!setting) {
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+      status: 404,
+    };
+  }
+
+  return { resource: setting, error: null, status: 200 };
 }
 
 async function createUniqueSetting(data) {
-  const existing = await Setting.findOne();
-  if (existing) throw new Error(SETTING_ERRORS.EXISTS);
-  return await Setting.create(data);
+  const {
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  } = data;
+
+  const existingSetting = await Setting.findOne();
+
+  if (existingSetting) {
+    return {
+      resource: null,
+      error: MESSAGES.SETTING.CONFIG_EXISTS,
+      status: 409,
+    };
+  }
+
+  const setting = await Setting.create({
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  });
+
+  return { resource: setting, error: null, status: 201 };
 }
 
-async function updateUniqueSetting(data) {
-  const existing = await Setting.findOne();
-  if (!existing) throw new Error(SETTING_ERRORS.NOT_FOUND);
-  await Setting.update(data, { where: { id: existing.id } });
-  return true;
+async function updateUniqueSetting(id, data) {
+  const {
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  } = data;
+
+  const existingSetting = await Setting.findOne();
+
+  if (!existingSetting) {
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+      status: 404,
+    };
+  }
+
+  const updatedData = {
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  };
+
+  await Setting.update(updatedData, { where: { id } });
+  const updatedSetting = await Setting.findByPk(id);
+
+  return { resource: updatedSetting, error: null, status: 200 };
 }
 
 module.exports = {

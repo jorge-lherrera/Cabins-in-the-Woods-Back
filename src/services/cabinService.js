@@ -57,27 +57,24 @@ async function createCabin({
 }
 
 async function duplicateCabin(id) {
-  if (isNaN(id)) {
-    return { error: MESSAGES.GENERAL.INVALID_ID, status: 400 };
-  }
-  const cabin = await Cabin.findByPk(id);
-  if (!cabin) {
-    return { error: MESSAGES.CABIN.NOT_FOUND, status: 404 };
+  const existingCabin = await findById(Cabin, id);
+  if (!existingCabin) {
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Cabana"), status: 404 };
   }
 
-  const newName = `${cabin.name} (Cópia)`;
+  const newName = `${existingCabin.name} (Cópia)`;
   const nameExists = await Cabin.findOne({ where: { name: newName } });
   if (nameExists) {
-    return { error: MESSAGES.CABIN.DUPLICATE_NAME, status: 409 };
+    return { error: MESSAGES.ALREADY_EXISTS("essa cabana"), status: 409 };
   }
 
   const duplicatedCabin = await Cabin.create({
     name: newName,
-    maxCapacity: cabin.maxCapacity,
-    regularPrice: cabin.regularPrice,
-    discount: cabin.discount,
-    image: cabin.image,
-    description: cabin.description,
+    maxCapacity: existingCabin.maxCapacity,
+    regularPrice: existingCabin.regularPrice,
+    discount: existingCabin.discount,
+    image: existingCabin.image,
+    description: existingCabin.description,
   });
 
   return { cabin: duplicatedCabin };
@@ -87,12 +84,9 @@ async function updateCabin(
   id,
   { name, maxCapacity, regularPrice, discount, description, file }
 ) {
-  if (isNaN(id)) {
-    return { error: MESSAGES.GENERAL.INVALID_ID, status: 400 };
-  }
-  const existingCabin = await Cabin.findByPk(id);
+  const existingCabin = await findById(Cabin, id);
   if (!existingCabin) {
-    return { error: MESSAGES.CABIN.NOT_FOUND, status: 404 };
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Cabana"), status: 404 };
   }
 
   let imageUrl = existingCabin.image;
@@ -108,7 +102,7 @@ async function updateCabin(
   });
 
   if (nameConflict) {
-    return { error: MESSAGES.CABIN.NAME_EXISTS, status: 409 };
+    return { error: MESSAGES.GENERAL.ALREADY_EXISTS("Cabana"), status: 409 };
   }
 
   await Cabin.update(
@@ -123,20 +117,20 @@ async function updateCabin(
     { where: { id } }
   );
 
-  return { success: true };
+  const updatedCabin = await Cabin.findByPk(id, {
+    include: [{ model: Booking, as: "bookings" }],
+  });
+  return { cabin: updatedCabin };
 }
 
 async function deleteCabin(id) {
-  if (isNaN(id)) {
-    return { error: MESSAGES.GENERAL.INVALID_ID, status: 400 };
-  }
-  const existingCabin = await Cabin.findByPk(id);
+  const existingCabin = await findById(Cabin, id);
   if (!existingCabin) {
-    return { error: MESSAGES.CABIN.NOT_FOUND, status: 404 };
+    return { error: MESSAGES.GENERAL.NOT_FOUND("Cabana"), status: 404 };
   }
   const bookingsCount = await Booking.count({ where: { cabinId: id } });
   if (bookingsCount > 0) {
-    return { error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS, status: 409 };
+    return { error: MESSAGES.GENERAL.ASSOCIATED("Cabana"), status: 409 };
   }
   await Cabin.destroy({ where: { id } });
   return { success: true };

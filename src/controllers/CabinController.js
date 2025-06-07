@@ -53,24 +53,18 @@ class CabinController {
 
   async createCabin(req, res, next) {
     try {
-      const { name, maxCapacity, regularPrice, discount, description } =
-        req.body;
-      const { cabin, error, status } = await cabinService.createCabin({
-        name,
-        maxCapacity,
-        regularPrice,
-        discount,
-        description,
+      const result = await cabinService.createCabin({
+        ...req.body,
         file: req.file,
       });
-      if (error) {
-        return res.status(status || 400).json({ error });
+      if (result.error) {
+        return res.status(result.status || 400).json({ error: result.error });
       }
       return successResponse(
         res,
         201,
         MESSAGES.CABIN.CREATE_SUCCESS,
-        cabin,
+        result.cabin,
         "cabin"
       );
     } catch (error) {
@@ -131,11 +125,20 @@ class CabinController {
   async deleteCabin(req, res, next) {
     try {
       const { id } = req.params;
-      const { success, error, status } = await cabinService.deleteCabin(id);
-      if (error) {
-        return res.status(status || 400).json({ error });
+      if (isNaN(id)) {
+        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
       }
-      return successResponse(res, 200, MESSAGES.CABIN.DELETE_SUCCESS);
+      const result = await cabinService.deleteCabin(id);
+      if (result.error) {
+        return res.status(result.status || 400).json({ error: result.error });
+      }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.CABIN.DELETE_SUCCESS,
+        undefined,
+        "cabin"
+      );
     } catch (error) {
       next(error);
     }

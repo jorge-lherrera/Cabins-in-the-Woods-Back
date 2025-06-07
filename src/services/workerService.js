@@ -9,15 +9,16 @@ async function getWorkerById(id) {
   if (!worker) {
     return { error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"), status: 404 };
   }
-  return { worker };
+  return { resource: worker, error: null, status: 200 };
 }
 
-async function createWorker({ name, email, password, file }) {
+async function createWorker(data) {
+  const { name, email, password, file } = data;
   const avatarUrl = await uploadFileCloudinary(file, "workers");
 
   const existingWorker = await Worker.findOne({ where: { email } });
   if (existingWorker) {
-    return { error: MESSAGES.WORKER.EMAIL_IN_USE, status: 409 };
+    return { error: MESSAGES.ALREADY_EXISTS("esse email"), status: 409 };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,16 +30,19 @@ async function createWorker({ name, email, password, file }) {
     password: hashedPassword,
   });
 
-  return { worker };
+  return { resource: worker, error: null, status: 201 };
 }
 
-async function updateWorker(
-  id,
-  { name, email, password, currentPassword, file }
-) {
+async function updateWorker(id, data) {
+  const { name, email, password, currentPassword, file } = data;
+
   const existingWorker = await findById(Worker, id);
   if (!existingWorker) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      status: 404,
+    };
   }
 
   let avatarUrl = existingWorker.avatar;
@@ -52,10 +56,11 @@ async function updateWorker(
       existingWorker.password
     );
     if (!isPasswordCorrect) {
-      return { error: MESSAGES.WORKER.INVALID_CURRENT_PASSWORD, status: 401 };
+      return { resource: null, error: MESSAGES.INVALID("Senha"), status: 401 };
     }
   } else if (password && !currentPassword) {
     return {
+      resource: null,
       error: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED,
       status: 400,
     };
@@ -69,17 +74,21 @@ async function updateWorker(
   await Worker.update(updatedData, { where: { id } });
   const updatedWorker = await Worker.findByPk(id);
 
-  return { success: true, worker: updatedWorker };
+  return { resource: updatedWorker, error: null, status: 200 };
 }
 
 async function deleteWorker(id) {
   const existingWorker = await findById(Worker, id);
   if (!existingWorker) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      status: 404,
+    };
   }
 
   await Worker.destroy({ where: { id } });
-  return { success: true };
+  return { resource: null, error: null, status: 200 };
 }
 
 module.exports = {
