@@ -7,7 +7,11 @@ const MESSAGES = require("../utils/messages");
 async function getWorkerById(id) {
   const worker = await findById(Worker, id);
   if (!worker) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      status: 404,
+    };
   }
   return { resource: worker, error: null, status: 200 };
 }
@@ -18,7 +22,11 @@ async function createWorker(data) {
 
   const existingWorker = await Worker.findOne({ where: { email } });
   if (existingWorker) {
-    return { error: MESSAGES.ALREADY_EXISTS("esse email"), status: 409 };
+    return {
+      resource: null,
+      error: MESSAGES.ALREADY_EXISTS("esse email"),
+      status: 409,
+    };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);

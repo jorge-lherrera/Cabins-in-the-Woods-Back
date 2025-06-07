@@ -9,21 +9,18 @@ async function getGuestById(id) {
     include: [{ model: Booking, as: "bookings" }],
   });
   if (!guest) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      status: 404,
+    };
   }
-  return { guest };
+  return { resource: guest, error: null, status: 200 };
 }
-async function hasBookings(guestId) {
-  const bookingsCount = await Booking.count({ where: { guestId } });
-  return bookingsCount > 0;
-}
-async function createGuest({
-  fullName,
-  email,
-  nationality,
-  countryFlag,
-  nationalIdNumber,
-}) {
+
+async function createGuest(data) {
+  const { fullName, email, nationality, countryFlag, nationalIdNumber } = data;
+
   const existingGuest = await Guest.findOne({
     where: {
       [Op.or]: [{ email }, { nationalIdNumber }],
@@ -31,7 +28,11 @@ async function createGuest({
   });
 
   if (existingGuest) {
-    return { error: MESSAGES.GUEST.EMAIL_OR_ID_EXISTS, status: 409 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+      status: 409,
+    };
   }
 
   const guest = await Guest.create({
@@ -42,16 +43,19 @@ async function createGuest({
     nationalIdNumber,
   });
 
-  return { guest };
+  return { resource: guest, error: null, status: 201 };
 }
 
-async function updateGuest(
-  id,
-  { fullName, email, nationality, countryFlag, nationalIdNumber }
-) {
+async function updateGuest(id, data) {
+  const { fullName, email, nationality, countryFlag, nationalIdNumber } = data;
+
   const existingGuest = await findById(Guest, id);
   if (!existingGuest) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      status: 404,
+    };
   }
 
   const duplicateGuest = await Guest.findOne({
@@ -62,32 +66,49 @@ async function updateGuest(
   });
 
   if (duplicateGuest) {
-    return { error: MESSAGES.GUEST.EMAIL_OR_ID_EXISTS, status: 409 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+      status: 409,
+    };
   }
 
-  await Guest.update(
-    { fullName, email, nationality, countryFlag, nationalIdNumber },
-    { where: { id } }
-  );
+  const updatedData = {
+    fullName,
+    email,
+    nationality,
+    countryFlag,
+    nationalIdNumber,
+  };
+
+  await Guest.update(updatedData, { where: { id } });
 
   const updatedGuest = await Guest.findByPk(id);
 
-  return { guest: updatedGuest };
+  return { resource: updatedGuest, error: null, status: 200 };
 }
 
 async function deleteGuest(id) {
   const existingGuest = await findById(Guest, id);
   if (!existingGuest) {
-    return { error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"), status: 404 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      status: 404,
+    };
   }
 
   const bookingsCount = await Booking.count({ where: { guestId: id } });
   if (bookingsCount > 0) {
-    return { error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS, status: 409 };
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.ASSOCIATED("Hóspede"),
+      status: 409,
+    };
   }
 
   await Guest.destroy({ where: { id } });
-  return { success: true };
+  return { resource: null, error: null, status: 200 };
 }
 
 module.exports = {
