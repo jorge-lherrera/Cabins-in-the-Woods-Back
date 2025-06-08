@@ -1,9 +1,11 @@
 "use strict";
 
+const { DECIMAL } = require("sequelize");
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, STRING, FLOAT, DATE } = Sequelize;
+    const { INTEGER, STRING, DECIMAL, DATE } = Sequelize;
 
     await queryInterface.createTable("cabins", {
       id: {
@@ -21,11 +23,11 @@ module.exports = {
         allowNull: false,
       },
       regularPrice: {
-        type: FLOAT,
+        type: DECIMAL(10, 2),
         allowNull: false,
       },
       discount: {
-        type: FLOAT,
+        type: DECIMAL(5, 2),
         allowNull: true,
       },
       image: {
@@ -46,7 +48,6 @@ module.exports = {
       },
     });
 
-    // Constraints
     await queryInterface.addConstraint("cabins", {
       fields: ["name"],
       type: "unique",
@@ -63,7 +64,7 @@ module.exports = {
     await queryInterface.addConstraint("cabins", {
       fields: ["maxCapacity"],
       type: "check",
-      where: Sequelize.literal('"maxCapacity" > 0'),
+      where: Sequelize.literal('"maxCapacity" >= 1'),
       name: "check_max_capacity_positive",
     });
 
@@ -86,15 +87,17 @@ module.exports = {
     await queryInterface.addConstraint("cabins", {
       fields: ["image"],
       type: "check",
-      where: Sequelize.literal('("image" IS NULL OR "image" ~ \'^https?://\')'),
-      name: "check_image_url",
+      where: Sequelize.literal(
+        '("image" IS NULL OR "image" ~ \'^https?://.*\\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$\')'
+      ),
+      name: "check_image_url_format",
     });
 
     await queryInterface.addConstraint("cabins", {
       fields: ["description"],
       type: "check",
       where: Sequelize.literal(
-        '("description" IS NULL OR char_length("description") <= 255)'
+        '("description" IS NULL OR char_length("description") <= 500)'
       ),
       name: "check_description_length",
     });

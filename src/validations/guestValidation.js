@@ -6,6 +6,7 @@ const guestValidation = applyNoUnknown(
     fullName: validateStringLength("nome completo", 3, 100),
     email: Yup.string()
       .email("O e-mail fornecido não é válido.")
+      .max(150, "O e-mail não pode ter mais de 150 caracteres.")
       .required("O e-mail é obrigatório."),
     nationality: validateStringLength("nacionalidade", 2, 50),
     countryFlag: Yup.string()

@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, FLOAT, DATE } = Sequelize;
+    const { INTEGER, DECIMAL, DATE } = Sequelize;
 
     await queryInterface.createTable("settings", {
       id: {
@@ -27,7 +27,7 @@ module.exports = {
       },
 
       breakfastPrice: {
-        type: FLOAT,
+        type: DECIMAL(8, 2),
         allowNull: false,
       },
       createdAt: {
@@ -59,6 +59,12 @@ module.exports = {
       type: "check",
       where: Sequelize.literal('"breakfastPrice" >= 0'),
       name: "check_breakfast_price_positive",
+    });
+    await queryInterface.addConstraint("settings", {
+      fields: ["maxGuestsPerBooking"],
+      type: "check",
+      where: Sequelize.literal('"maxGuestsPerBooking" >= 1'),
+      name: "check_max_guests_per_booking_positive",
     });
   },
 

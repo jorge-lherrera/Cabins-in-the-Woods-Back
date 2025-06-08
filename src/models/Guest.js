@@ -4,7 +4,7 @@ const noEmojis = require("../utils/noEmojis");
 
 const Guest = connection.define("guest", {
   fullName: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false,
     validate: {
       notNull: { msg: "O nome completo é obrigatório." },
@@ -15,7 +15,7 @@ const Guest = connection.define("guest", {
     },
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(150),
     allowNull: false,
     unique: true,
     validate: {
@@ -27,7 +27,7 @@ const Guest = connection.define("guest", {
     },
   },
   nationality: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(50),
     allowNull: false,
     validate: {
       notNull: { msg: "A nacionalidade é obrigatória." },
@@ -51,7 +51,7 @@ const Guest = connection.define("guest", {
     },
   },
   nationalIdNumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(20),
     allowNull: false,
     unique: true,
     validate: {
