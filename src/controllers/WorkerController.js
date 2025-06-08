@@ -6,11 +6,17 @@ class WorkerController {
   async getWorkerById(req, res, next) {
     try {
       const { id } = req.params;
-      const { worker, error, status } = await workerService.getWorkerById(id);
+      const { resource, error, status } = await workerService.getWorkerById(id);
       if (error) {
-        return res.status(status || 404).json({ error });
+        return res.status(status || 400).json({ error });
       }
-      return res.status(200).json(worker);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Funcionário"),
+        resource,
+        "worker"
+      );
     } catch (error) {
       next(error);
     }
@@ -19,7 +25,7 @@ class WorkerController {
   async createWorker(req, res, next) {
     try {
       const { name, email, password } = req.body;
-      const { worker, error, status } = await workerService.createWorker({
+      const { resource, error, status } = await workerService.createWorker({
         name,
         email,
         password,
@@ -32,7 +38,7 @@ class WorkerController {
         res,
         201,
         MESSAGES.GENERAL.CREATE_SUCCESS("Funcionário"),
-        worker,
+        resource,
         "worker"
       );
     } catch (error) {
@@ -44,14 +50,13 @@ class WorkerController {
     try {
       const { id } = req.params;
       const { name, email, password, currentPassword } = req.body;
-      const { success, worker, error, status } =
-        await workerService.updateWorker(id, {
-          name,
-          email,
-          password,
-          currentPassword,
-          file: req.file,
-        });
+      const { resource, error, status } = await workerService.updateWorker(id, {
+        name,
+        email,
+        password,
+        currentPassword,
+        file: req.file,
+      });
       if (error) {
         return res.status(status || 400).json({ error });
       }
@@ -59,7 +64,7 @@ class WorkerController {
         res,
         200,
         MESSAGES.GENERAL.UPDATE_SUCCESS("Funcionário"),
-        worker,
+        resource,
         "worker"
       );
     } catch (error) {
@@ -70,7 +75,7 @@ class WorkerController {
   async deleteWorker(req, res, next) {
     try {
       const { id } = req.params;
-      const { success, error, status } = await workerService.deleteWorker(id);
+      const { resource, error, status } = await workerService.deleteWorker(id);
       if (error) {
         return res.status(status || 400).json({ error });
       }
@@ -84,7 +89,8 @@ class WorkerController {
       return successResponse(
         res,
         200,
-        MESSAGES.GENERAL.DELETE_SUCCESS("Funcionário")
+        MESSAGES.GENERAL.DELETE_SUCCESS("Funcionário"),
+        resource
       );
     } catch (error) {
       next(error);

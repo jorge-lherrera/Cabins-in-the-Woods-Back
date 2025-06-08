@@ -13,12 +13,14 @@ async function getWorkerById(id) {
       status: 404,
     };
   }
-  return { resource: existingWorker, error: null, status: 200 };
+
+  const { password, ...workerWithoutPassword } = existingWorker;
+  return { resource: workerWithoutPassword, error: null, status: 200 };
 }
 
 async function createWorker(data) {
   const { name, email, password, file } = data;
-  const avatarUrl = await uploadFileCloudinary(file, "workers");
+  const avatarUrl = file ? await uploadFileCloudinary(file, "workers") : null;
 
   const existingWorker = await Worker.findOne({ where: { email } });
   if (existingWorker) {
@@ -38,7 +40,8 @@ async function createWorker(data) {
     password: hashedPassword,
   });
 
-  return { resource: worker, error: null, status: 201 };
+  const { password: _, ...workerWithoutPassword } = worker;
+  return { resource: workerWithoutPassword, error: null, status: 201 };
 }
 
 async function updateWorker(id, data) {
@@ -56,6 +59,17 @@ async function updateWorker(id, data) {
   let avatarUrl = existingWorker.avatar;
   if (file) {
     avatarUrl = await uploadFileCloudinary(file, "workers");
+  }
+
+  if (email && email !== existingWorker.email) {
+    const emailExists = await Worker.findOne({ where: { email } });
+    if (emailExists) {
+      return {
+        resource: null,
+        error: MESSAGES.ALREADY_EXISTS("esse email"),
+        status: 409,
+      };
+    }
   }
 
   if (password && currentPassword) {
