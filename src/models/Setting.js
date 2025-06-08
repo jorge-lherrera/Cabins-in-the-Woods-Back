@@ -40,12 +40,13 @@ const Setting = connection.define("setting", {
     },
   },
   breakfastPrice: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(8, 2),
     allowNull: false,
     validate: {
-      isFloat: {
+      isDecimal: {
         msg: "O preço do café da manhã deve ser um número decimal.",
       },
+      min: { args: 0, msg: "O preço não pode ser negativo." },
       notNull: { msg: "O preço do café da manhã é obrigatório." },
     },
   },

@@ -1,3 +1,5 @@
+const MESSAGES = require("../utils/messages");
+
 function validate(schema) {
   return async (req, res, next) => {
     try {
@@ -6,7 +8,7 @@ function validate(schema) {
     } catch (error) {
       return res.status(400).json({
         success: false,
-        message: "Erros de validação nos dados fornecidos.",
+        message: MESSAGES.GENERAL.VALIDATION_ERROR,
         detalhes: error.errors,
       });
     }

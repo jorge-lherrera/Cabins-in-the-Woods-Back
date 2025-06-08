@@ -1,4 +1,5 @@
 const { verify } = require("jsonwebtoken");
+const MESSAGES = require("../utils/messages");
 
 async function auth(req, res, next) {
   try {
@@ -14,16 +15,22 @@ async function auth(req, res, next) {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "Token de autenticação ausente ou inválido." });
+        .json({ message: MESSAGES.AUTH("ausente ou inválido") });
     }
 
     if (!process.env.SECRET_JWT) {
       return res.status(500).json({
-        message: "Erro interno no servidor. Chave JWT não configurada.",
+        message: { message: MESSAGES.AUTH.JWT_NOT_CONFIGURED },
       });
     }
 
     const payload = verify(token, process.env.SECRET_JWT);
+
+    if (!payload.sub) {
+      return res.status(401).json({
+        error: MESSAGES.AUTH("inválido"),
+      });
+    }
 
     req.userId = payload.sub;
 
@@ -31,7 +38,7 @@ async function auth(req, res, next) {
   } catch (error) {
     return res
       .status(401)
-      .json({ message: "A autenticação falhou, tente novamente." });
+      .json({ message: MESSAGES.LOGIN.AUTHENTICATION_FAILED });
   }
 }
 

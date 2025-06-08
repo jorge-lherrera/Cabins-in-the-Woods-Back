@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { connection } = require("../database/connection");
+const noEmojis = require("../utils/noEmojis");
 
 const Cabin = require("./Cabin");
 const Guest = require("./Guest");
@@ -12,6 +13,10 @@ const Booking = connection.define("booking", {
       model: "cabin",
       key: "id",
     },
+    validate: {
+      isInt: { msg: "O ID da cabana deve ser um número inteiro." },
+      notNull: { msg: "O ID da cabana é obrigatório." },
+    },
   },
   guestId: {
     type: DataTypes.INTEGER,
@@ -20,6 +25,10 @@ const Booking = connection.define("booking", {
       model: "guest",
       key: "id",
     },
+    validate: {
+      isInt: { msg: "O ID do hóspede deve ser um número inteiro." },
+      notNull: { msg: "O ID do hóspede é obrigatório." },
+    },
   },
   startDate: {
     type: DataTypes.DATE,
@@ -27,6 +36,11 @@ const Booking = connection.define("booking", {
     validate: {
       isDate: { msg: "A data de início deve ser válida." },
       notNull: { msg: "A data de início é obrigatória." },
+      isNotPast(value) {
+        if (new Date(value) < new Date().setHours(0, 0, 0, 0)) {
+          throw new Error("A data de início não pode ser no passado.");
+        }
+      },
     },
   },
   endDate: {
@@ -63,35 +77,38 @@ const Booking = connection.define("booking", {
     },
   },
   cabinPrice: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    // validate: {
-    //   isFloat: { msg: "O preço da cabana deve ser um número decimal." },
-    //   min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
-    //   notNull: { msg: "O preço da cabana é obrigatório." },
-    // },
+    validate: {
+      isDecimal: { msg: "O preço da cabana deve ser um número decimal." },
+      min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
+      notNull: { msg: "O preço da cabana é obrigatório." },
+    },
   },
   extrasPrice: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(8, 2),
     allowNull: true,
-    // validate: {
-    //   isFloat: { msg: "O preço dos extras deve ser um número decimal." },
-    //   min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
-    // },
+    validate: {
+      isDecimal: { msg: "O preço dos extras deve ser um número decimal." },
+      min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
+    },
   },
   totalPrice: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    // validate: {
-    //   isFloat: { msg: "O preço total deve ser um número decimal." },
-    //   min: { args: 0, msg: "O preço total não pode ser negativo." },
-    //   notNull: { msg: "O preço total é obrigatório." },
-    // },
+    validate: {
+      isDecimal: { msg: "O preço total deve ser um número decimal." },
+      min: { args: 0, msg: "O preço total não pode ser negativo." },
+      notNull: { msg: "O preço total é obrigatório." },
+    },
   },
   hasBreakfast: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+    validate: {
+      notNull: { msg: "O campo café da manhã é obrigatório." },
+    },
   },
   observations: {
     type: DataTypes.STRING(255),
@@ -101,12 +118,18 @@ const Booking = connection.define("booking", {
         args: [0, 255],
         msg: "As observações devem ter no máximo 255 caracteres.",
       },
+      noEmojis(value) {
+        noEmojis(value, "observações");
+      },
     },
   },
   isPaid: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+    validate: {
+      notNull: { msg: "O campo pagamento é obrigatório." },
+    },
   },
   status: {
     type: DataTypes.STRING,
@@ -116,6 +139,10 @@ const Booking = connection.define("booking", {
       isIn: {
         args: [["unconfirmed", "checked-in", "checked-out"]],
         msg: "Status inválido para a reserva.",
+      },
+      notNull: { msg: "O status é obrigatório." },
+      noEmojis(value) {
+        noEmojis(value, "status");
       },
     },
   },

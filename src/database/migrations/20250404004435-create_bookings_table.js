@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const { INTEGER, STRING, FLOAT, DATE, BOOLEAN } = Sequelize;
+    const { INTEGER, STRING, DECIMAL, DATE, BOOLEAN } = Sequelize;
 
     await queryInterface.createTable("bookings", {
       id: {
@@ -47,16 +47,19 @@ module.exports = {
         type: INTEGER,
         allowNull: false,
       },
+
       cabinPrice: {
-        type: FLOAT,
+        type: DECIMAL(10, 2),
         allowNull: false,
       },
+
       extrasPrice: {
-        type: FLOAT,
+        type: DECIMAL(8, 2),
         allowNull: true,
       },
+
       totalPrice: {
-        type: FLOAT,
+        type: DECIMAL(10, 2),
         allowNull: false,
       },
       hasBreakfast: {
@@ -77,12 +80,6 @@ module.exports = {
         type: STRING,
         allowNull: false,
         defaultValue: "unconfirmed",
-        validate: {
-          isIn: {
-            args: [["unconfirmed", "checked-in", "checked-out"]],
-            msg: "Status inválido para a reserva.",
-          },
-        },
       },
       createdAt: {
         type: DATE,
@@ -94,7 +91,6 @@ module.exports = {
       },
     });
 
-    // Constraints
     await queryInterface.addConstraint("bookings", {
       fields: ["numNights"],
       type: "check",
@@ -131,19 +127,19 @@ module.exports = {
     });
 
     await queryInterface.addConstraint("bookings", {
-      fields: ["observations"],
-      type: "check",
-      where: Sequelize.literal(
-        '("observations" IS NULL OR char_length("observations") <= 255)'
-      ),
-      name: "check_observations_length",
-    });
-
-    await queryInterface.addConstraint("bookings", {
       fields: ["startDate", "endDate"],
       type: "check",
       where: Sequelize.literal('"endDate" > "startDate"'),
       name: "check_endDate_after_startDate",
+    });
+
+    await queryInterface.addConstraint("bookings", {
+      fields: ["status"],
+      type: "check",
+      where: Sequelize.literal(
+        "\"status\" IN ('unconfirmed', 'checked-in', 'checked-out')"
+      ),
+      name: "check_status_valid_values",
     });
   },
 

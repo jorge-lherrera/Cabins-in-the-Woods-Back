@@ -1,11 +1,34 @@
 function normalizeBookingDates(req, res, next) {
-  if (typeof req.body.startDate === "string") {
-    req.body.startDate = new Date(req.body.startDate);
+  try {
+    if (req.body.startDate && typeof req.body.startDate === "string") {
+      const startDate = new Date(req.body.startDate);
+      if (isNaN(startDate.getTime())) {
+        return res.status(400).json({
+          error: "Data de início inválida",
+          details: ["Formato de data não reconhecido"],
+        });
+      }
+      req.body.startDate = startDate;
+    }
+
+    if (req.body.endDate && typeof req.body.endDate === "string") {
+      const endDate = new Date(req.body.endDate);
+      if (isNaN(endDate.getTime())) {
+        return res.status(400).json({
+          error: "Data de término inválida",
+          details: ["Formato de data não reconhecido"],
+        });
+      }
+      req.body.endDate = endDate;
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).json({
+      error: "Erro ao processar datas",
+      details: [error.message],
+    });
   }
-  if (typeof req.body.endDate === "string") {
-    req.body.endDate = new Date(req.body.endDate);
-  }
-  next();
 }
 
 module.exports = normalizeBookingDates;

@@ -2,7 +2,11 @@ const MESSAGES = {
   GENERAL: {
     SERVER_ERROR: "Erro interno do servidor.",
     VALIDATION_ERROR: "Erros de validação nos dados fornecidos.",
+    UNIQUE_CONSTRAINT_ERROR: "Erro de unicidade",
+    DATABASE_ERROR: "Erro no banco de dados.",
+    SESSION_ERROR: "Sessão inválida ou expirada",
 
+    AUTH: (resource) => `Token de autenticação ${resource}`,
     INVALID: (resource) =>
       `${resource} fornecido é inválido. Verifique os dados.`,
     NOT_FOUND: (resource) => `${resource} não encontrado.`,
@@ -40,9 +44,13 @@ const MESSAGES = {
       "A senha atual é obrigatória para atualizar a senha.",
   },
 
+  AUTH: {
+    JWT_NOT_CONFIGURED: "Erro interno no servidor. Chave JWT não configurada.",
+  },
   LOGIN: {
     LOGIN_SUCCESS: "Login realizado com sucesso.",
     LOGOUT_SUCCESS: "Logout realizado com sucesso.",
+    AUTHENTICATION_FAILED: "A autenticação falhou, tente novamente.",
   },
 };
 

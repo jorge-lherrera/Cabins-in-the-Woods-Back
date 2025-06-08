@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { connection } = require("../database/connection");
+const noEmojis = require("../utils/noEmojis");
 
 const Guest = connection.define("guest", {
   fullName: {
@@ -8,6 +9,9 @@ const Guest = connection.define("guest", {
     validate: {
       notNull: { msg: "O nome completo é obrigatório." },
       len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres." },
+      noEmojis(value) {
+        noEmojis(value, "nome completo");
+      },
     },
   },
   email: {
@@ -17,6 +21,9 @@ const Guest = connection.define("guest", {
     validate: {
       isEmail: { msg: "O e-mail fornecido não é válido." },
       notNull: { msg: "O e-mail é obrigatório." },
+      noEmojis(value) {
+        noEmojis(value, "e-mail");
+      },
     },
   },
   nationality: {
@@ -28,6 +35,9 @@ const Guest = connection.define("guest", {
         args: [2, 50],
         msg: "A nacionalidade deve ter entre 2 e 50 caracteres.",
       },
+      noEmojis(value) {
+        noEmojis(value, "nacionalidade");
+      },
     },
   },
   countryFlag: {
@@ -35,6 +45,9 @@ const Guest = connection.define("guest", {
     allowNull: true,
     validate: {
       isUrl: { msg: "A URL da bandeira do país não é válida." },
+      noEmojis(value) {
+        noEmojis(value, "bandeira do país");
+      },
     },
   },
   nationalIdNumber: {
@@ -46,6 +59,9 @@ const Guest = connection.define("guest", {
       len: {
         args: [5, 20],
         msg: "O número de identificação deve ter entre 5 e 20 caracteres.",
+      },
+      noEmojis(value) {
+        noEmojis(value, "número de identificação");
       },
     },
   },
