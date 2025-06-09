@@ -1,4 +1,6 @@
+const Guest = require("../models/Guest");
 const guestService = require("../services/guestService");
+const findById = require("../utils/findById");
 const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
@@ -6,11 +8,19 @@ class GuestController {
   async getGuestById(req, res, next) {
     try {
       const { id } = req.params;
-      const { guest, error, status } = await guestService.getGuestById(id);
+      const { resource, error, status } = await guestService.getGuestById(id);
       if (error) {
-        return res.status(status || 404).json({ error });
+        return res
+          .status(status || 404)
+          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
       }
-      return res.status(200).json(guest);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Hóspede"),
+        resource,
+        "guest"
+      );
     } catch (error) {
       next(error);
     }
@@ -20,7 +30,7 @@ class GuestController {
     try {
       const { fullName, email, nationality, countryFlag, nationalIdNumber } =
         req.body;
-      const { guest, error, status } = await guestService.createGuest({
+      const { resource, error, status } = await guestService.createGuest({
         fullName,
         email,
         nationality,
@@ -34,7 +44,7 @@ class GuestController {
         res,
         201,
         MESSAGES.GENERAL.CREATE_SUCCESS("Hóspede"),
-        guest,
+        resource,
         "guest"
       );
     } catch (error) {
@@ -47,7 +57,7 @@ class GuestController {
       const { id } = req.params;
       const { fullName, email, nationality, countryFlag, nationalIdNumber } =
         req.body;
-      const { guest, error, status } = await guestService.updateGuest(id, {
+      const { resource, error, status } = await guestService.updateGuest(id, {
         fullName,
         email,
         nationality,
@@ -61,7 +71,7 @@ class GuestController {
         res,
         200,
         MESSAGES.GENERAL.UPDATE_SUCCESS("Hóspede"),
-        guest,
+        resource,
         "guest"
       );
     } catch (error) {
@@ -72,22 +82,16 @@ class GuestController {
   async deleteGuest(req, res, next) {
     try {
       const { id } = req.params;
-
-      const hasBookings = await guestService.hasBookings(id);
-      if (hasBookings) {
-        return res
-          .status(409)
-          .json({ error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS });
-      }
-
-      const { success, error, status } = await guestService.deleteGuest(id);
+      const { resource, error, status } = await workerService.deleteWorker(id);
       if (error) {
         return res.status(status || 400).json({ error });
       }
+
       return successResponse(
         res,
         200,
-        MESSAGES.GENERAL.DELETE_SUCCESS("Hóspede")
+        MESSAGES.GENERAL.DELETE_SUCCESS("Hóspede"),
+        resource
       );
     } catch (error) {
       next(error);
