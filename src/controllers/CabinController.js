@@ -3,41 +3,53 @@ const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
 class CabinController {
- async getAllCabins(req, res, next) {
-  try {
-    const {
-      page = 1,
-      limit = 10,
-      orderBy = "name",
-      order = "ASC",
-      discountFilter,
-    } = req.query;
+  async getAllCabins(req, res, next) {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        orderBy = "name",
+        order = "ASC",
+        discountFilter,
+      } = req.query;
 
-    const result = await cabinService.getAllCabins({
-      page,
-      limit,
-      orderBy,
-      order,
-      discountFilter,
-    });
+      const { resource, error, status } = await cabinService.getAllCabins({
+        page,
+        limit,
+        orderBy,
+        order,
+        discountFilter,
+      });
 
-    if (result.error) {
-      return res.status(result.status || 400).json({ error: result.error });
+      if (error) {
+        return res.status(status || 400).json({ error });
+      }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Cabana"),
+        resource,
+        "cabin"
+      );
+    } catch (error) {
+      next(error);
     }
-    return res.status(200).json(result.resource);
-  } catch (error) {
-    next(error);
   }
-}
 
   async getCabinById(req, res, next) {
     try {
       const { id } = req.params;
-      const { cabin, error, status } = await cabinService.getCabinById(id);
+      const { resource, error, status } = await cabinService.getCabinById(id);
       if (error) {
         return res.status(status || 404).json({ error });
       }
-      return res.status(200).json(cabin);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Cabana"),
+        resource,
+        "cabin"
+      );
     } catch (error) {
       next(error);
     }
@@ -45,18 +57,25 @@ class CabinController {
 
   async createCabin(req, res, next) {
     try {
-      const result = await cabinService.createCabin({
-        ...req.body,
+      const { name, maxCapacity, regularPrice, discount, description } =
+        req.body;
+
+      const { resource, error, status } = await cabinService.createCabin({
+        name,
+        maxCapacity,
+        regularPrice,
+        discount,
+        description,
         file: req.file,
       });
-      if (result.error) {
-        return res.status(result.status || 400).json({ error: result.error });
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
       return successResponse(
         res,
         201,
-        MESSAGES.CABIN.CREATE_SUCCESS,
-        result.cabin,
+        MESSAGES.GENERAL.CREATE_SUCCESS("Cabana"),
+        resource,
         "cabin"
       );
     } catch (error) {
@@ -67,7 +86,7 @@ class CabinController {
   async duplicateCabin(req, res, next) {
     try {
       const { id } = req.params;
-      const { cabin, error, status } = await cabinService.duplicateCabin(id);
+      const { resource, error, status } = await cabinService.duplicateCabin(id);
       if (error) {
         return res.status(status || 400).json({ error });
       }
@@ -75,7 +94,7 @@ class CabinController {
         res,
         201,
         MESSAGES.CABIN.DUPLICATE_SUCCESS,
-        cabin,
+        resource,
         "cabin"
       );
     } catch (error) {
@@ -89,15 +108,7 @@ class CabinController {
       const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
 
-      // Validar que la cabina no tenga bookings asociadas antes de editar
-      const hasBookings = await cabinService.hasBookings(id);
-      if (hasBookings) {
-        return res
-          .status(409)
-          .json({ error: MESSAGES.GENERAL.ASSOCIATED_BOOKINGS });
-      }
-
-      const { success, error, status } = await cabinService.updateCabin(id, {
+      const { resource, error, status } = await cabinService.updateCabin(id, {
         name,
         maxCapacity,
         regularPrice,
@@ -108,7 +119,13 @@ class CabinController {
       if (error) {
         return res.status(status || 400).json({ error });
       }
-      return successResponse(res, 200, MESSAGES.CABIN.UPDATE_SUCCESS);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.UPDATE_SUCCESS("Cabana"),
+        resource,
+        "cabin"
+      );
     } catch (error) {
       next(error);
     }
@@ -117,19 +134,16 @@ class CabinController {
   async deleteCabin(req, res, next) {
     try {
       const { id } = req.params;
-      if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
-      }
-      const result = await cabinService.deleteCabin(id);
-      if (result.error) {
-        return res.status(result.status || 400).json({ error: result.error });
+
+      const { resource, error, status } = await cabinService.deleteCabin(id);
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
       return successResponse(
         res,
         200,
-        MESSAGES.CABIN.DELETE_SUCCESS,
-        undefined,
-        "cabin"
+        MESSAGES.GENERAL.DELETE_SUCCESS("Cabana"),
+        resource
       );
     } catch (error) {
       next(error);
