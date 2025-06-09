@@ -1,5 +1,5 @@
 const MESSAGES = require("../utils/messages");
-const bookingSchema = require("../validations/bookingValidation");
+
 const bookingService = require("../services/bookingService");
 const successResponse = require("../utils/successResponse");
 
@@ -11,20 +11,22 @@ class BookingController {
         limit = 10,
         orderBy = "startDate",
         order = "ASC",
-        cabinId,
-        guestId,
         status,
       } = req.query;
 
-      const parsedLimit = parseInt(limit);
-      const offset = (page - 1) * parsedLimit;
-
+      const parsedLimit = parseInt(limit, 10);
+      const offset = (Number(page) - 1) * parsedLimit;
       const where = {};
-      if (cabinId) where.cabinId = cabinId;
-      if (guestId) where.guestId = guestId;
-      if (status) where.status = status;
 
-      const result = await bookingService.getAllBookingsWithStats({
+      if (status) {
+        where.status = status.split(",");
+      }
+
+      const {
+        resource,
+        error,
+        status: serviceStatus,
+      } = await bookingService.getAllBookings({
         where,
         orderBy,
         order,
@@ -33,11 +35,14 @@ class BookingController {
         page: Number(page),
       });
 
+      if (error) {
+        return res.status(serviceStatus || 400).json({ error });
+      }
       return successResponse(
         res,
         200,
         MESSAGES.GENERAL.FOUND("Reservas"),
-        result,
+        resource,
         "bookings"
       );
     } catch (error) {
@@ -48,18 +53,18 @@ class BookingController {
   async getBookingById(req, res, next) {
     try {
       const { id } = req.params;
-      if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
-      }
-      const result = await bookingService.getBookingById(id);
-      if (result.error) {
-        return res.status(result.status || 404).json({ error: result.error });
+
+      const { resource, error, status } = await bookingService.getBookingById(
+        id
+      );
+      if (error) {
+        return res.status(status || 404).json({ error });
       }
       return successResponse(
         res,
         200,
         MESSAGES.GENERAL.FOUND("Reserva"),
-        result.booking,
+        resource,
         "booking"
       );
     } catch (error) {
@@ -69,15 +74,48 @@ class BookingController {
 
   async createBooking(req, res, next) {
     try {
-      const result = await bookingService.createBooking(req.body);
-      if (result.error) {
-        return res.status(result.status || 400).json({ error: result.error });
+      const {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+        status,
+      } = req.body;
+      const {
+        resource,
+        error,
+        status: createStatus,
+      } = await bookingService.createBooking({
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+        status,
+      });
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
       return successResponse(
         res,
         201,
         MESSAGES.GENERAL.CREATE_SUCCESS("Reserva"),
-        result.booking,
+        resource,
         "booking"
       );
     } catch (error) {
@@ -88,19 +126,49 @@ class BookingController {
   async updateBooking(req, res, next) {
     try {
       const { id } = req.params;
-      if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
-      }
 
-      const result = await bookingService.updateBooking(id, req.body);
-      if (result.error) {
-        return res.status(result.status || 400).json({ error: result.error });
+      const {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+        status,
+      } = req.body;
+      const {
+        resource,
+        error,
+        status: updateStatus,
+      } = await bookingService.updateBooking(id, {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations,
+        isPaid,
+        status,
+      });
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
       return successResponse(
         res,
         200,
         MESSAGES.GENERAL.UPDATE_SUCCESS("Reserva"),
-        result.booking,
+        resource,
         "booking"
       );
     } catch (error) {
@@ -111,18 +179,19 @@ class BookingController {
   async deleteBooking(req, res, next) {
     try {
       const { id } = req.params;
-      if (isNaN(id)) {
-        return res.status(400).json({ error: MESSAGES.GENERAL.INVALID("ID") });
-      }
 
-      const result = await bookingService.deleteBooking(id);
-      if (result.error) {
-        return res.status(result.status || 400).json({ error: result.error });
+      const { resource, error, status } = await bookingService.deleteBooking(
+        id
+      );
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
       return successResponse(
         res,
         200,
-        MESSAGES.GENERAL.DELETE_SUCCESS("Reserva")
+        MESSAGES.GENERAL.DELETE_SUCCESS("Reserva"),
+        resource,
+        "booking"
       );
     } catch (error) {
       next(error);

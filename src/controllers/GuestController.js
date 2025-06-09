@@ -1,6 +1,4 @@
-const Guest = require("../models/Guest");
 const guestService = require("../services/guestService");
-const findById = require("../utils/findById");
 const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
@@ -82,7 +80,7 @@ class GuestController {
   async deleteGuest(req, res, next) {
     try {
       const { id } = req.params;
-      const { resource, error, status } = await workerService.deleteWorker(id);
+      const { resource, error, status } = await guestService.deleteGuest(id);
       if (error) {
         return res.status(status || 400).json({ error });
       }

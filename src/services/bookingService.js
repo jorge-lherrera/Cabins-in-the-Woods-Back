@@ -6,12 +6,8 @@ const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
 const findById = require("../utils/findById");
 
-async function validateBusinessRules({
-  numNights,
-  numGuests,
-  hasBreakfast,
-  totalPrice,
-}) {
+async function validateBusinessRules(data) {
+  const { numNights, numGuests, hasBreakfast, totalPrice } = data;
   const setting = await Setting.findOne();
   if (!setting) {
     return {
@@ -37,10 +33,9 @@ async function validateBusinessRules({
       status: 400,
     };
   }
-  let finalTotalPrice = totalPrice;
-  if (hasBreakfast) {
-    finalTotalPrice += setting.breakfastPrice;
-  }
+  const finalTotalPrice = hasBreakfast
+    ? totalPrice + setting.breakfastPrice
+    : totalPrice;
   return { resource: { finalTotalPrice }, error: null, status: 200 };
 }
 
@@ -76,14 +71,7 @@ async function checkOverlap({ cabinId, startDate, endDate, excludeId = null }) {
   };
 }
 
-async function getAllBookingsWithStats({
-  where,
-  orderBy,
-  order,
-  limit,
-  offset,
-  page,
-}) {
+async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
     where,
     include: [
@@ -389,7 +377,7 @@ async function deleteBooking(id) {
 }
 
 module.exports = {
-  getAllBookingsWithStats,
+  getAllBookings,
   getBookingById,
   createBooking,
   updateBooking,
