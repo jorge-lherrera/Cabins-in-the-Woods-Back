@@ -1,25 +1,17 @@
 const MESSAGES = require("../utils/messages");
+const successResponse = require("../utils/successResponse");
 
 class LogoutController {
-  async logout(req, res) {
+  async logout(res, next) {
     try {
       res.clearCookie("authToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
-      return res.status(200).json({
-        success: true,
-        message: MESSAGES.LOGIN.LOGOUT_SUCCESS,
-      });
+      return successResponse(res, 200, MESSAGES.LOGIN.LOGOUT_SUCCESS, null);
     } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log(error.message);
-      }
-      return res.status(500).json({
-        success: false,
-        error: MESSAGES.LOGIN.LOGOUT_ERROR,
-      });
+      next(error);
     }
   }
 }
