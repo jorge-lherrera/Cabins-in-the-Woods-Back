@@ -1,17 +1,24 @@
 const settingService = require("../services/settingService");
-const { SETTING_ERRORS } = require("../services/settingService");
 const MESSAGES = require("../utils/messages");
+const successResponse = require("../utils/successResponse");
 
 class SettingController {
   async getSettings(req, res, next) {
     try {
-      const settings = await settingService.getUniqueSetting();
-      if (!settings) {
+      const { resource, error, status } =
+        await settingService.getUniqueSetting();
+      if (error) {
         return res
-          .status(404)
+          .status(status || 400)
           .json({ error: MESSAGES.SETTINGS.CONFIG_NOT_FOUND });
       }
-      return res.status(200).json(settings);
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Configuração"),
+        resource,
+        "setting"
+      );
     } catch (error) {
       next(error);
     }
@@ -25,25 +32,26 @@ class SettingController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-      try {
-        const setting = await settingService.createUniqueSetting({
+
+      const { resource, error, status } =
+        await settingService.createUniqueSetting({
           minBookingLength,
           maxBookingLength,
           maxGuestsPerBooking,
           breakfastPrice,
         });
-        return res.status(201).json({
-          message: MESSAGES.GENERAL.CREATE_SUCCESS("Configuração"),
-          setting,
-        });
-      } catch (err) {
-        if (err.message === SETTING_ERRORS.EXISTS) {
-          return res
-            .status(400)
-            .json({ error: MESSAGES.SETTINGS.CONFIG_EXISTS });
-        }
-        throw err;
+
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
+
+      return successResponse(
+        res,
+        201,
+        MESSAGES.GENERAL.CREATE_SUCCESS("Configuração"),
+        resource,
+        "setting"
+      );
     } catch (error) {
       next(error);
     }
@@ -57,24 +65,23 @@ class SettingController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-      try {
+      const { resource, error, status } =
         await settingService.updateUniqueSetting({
           minBookingLength,
           maxBookingLength,
           maxGuestsPerBooking,
           breakfastPrice,
         });
-        return res.status(200).json({
-          message: MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
-        });
-      } catch (err) {
-        if (err.message === settingService.SETTING_ERRORS.NOT_FOUND) {
-          return res
-            .status(404)
-            .json({ error: MESSAGES.SETTINGS.CONFIG_NOT_FOUND });
-        }
-        throw err;
+      if (error) {
+        return res.status(status || 400).json({ error });
       }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.UPDATE_SUCCESS("Configuração"),
+        resource,
+        "setting"
+      );
     } catch (error) {
       next(error);
     }

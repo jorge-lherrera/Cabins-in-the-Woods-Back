@@ -27,7 +27,7 @@ async function createUniqueSetting(data) {
   if (existingSetting) {
     return {
       resource: null,
-      error: MESSAGES.SETTING.CONFIG_EXISTS,
+      error: MESSAGES.SETTINGS.CONFIG_EXISTS,
       status: 409,
     };
   }
