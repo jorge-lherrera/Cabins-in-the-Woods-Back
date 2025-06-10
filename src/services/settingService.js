@@ -46,7 +46,7 @@ async function createUniqueSetting(data) {
   return { resource: settingObj, error: null, status: 201 };
 }
 
-async function updateUniqueSetting(id, data) {
+async function updateUniqueSetting(data) {
   const {
     minBookingLength,
     maxBookingLength,
@@ -71,10 +71,27 @@ async function updateUniqueSetting(id, data) {
     "breakfastPrice",
   ];
 
+  const combined = {
+    ...existingSetting.toJSON(),
+    ...updatedFields(data, fields),
+  };
+
+  if (
+    combined.maxBookingLength !== undefined &&
+    combined.minBookingLength !== undefined &&
+    Number(combined.maxBookingLength) <= Number(combined.minBookingLength)
+  ) {
+    return {
+      resource: null,
+      error: "A duração máxima deve ser maior que a duração mínima.",
+      status: 400,
+    };
+  }
+
   const updatedData = updatedFields(data, fields);
 
-  await Setting.update(updatedData, { where: { id } });
-  const updatedSetting = await Setting.findByPk(id);
+  await Setting.update(updatedData, { where: { id: existingSetting.id } });
+  const updatedSetting = await Setting.findByPk(existingSetting.id);
 
   const settingObj = updatedSetting.toJSON();
 

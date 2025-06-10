@@ -203,6 +203,7 @@ async function createBooking(data) {
 
   const rules = await validateBusinessRules({
     cabinId,
+    guestId,
     numNights,
     numGuests,
     hasBreakfast,

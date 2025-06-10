@@ -12,6 +12,8 @@ const settingValidation = applyNoUnknown(
       "is-greater-than-min",
       "A duração máxima deve ser maior que a duração mínima.",
       function (value) {
+        if (value === undefined || this.parent.minBookingLength === undefined)
+          return true;
         return value > this.parent.minBookingLength;
       }
     ),
