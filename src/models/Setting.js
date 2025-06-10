@@ -46,7 +46,10 @@ const Setting = connection.define("setting", {
       isDecimal: {
         msg: "O preço do café da manhã deve ser um número decimal.",
       },
-      min: { args: 0, msg: "O preço não pode ser negativo." },
+      min: {
+        args: [0],
+        msg: "O preço não pode ser negativo.",
+      },
       notNull: { msg: "O preço do café da manhã é obrigatório." },
     },
   },

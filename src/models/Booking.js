@@ -63,7 +63,7 @@ const Booking = connection.define("booking", {
     allowNull: false,
     validate: {
       isInt: { msg: "O número de noites deve ser um número inteiro." },
-      min: { args: 1, msg: "O número de noites deve ser pelo menos 1." },
+      min: { args: [1], msg: "O número de noites deve ser pelo menos 1." },
       notNull: { msg: "O número de noites é obrigatório." },
     },
   },
@@ -72,7 +72,7 @@ const Booking = connection.define("booking", {
     allowNull: false,
     validate: {
       isInt: { msg: "O número de hóspedes deve ser um número inteiro." },
-      min: { args: 1, msg: "O número de hóspedes deve ser pelo menos 1." },
+      min: { args: [1], msg: "O número de hóspedes deve ser pelo menos 1." },
       notNull: { msg: "O número de hóspedes é obrigatório." },
     },
   },
@@ -81,7 +81,7 @@ const Booking = connection.define("booking", {
     allowNull: false,
     validate: {
       isDecimal: { msg: "O preço da cabana deve ser um número decimal." },
-      min: { args: 0, msg: "O preço da cabana não pode ser negativo." },
+      min: { args: [0], msg: "O preço da cabana não pode ser negativo." },
       notNull: { msg: "O preço da cabana é obrigatório." },
     },
   },
@@ -90,7 +90,7 @@ const Booking = connection.define("booking", {
     allowNull: true,
     validate: {
       isDecimal: { msg: "O preço dos extras deve ser um número decimal." },
-      min: { args: 0, msg: "O preço dos extras não pode ser negativo." },
+      min: { args: [0], msg: "O preço dos extras não pode ser negativo." },
     },
   },
   totalPrice: {
@@ -98,7 +98,7 @@ const Booking = connection.define("booking", {
     allowNull: false,
     validate: {
       isDecimal: { msg: "O preço total deve ser um número decimal." },
-      min: { args: 0, msg: "O preço total não pode ser negativo." },
+      min: { args: [0], msg: "O preço total não pode ser negativo." },
       notNull: { msg: "O preço total é obrigatório." },
     },
   },

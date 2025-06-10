@@ -20,7 +20,7 @@ const Cabin = connection.define("cabin", {
     allowNull: false,
     validate: {
       isInt: { msg: "A capacidade máxima deve ser um número inteiro." },
-      min: { args: 1, msg: "A capacidade máxima deve ser pelo menos 1." },
+      min: { args: [1], msg: "A capacidade máxima deve ser pelo menos 1." },
       notNull: { msg: "A capacidade máxima é obrigatória." },
     },
   },
@@ -29,7 +29,7 @@ const Cabin = connection.define("cabin", {
     allowNull: false,
     validate: {
       isDecimal: { msg: "O preço regular deve ser um número decimal." },
-      min: { args: 0, msg: "O preço regular não pode ser negativo." },
+      min: { args: [0], msg: "O preço regular não pode ser negativo." },
       notNull: { msg: "O preço regular é obrigatório." },
     },
   },
@@ -38,8 +38,8 @@ const Cabin = connection.define("cabin", {
     allowNull: true,
     validate: {
       isDecimal: { msg: "O desconto deve ser um número decimal." },
-      min: { args: 0, msg: "O desconto não pode ser negativo." },
-      max: { args: 100, msg: "O desconto não pode ser maior que 100%." },
+      min: { args: [0], msg: "O desconto não pode ser negativo." },
+      max: { args: [100], msg: "O desconto não pode ser maior que 100%." },
       discountNotGreaterThanPrice() {
         if (this.discount && this.discount > this.regularPrice) {
           throw new Error("O desconto não pode ser maior que o preço regular.");
