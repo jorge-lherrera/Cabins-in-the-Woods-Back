@@ -4,6 +4,7 @@ const SettingController = require("../controllers/SettingController");
 const validate = require("../middleware/validationsYup");
 const settingValidation = require("../validations/settingValidation");
 const auth = require("../middleware/auth");
+const makeAllFieldsOptional = require("../utils/yupUtils");
 
 settingRoutes.get("/", auth, SettingController.getSettings);
 settingRoutes.post(
@@ -15,7 +16,7 @@ settingRoutes.post(
 settingRoutes.put(
   "/",
   auth,
-  validate(settingValidation),
+  validate(makeAllFieldsOptional(settingValidation)),
   SettingController.updateSetting
 );
 

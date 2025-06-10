@@ -4,6 +4,7 @@ const GuestController = require("../controllers/GuestController");
 const validate = require("../middleware/validationsYup");
 const guestValidation = require("../validations/guestValidation");
 const auth = require("../middleware/auth");
+const makeAllFieldsOptional = require("../utils/yupUtils");
 
 guestRoutes.get("/:id", auth, GuestController.getGuestById);
 guestRoutes.post(
@@ -15,7 +16,7 @@ guestRoutes.post(
 guestRoutes.put(
   "/:id",
   auth,
-  validate(guestValidation),
+  validate(makeAllFieldsOptional(guestValidation)),
   GuestController.updateGuest
 );
 guestRoutes.delete("/:id", auth, GuestController.deleteGuest);

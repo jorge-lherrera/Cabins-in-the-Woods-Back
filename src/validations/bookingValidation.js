@@ -36,12 +36,10 @@ const bookingValidation = applyNoUnknown(
     isPaid: Yup.boolean()
       .typeError("O campo de pagamento deve ser verdadeiro ou falso")
       .required("O campo de pagamento é obrigatório"),
-    status: Yup.string()
-      .oneOf(
-        ["unconfirmed", "checked-in", "checked-out"],
-        "Status deve ser: unconfirmed, checked-in ou checked-out"
-      )
-      .required("O status é obrigatório"),
+    status: validateStringLength("status", 0, 20).oneOf(
+      ["unconfirmed", "checked-in", "checked-out"],
+      "Status deve ser: unconfirmed, checked-in ou checked-out"
+    ),
   }),
   "Os campos adicionais não são permitidos. Por favor, verifique os campos."
 );

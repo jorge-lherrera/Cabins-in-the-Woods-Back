@@ -109,7 +109,7 @@ class BookingController {
         status,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return res.status(createStatus || 400).json({ error });
       }
       return successResponse(
         res,
@@ -162,7 +162,7 @@ class BookingController {
         status,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return res.status(updateStatus || 400).json({ error });
       }
       return successResponse(
         res,

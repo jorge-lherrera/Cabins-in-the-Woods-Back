@@ -5,6 +5,7 @@ const validate = require("../middleware/validationsYup");
 const bookingValidation = require("../validations/bookingValidation");
 const auth = require("../middleware/auth");
 const normalizeBookingDates = require("../middleware/normalizeBookingDates");
+const makeAllFieldsOptional = require("../utils/yupUtils");
 
 bookingRoutes.get("/", auth, BookingController.getAllBookings);
 bookingRoutes.get("/:id", auth, BookingController.getBookingById);
@@ -19,7 +20,7 @@ bookingRoutes.put(
   "/:id",
   auth,
   normalizeBookingDates,
-  validate(bookingValidation),
+  validate(makeAllFieldsOptional(bookingValidation)),
   BookingController.updateBooking
 );
 bookingRoutes.delete("/:id", auth, BookingController.deleteBooking);

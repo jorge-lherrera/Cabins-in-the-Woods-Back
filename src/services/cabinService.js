@@ -3,6 +3,7 @@ const Cabin = require("../models/Cabin");
 const Booking = require("../models/Booking");
 const MESSAGES = require("../utils/messages");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
+const findById = require("../utils/findById");
 
 async function getAllCabins({
   page = 1,
@@ -35,13 +36,11 @@ async function getAllCabins({
     include: [{ model: Booking, as: "bookings" }],
   });
 
-  const cabinObj = cabins.toJSON();
-
-  return { resource: cabinObj, error: null, status: 200 };
+  return { resource: cabins, error: null, status: 200 };
 }
 
 async function getCabinById(id) {
-  const cabin = await Cabin.findById(id, {
+  const cabin = await findById(Cabin, id, {
     include: [{ model: Booking, as: "bookings" }],
   });
   if (!cabin) {

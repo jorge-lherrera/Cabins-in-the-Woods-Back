@@ -199,9 +199,7 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     limit,
   };
 
-  const bookingObj = bookingStats.toJSON();
-
-  return { resource: bookingObj, error: null, status: 200 };
+  return { resource: bookingStats, error: null, status: 200 };
 }
 
 async function getBookingById(id) {
@@ -285,7 +283,7 @@ async function createBooking(data) {
     numGuests,
     cabinPrice,
     extrasPrice,
-    totalPrice: rules.finalTotalPrice,
+    totalPrice: rules.resource.finalTotalPrice,
     hasBreakfast,
     observations,
     isPaid,

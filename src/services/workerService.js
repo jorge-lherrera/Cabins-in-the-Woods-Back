@@ -74,24 +74,30 @@ async function updateWorker(id, data) {
     }
   }
 
-  if (password && currentPassword) {
+  const updatedData = {};
+  if (name !== undefined) updatedData.name = name;
+  if (email !== undefined) updatedData.email = email;
+  if (avatarUrl !== undefined) updatedData.avatar = avatarUrl;
+
+  if (password !== undefined && password !== "") {
+    if (!currentPassword) {
+      return {
+        resource: null,
+        error: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED,
+        status: 400,
+      };
+    }
     const isPasswordCorrect = await bcrypt.compare(
       currentPassword,
       existingWorker.password
     );
     if (!isPasswordCorrect) {
-      return { resource: null, error: MESSAGES.INVALID("Senha"), status: 401 };
+      return {
+        resource: null,
+        error: MESSAGES.GENERAL.INVALID("Senha"),
+        status: 401,
+      };
     }
-  } else if (password && !currentPassword) {
-    return {
-      resource: null,
-      error: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED,
-      status: 400,
-    };
-  }
-
-  const updatedData = { name, email, avatar: avatarUrl };
-  if (password) {
     updatedData.password = await bcrypt.hash(password, 10);
   }
 
