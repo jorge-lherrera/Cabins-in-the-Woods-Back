@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const Booking = require("../models/Booking");
 const MESSAGES = require("./messages");
 

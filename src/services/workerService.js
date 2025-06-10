@@ -28,7 +28,7 @@ async function createWorker(data) {
   if (existingWorker) {
     return {
       resource: null,
-      error: MESSAGES.ALREADY_EXISTS("esse email"),
+      error: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
       status: 409,
     };
   }
@@ -69,7 +69,7 @@ async function updateWorker(id, data) {
     if (emailExists) {
       return {
         resource: null,
-        error: MESSAGES.ALREADY_EXISTS("esse email"),
+        error: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
         status: 409,
       };
     }

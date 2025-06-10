@@ -63,7 +63,7 @@ async function createCabin(data) {
   if (existingCabin) {
     return {
       resource: null,
-      error: MESSAGES.ALREADY_EXISTS("essa cabana"),
+      error: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
       status: 409,
     };
   }
@@ -98,7 +98,7 @@ async function duplicateCabin(id) {
   if (nameExists) {
     return {
       resource: null,
-      error: MESSAGES.ALREADY_EXISTS("essa cabana"),
+      error: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
       status: 409,
     };
   }
