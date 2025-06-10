@@ -1,9 +1,17 @@
-import Cabin from "../models/Cabin";
-import Setting from "../models/Setting";
-import MESSAGES from "./messages";
+const Cabin = require("../models/Cabin");
+const Guest = require("../models/Guest");
+const Setting = require("../models/Setting");
+const MESSAGES = require("./messages");
 
-export async function validateBusinessRules(data) {
-  const { cabinId, numNights, numGuests, hasBreakfast, extrasPrice = 0 } = data;
+async function validateBusinessRules(data) {
+  const {
+    cabinId,
+    guestId,
+    numNights,
+    numGuests,
+    hasBreakfast,
+    extrasPrice = 0,
+  } = data;
 
   const setting = await Setting.findOne();
   if (!setting) {
@@ -40,6 +48,16 @@ export async function validateBusinessRules(data) {
       status: 404,
     };
   }
+
+  const guest = await Guest.findByPk(guestId);
+  if (!guest) {
+    return {
+      resource: null,
+      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      status: 404,
+    };
+  }
+
   const regularPrice = Number(cabin.regularPrice) || 0;
   const discount = Number(cabin.discount) || 0;
   const cabinPrice = regularPrice - discount;
@@ -56,3 +74,4 @@ export async function validateBusinessRules(data) {
     status: 200,
   };
 }
+module.exports = validateBusinessRules;

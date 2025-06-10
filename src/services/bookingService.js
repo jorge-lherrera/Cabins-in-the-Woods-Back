@@ -2,12 +2,11 @@ const { Op, Sequelize } = require("sequelize");
 const Booking = require("../models/Booking");
 const Cabin = require("../models/Cabin");
 const Guest = require("../models/Guest");
-const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
 const findById = require("../utils/findById");
 const updatedFields = require("../utils/updatedFields");
-const { checkOverlap } = require("../utils/checkOverlap");
-const { validateBusinessRules } = require("../utils/validateBusinessRules");
+const checkOverlap = require("../utils/checkOverlap");
+const validateBusinessRules = require("../utils/validateBusinessRules");
 
 async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
@@ -180,9 +179,7 @@ async function createBooking(data) {
     endDate,
     numNights,
     numGuests,
-    cabinPrice,
     extrasPrice,
-    totalPrice,
     hasBreakfast,
     observations,
     isPaid,
@@ -275,6 +272,7 @@ async function updateBooking(id, data) {
 
   const rules = await validateBusinessRules({
     cabinId: finalCabinId,
+    guestId: finalGuestId,
     numNights: finalNumNights,
     numGuests: finalNumGuests,
     hasBreakfast: finalHasBreakfast,

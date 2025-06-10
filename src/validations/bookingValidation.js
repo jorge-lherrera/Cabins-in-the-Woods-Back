@@ -22,13 +22,7 @@ const bookingValidation = applyNoUnknown(
       .required("A data de término é obrigatória"),
     numNights: positiveInteger("número de noites"),
     numGuests: positiveInteger("número de hóspedes"),
-    cabinPrice: positiveNumber("preço da cabana").required(
-      "O preço da cabana é obrigatório"
-    ),
     extrasPrice: positiveNumber("preço dos extras").nullable(),
-    totalPrice: positiveNumber("preço total").required(
-      "O preço total é obrigatório"
-    ),
     hasBreakfast: Yup.boolean()
       .typeError("O campo de café da manhã deve ser verdadeiro ou falso")
       .required("O campo de café da manhã é obrigatório"),

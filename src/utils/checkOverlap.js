@@ -1,9 +1,7 @@
-export async function checkOverlap({
-  cabinId,
-  startDate,
-  endDate,
-  excludeId = null,
-}) {
+const Booking = require("../models/Booking");
+const MESSAGES = require("./messages");
+
+async function checkOverlap({ cabinId, startDate, endDate, excludeId = null }) {
   const where = {
     cabinId,
     [Op.or]: [
@@ -34,3 +32,5 @@ export async function checkOverlap({
     status: 200,
   };
 }
+
+module.exports = checkOverlap;
