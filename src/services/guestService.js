@@ -15,7 +15,9 @@ async function getGuestById(id) {
       status: 404,
     };
   }
-  return { resource: guest, error: null, status: 200 };
+
+  const guestObj = guest.toJSON();
+  return { resource: guestObj, error: null, status: 200 };
 }
 
 async function createGuest(data) {
@@ -42,8 +44,9 @@ async function createGuest(data) {
     countryFlag,
     nationalIdNumber,
   });
+  const guestObj = guest.toJSON();
 
-  return { resource: guest, error: null, status: 201 };
+  return { resource: guestObj, error: null, status: 201 };
 }
 
 async function updateGuest(id, data) {
@@ -85,7 +88,8 @@ async function updateGuest(id, data) {
 
   const updatedGuest = await Guest.findByPk(id);
 
-  return { resource: updatedGuest, error: null, status: 200 };
+  const guestObj = updatedGuest.toJSON();
+  return { resource: guestObj, error: null, status: 200 };
 }
 
 async function deleteGuest(id) {
@@ -113,7 +117,6 @@ async function deleteGuest(id) {
 
 module.exports = {
   getGuestById,
-  hasBookings,
   createGuest,
   updateGuest,
   deleteGuest,

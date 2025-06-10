@@ -11,7 +11,8 @@ async function getUniqueSetting() {
     };
   }
 
-  return { resource: setting, error: null, status: 200 };
+  const settingObj = setting.toJSON();
+  return { resource: settingObj, error: null, status: 200 };
 }
 
 async function createUniqueSetting(data) {
@@ -39,7 +40,9 @@ async function createUniqueSetting(data) {
     breakfastPrice,
   });
 
-  return { resource: setting, error: null, status: 201 };
+  const settingObj = setting.toJSON();
+
+  return { resource: settingObj, error: null, status: 201 };
 }
 
 async function updateUniqueSetting(id, data) {
@@ -70,12 +73,13 @@ async function updateUniqueSetting(id, data) {
   await Setting.update(updatedData, { where: { id } });
   const updatedSetting = await Setting.findByPk(id);
 
-  return { resource: updatedSetting, error: null, status: 200 };
+  const settingObj = updatedSetting.toJSON();
+
+  return { resource: settingObj, error: null, status: 200 };
 }
 
 module.exports = {
   getUniqueSetting,
   createUniqueSetting,
   updateUniqueSetting,
-  SETTING_ERRORS,
 };

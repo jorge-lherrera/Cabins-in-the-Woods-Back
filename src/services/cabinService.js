@@ -4,7 +4,13 @@ const Booking = require("../models/Booking");
 const MESSAGES = require("../utils/messages");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 
-async function getAllCabins({ page = 1, limit = 10, orderBy = "name", order = "ASC", discountFilter }) {
+async function getAllCabins({
+  page = 1,
+  limit = 10,
+  orderBy = "name",
+  order = "ASC",
+  discountFilter,
+}) {
   const parsedLimit = parseInt(limit);
   const offset = (page - 1) * parsedLimit;
 
@@ -29,7 +35,9 @@ async function getAllCabins({ page = 1, limit = 10, orderBy = "name", order = "A
     include: [{ model: Booking, as: "bookings" }],
   });
 
-  return { resource: cabins, error: null, status: 200 };
+  const cabinObj = cabins.toJSON();
+
+  return { resource: cabinObj, error: null, status: 200 };
 }
 
 async function getCabinById(id) {
@@ -39,7 +47,8 @@ async function getCabinById(id) {
   if (!cabin) {
     return { resource: null, error: MESSAGES.CABIN.NOT_FOUND, status: 404 };
   }
-  return { resource: cabin, error: null, status: 200 };
+  const cabinObj = cabin.toJSON();
+  return { resource: cabinObj, error: null, status: 200 };
 }
 
 async function createCabin(data) {
@@ -68,7 +77,8 @@ async function createCabin(data) {
     description,
   });
 
-  return { resource: cabin, error: null, status: 201 };
+  const cabinObj = cabin.toJSON();
+  return { resource: cabinObj, error: null, status: 201 };
 }
 
 async function duplicateCabin(id) {
@@ -102,7 +112,8 @@ async function duplicateCabin(id) {
     description,
   });
 
-  return { resource: duplicatedCabin, error: null, status: 201 };
+  const cabinObj = duplicatedCabin.toJSON();
+  return { resource: cabinObj, error: null, status: 201 };
 }
 
 async function updateCabin(id, data) {
@@ -151,7 +162,8 @@ async function updateCabin(id, data) {
   const updatedCabin = await Cabin.findByPk(id, {
     include: [{ model: Booking, as: "bookings" }],
   });
-  return { resource: updatedCabin, error: null, status: 200 };
+  const cabinObj = updatedCabin.toJSON();
+  return { resource: cabinObj, error: null, status: 200 };
 }
 
 async function deleteCabin(id) {

@@ -199,7 +199,9 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     limit,
   };
 
-  return { resource: bookingStats, error: null, status: 200 };
+  const bookingObj = bookingStats.toJSON();
+
+  return { resource: bookingObj, error: null, status: 200 };
 }
 
 async function getBookingById(id) {
@@ -224,11 +226,11 @@ async function getBookingById(id) {
   const timeDiff = startDate.getTime() - today.getTime();
   const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
+  const bookingObj = existingBooking.toJSON();
+  bookingObj.daysUntilStart = daysUntilStart;
+
   return {
-    resource: {
-      ...existingBooking.toJSON(),
-      daysUntilStart,
-    },
+    resource: bookingObj,
     error: null,
     status: 200,
   };
@@ -290,7 +292,9 @@ async function createBooking(data) {
     status,
   });
 
-  return { resource: booking, error: null, status: 201 };
+  const bookingObj = booking.toJSON();
+
+  return { resource: bookingObj, error: null, status: 201 };
 }
 
 async function updateBooking(id, data) {
@@ -360,7 +364,9 @@ async function updateBooking(id, data) {
 
   const updatedBooking = await Booking.findByPk(id);
 
-  return { resource: updatedBooking, error: null, status: 200 };
+  const bookingObj = updatedBooking.toJSON();
+
+  return { resource: bookingObj, error: null, status: 200 };
 }
 
 async function deleteBooking(id) {

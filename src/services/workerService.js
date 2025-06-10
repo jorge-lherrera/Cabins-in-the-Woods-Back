@@ -14,8 +14,9 @@ async function getWorkerById(id) {
     };
   }
 
-  const { password, ...workerWithoutPassword } = existingWorker;
-  return { resource: workerWithoutPassword, error: null, status: 200 };
+  const workerObj = existingWorker.toJSON();
+  delete workerObj.password;
+  return { resource: workerObj, error: null, status: 200 };
 }
 
 async function createWorker(data) {
@@ -40,8 +41,9 @@ async function createWorker(data) {
     password: hashedPassword,
   });
 
-  const { password: _, ...workerWithoutPassword } = worker;
-  return { resource: workerWithoutPassword, error: null, status: 201 };
+  const workerObj = worker.toJSON();
+  delete workerObj.password;
+  return { resource: workerObj, error: null, status: 201 };
 }
 
 async function updateWorker(id, data) {
@@ -96,7 +98,10 @@ async function updateWorker(id, data) {
   await Worker.update(updatedData, { where: { id } });
   const updatedWorker = await Worker.findByPk(id);
 
-  return { resource: updatedWorker, error: null, status: 200 };
+  const workerObj = updatedWorker.toJSON();
+  delete workerObj.password;
+
+  return { resource: workerObj, error: null, status: 200 };
 }
 
 async function deleteWorker(id) {
