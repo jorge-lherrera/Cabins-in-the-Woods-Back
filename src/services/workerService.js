@@ -3,6 +3,7 @@ const Worker = require("../models/Worker");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 const findById = require("../utils/findById");
 const MESSAGES = require("../utils/messages");
+const updatedFields = require("../utils/updatedFields");
 
 async function getWorkerById(id) {
   const existingWorker = await findById(Worker, id);

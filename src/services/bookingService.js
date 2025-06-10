@@ -5,71 +5,9 @@ const Guest = require("../models/Guest");
 const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
 const findById = require("../utils/findById");
-
-async function validateBusinessRules(data) {
-  const { numNights, numGuests, hasBreakfast, totalPrice } = data;
-  const setting = await Setting.findOne();
-  if (!setting) {
-    return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
-      status: 500,
-    };
-  }
-  if (
-    numNights < setting.minBookingLength ||
-    numNights > setting.maxBookingLength
-  ) {
-    return {
-      resource: null,
-      error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
-      status: 400,
-    };
-  }
-  if (numGuests > setting.maxGuestsPerBooking) {
-    return {
-      resource: null,
-      error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
-      status: 400,
-    };
-  }
-  const finalTotalPrice = hasBreakfast
-    ? totalPrice + setting.breakfastPrice
-    : totalPrice;
-  return { resource: { finalTotalPrice }, error: null, status: 200 };
-}
-
-async function checkOverlap({ cabinId, startDate, endDate, excludeId = null }) {
-  const where = {
-    cabinId,
-    [Op.or]: [
-      { startDate: { [Op.between]: [startDate, endDate] } },
-      { endDate: { [Op.between]: [startDate, endDate] } },
-      {
-        [Op.and]: [
-          { startDate: { [Op.lte]: startDate } },
-          { endDate: { [Op.gte]: endDate } },
-        ],
-      },
-    ],
-  };
-  if (excludeId) {
-    where.id = { [Op.ne]: excludeId };
-  }
-  const overlappingBooking = await Booking.findOne({ where });
-  if (overlappingBooking) {
-    return {
-      resource: null,
-      error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
-      status: 409,
-    };
-  }
-  return {
-    resource: null,
-    error: null,
-    status: 200,
-  };
-}
+const updatedFields = require("../utils/updatedFields");
+const { checkOverlap } = require("../utils/checkOverlap");
+const { validateBusinessRules } = require("../utils/validateBusinessRules");
 
 async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
@@ -267,10 +205,11 @@ async function createBooking(data) {
   if (overlap.error) return overlap;
 
   const rules = await validateBusinessRules({
+    cabinId,
     numNights,
     numGuests,
     hasBreakfast,
-    totalPrice,
+    extrasPrice,
   });
   if (rules.error) return rules;
 
@@ -281,7 +220,7 @@ async function createBooking(data) {
     endDate,
     numNights,
     numGuests,
-    cabinPrice,
+    cabinPrice: rules.resource.cabinPrice,
     extrasPrice,
     totalPrice: rules.resource.finalTotalPrice,
     hasBreakfast,
@@ -303,9 +242,7 @@ async function updateBooking(id, data) {
     endDate,
     numNights,
     numGuests,
-    cabinPrice,
     extrasPrice,
-    totalPrice,
     hasBreakfast,
     observations,
     isPaid,
@@ -321,23 +258,41 @@ async function updateBooking(id, data) {
     };
   }
 
-  const rules = await validateBusinessRules({
-    numNights,
-    numGuests,
+  const getFinal = (newValue, currentValue) =>
+    newValue !== undefined ? newValue : currentValue;
+
+  const finalCabinId = getFinal(cabinId, existingBooking.cabinId);
+  const finalGuestId = getFinal(guestId, existingBooking.guestId);
+  const finalStartDate = getFinal(startDate, existingBooking.startDate);
+  const finalEndDate = getFinal(endDate, existingBooking.endDate);
+  const finalNumNights = getFinal(numNights, existingBooking.numNights);
+  const finalNumGuests = getFinal(numGuests, existingBooking.numGuests);
+  const finalExtrasPrice = getFinal(extrasPrice, existingBooking.extrasPrice);
+  const finalHasBreakfast = getFinal(
     hasBreakfast,
-    totalPrice,
+    existingBooking.hasBreakfast
+  );
+
+  const rules = await validateBusinessRules({
+    cabinId: finalCabinId,
+    numNights: finalNumNights,
+    numGuests: finalNumGuests,
+    hasBreakfast: finalHasBreakfast,
+    extrasPrice: finalExtrasPrice,
   });
   if (rules.error) return rules;
 
-  let datesChanged =
-    existingBooking.startDate.getTime() !== new Date(startDate).getTime() ||
-    existingBooking.endDate.getTime() !== new Date(endDate).getTime();
+  const datesChanged =
+    new Date(existingBooking.startDate).getTime() !==
+      new Date(finalStartDate).getTime() ||
+    new Date(existingBooking.endDate).getTime() !==
+      new Date(finalEndDate).getTime();
 
   if (datesChanged) {
     const overlap = await checkOverlap({
-      cabinId,
-      startDate,
-      endDate,
+      cabinId: finalCabinId,
+      startDate: finalStartDate,
+      endDate: finalEndDate,
       excludeId: id,
     });
     if (overlap.error) return overlap;
@@ -350,7 +305,6 @@ async function updateBooking(id, data) {
     "endDate",
     "numNights",
     "numGuests",
-    "cabinPrice",
     "extrasPrice",
     "hasBreakfast",
     "observations",
@@ -361,11 +315,13 @@ async function updateBooking(id, data) {
   const updateData = updatedFields(data, fields);
 
   if (
+    "cabinId" in updateData ||
     "numNights" in updateData ||
     "numGuests" in updateData ||
     "hasBreakfast" in updateData ||
-    "totalPrice" in updateData
+    "extrasPrice" in updateData
   ) {
+    updateData.cabinPrice = rules.resource.cabinPrice;
     updateData.totalPrice = rules.resource.finalTotalPrice;
   }
 

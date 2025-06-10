@@ -4,6 +4,7 @@ const Booking = require("../models/Booking");
 const MESSAGES = require("../utils/messages");
 const uploadFileCloudinary = require("../utils/uploadFileCloudinary");
 const findById = require("../utils/findById");
+const updatedFields = require("../utils/updatedFields");
 
 async function getAllCabins({
   page = 1,
