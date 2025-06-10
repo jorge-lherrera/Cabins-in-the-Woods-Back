@@ -342,21 +342,32 @@ async function updateBooking(id, data) {
     });
     if (overlap.error) return overlap;
   }
-  const updateData = {
-    cabinId,
-    guestId,
-    startDate,
-    endDate,
-    numNights,
-    numGuests,
-    cabinPrice,
-    extrasPrice,
-    totalPrice: rules.finalTotalPrice,
-    hasBreakfast,
-    observations,
-    isPaid,
-    status,
-  };
+
+  const fields = [
+    "cabinId",
+    "guestId",
+    "startDate",
+    "endDate",
+    "numNights",
+    "numGuests",
+    "cabinPrice",
+    "extrasPrice",
+    "hasBreakfast",
+    "observations",
+    "isPaid",
+    "status",
+  ];
+
+  const updateData = updatedFields(data, fields);
+
+  if (
+    "numNights" in updateData ||
+    "numGuests" in updateData ||
+    "hasBreakfast" in updateData ||
+    "totalPrice" in updateData
+  ) {
+    updateData.totalPrice = rules.resource.finalTotalPrice;
+  }
 
   await Booking.update(updateData, { where: { id } });
 

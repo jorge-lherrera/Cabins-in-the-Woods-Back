@@ -61,9 +61,14 @@ async function updateGuest(id, data) {
     };
   }
 
+  const duplicateWhere = [];
+  if (email) duplicateWhere.push({ email: email });
+  if (nationalIdNumber)
+    duplicateWhere.push({ nationalIdNumber: nationalIdNumber });
+
   const duplicateGuest = await Guest.findOne({
     where: {
-      [Op.or]: [{ email }, { nationalIdNumber }],
+      [Op.or]: duplicateWhere,
       id: { [Op.ne]: id },
     },
   });
@@ -76,13 +81,15 @@ async function updateGuest(id, data) {
     };
   }
 
-  const updatedData = {
-    fullName,
-    email,
-    nationality,
-    countryFlag,
-    nationalIdNumber,
-  };
+  const fields = [
+    "fullName",
+    "email",
+    "nationality",
+    "countryFlag",
+    "nationalIdNumber",
+  ];
+
+  const updatedData = updatedFields(data, fields);
 
   await Guest.update(updatedData, { where: { id } });
 

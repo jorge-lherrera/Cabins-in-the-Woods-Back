@@ -147,14 +147,16 @@ async function updateCabin(id, data) {
     };
   }
 
-  const updatedData = {
-    name,
-    maxCapacity,
-    regularPrice,
-    discount,
-    image: imageUrl,
-    description,
-  };
+  const fields = [
+    "name",
+    "maxCapacity",
+    "regularPrice",
+    "discount",
+    "description",
+  ];
+
+  const updatedData = updatedFields(data, fields);
+  updatedData.image = imageUrl;
 
   await Cabin.update(updatedData, { where: { id } });
 

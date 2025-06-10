@@ -1,5 +1,6 @@
 const Setting = require("../models/Setting");
 const MESSAGES = require("../utils/messages");
+const updatedFields = require("../utils/updatedFields");
 
 async function getUniqueSetting() {
   const setting = await Setting.findOne();
@@ -63,12 +64,14 @@ async function updateUniqueSetting(id, data) {
     };
   }
 
-  const updatedData = {
-    minBookingLength,
-    maxBookingLength,
-    maxGuestsPerBooking,
-    breakfastPrice,
-  };
+  const fields = [
+    "minBookingLength",
+    "maxBookingLength",
+    "maxGuestsPerBooking",
+    "breakfastPrice",
+  ];
+
+  const updatedData = updatedFields(data, fields);
 
   await Setting.update(updatedData, { where: { id } });
   const updatedSetting = await Setting.findByPk(id);

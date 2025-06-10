@@ -74,10 +74,9 @@ async function updateWorker(id, data) {
     }
   }
 
-  const updatedData = {};
-  if (name !== undefined) updatedData.name = name;
-  if (email !== undefined) updatedData.email = email;
-  if (avatarUrl !== undefined) updatedData.avatar = avatarUrl;
+  const fields = ["name", "email", "avatar"];
+
+  const updatedData = updatedFields(data, fields);
 
   if (password !== undefined && password !== "") {
     if (!currentPassword) {
