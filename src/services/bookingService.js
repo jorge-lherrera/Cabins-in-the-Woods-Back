@@ -123,6 +123,9 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
       nightRanges["8-14"]++;
   });
 
+  const totalBookings = await Booking.count({ where });
+  const pageCount = limit > 0 ? Math.ceil(totalBookings / limit) : 1;
+
   const bookingStats = {
     total: bookings.count,
     bookings: bookingsWithDays,
@@ -134,6 +137,7 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     salesChart: salesData,
     page,
     limit,
+    pageCount,
   };
 
   return { resource: bookingStats, error: null, status: 200 };
