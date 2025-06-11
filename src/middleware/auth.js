@@ -32,7 +32,7 @@ async function auth(req, res, next) {
       });
     }
 
-    req.userId = payload.sub;
+    req.user = { id: payload.sub, name: payload.name };
 
     next();
   } catch (error) {
