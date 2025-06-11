@@ -2,7 +2,7 @@ const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
 class LogoutController {
-  async logout(res, next) {
+  async logout(req, res, next) {
     try {
       res.clearCookie("authToken", {
         httpOnly: true,
