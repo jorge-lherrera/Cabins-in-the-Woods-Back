@@ -83,12 +83,8 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
     return {
-      resource: {
-        ...booking.toJSON(),
-        daysUntilStart: daysUntilStart,
-      },
-      error: null,
-      status: 200,
+      ...booking.toJSON(),
+      daysUntilStart: daysUntilStart,
     };
   });
 
@@ -100,12 +96,8 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
     return {
-      resource: {
-        ...booking.toJSON(),
-        daysUntilStart,
-      },
-      error: null,
-      status: 200,
+      ...booking.toJSON(),
+      daysUntilStart,
     };
   });
 
