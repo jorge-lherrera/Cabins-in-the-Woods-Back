@@ -27,7 +27,7 @@ cabinRoutes.post(
 cabinRoutes.put(
   "/:id",
   auth,
-  upload.single("image"),
+  upload.single("file"),
   validate(makeAllFieldsOptional(cabinValidation)),
   CabinController.updateCabin
 );
