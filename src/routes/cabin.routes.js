@@ -12,9 +12,7 @@ cabinRoutes.get("/:id", auth, CabinController.getCabinById);
 cabinRoutes.post(
   "/",
   auth,
-
-  upload.single("image"),
-
+  upload.single("file"),
   validate(cabinValidation),
   CabinController.createCabin
 );
