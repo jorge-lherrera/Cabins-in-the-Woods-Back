@@ -11,7 +11,7 @@ async function getAllCabins({
   limit = 10,
   orderBy = "name",
   order = "ASC",
-  discountFilter,
+  discountFilter = "all",
 }) {
   const parsedLimit = parseInt(limit);
   const offset = (page - 1) * parsedLimit;
@@ -25,8 +25,11 @@ async function getAllCabins({
   const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
   const where = {};
-  if (discountFilter) {
-    where.discount = { [Op.gte]: Number(discountFilter) };
+
+  if (discountFilter === "with-discount") {
+    where.discount = { [Op.gt]: 0 };
+  } else if (discountFilter === "no-discount") {
+    where.discount = 0;
   }
 
   const cabins = await Cabin.findAll({
@@ -57,6 +60,7 @@ async function createCabin(data) {
   let imageUrl = null;
   if (file) {
     imageUrl = await uploadFileCloudinary(file, "cabins");
+    console.log("URL de imagen subida:", imageUrl);
   }
 
   const existingCabin = await Cabin.findOne({ where: { name } });

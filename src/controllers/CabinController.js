@@ -10,7 +10,7 @@ class CabinController {
         limit = 10,
         orderBy = "name",
         order = "ASC",
-        discountFilter,
+        discountFilter = "all",
       } = req.query;
 
       const { resource, error, status } = await cabinService.getAllCabins({
@@ -71,6 +71,16 @@ class CabinController {
       if (error) {
         return res.status(status || 400).json({ error });
       }
+
+      console.log("Datos recibidos:", {
+        name,
+        maxCapacity,
+        regularPrice,
+        discount,
+        description,
+        file: req.file,
+      });
+
       return successResponse(
         res,
         201,
