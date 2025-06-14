@@ -6,6 +6,7 @@ const bookingValidation = require("../validations/bookingValidation");
 const auth = require("../middleware/auth");
 const normalizeBookingDates = require("../middleware/normalizeBookingDates");
 const makeAllFieldsOptional = require("../utils/yupUtils");
+const normalizeNumericFields = require("../middleware/normalizeNumericFields");
 
 bookingRoutes.get("/", auth, BookingController.getAllBookings);
 bookingRoutes.get("/:id", auth, BookingController.getBookingById);
@@ -13,6 +14,13 @@ bookingRoutes.post(
   "/",
   auth,
   normalizeBookingDates,
+  normalizeNumericFields([
+    "cabinId",
+    "guestId",
+    "numNights",
+    "numGuests",
+    "extrasPrice",
+  ]),
   validate(bookingValidation),
   BookingController.createBooking
 );
@@ -20,6 +28,13 @@ bookingRoutes.put(
   "/:id",
   auth,
   normalizeBookingDates,
+  normalizeNumericFields([
+    "cabinId",
+    "guestId",
+    "numNights",
+    "numGuests",
+    "extrasPrice",
+  ]),
   validate(makeAllFieldsOptional(bookingValidation)),
   BookingController.updateBooking
 );

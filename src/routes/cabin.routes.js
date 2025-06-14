@@ -21,6 +21,7 @@ cabinRoutes.post(
 cabinRoutes.post(
   "/:id/duplicate",
   auth,
+  normalizeNumericFields(["maxCapacity", "regularPrice", "discount"]),
   validate(cabinValidation),
   CabinController.duplicateCabin
 );
@@ -28,6 +29,7 @@ cabinRoutes.put(
   "/:id",
   auth,
   upload.single("file"),
+  normalizeNumericFields(["maxCapacity", "regularPrice", "discount"]),
   validate(makeAllFieldsOptional(cabinValidation)),
   CabinController.updateCabin
 );
