@@ -24,10 +24,6 @@ module.exports = {
         type: STRING(50),
         allowNull: false,
       },
-      countryFlag: {
-        type: STRING,
-        allowNull: true,
-      },
       nationalIdNumber: {
         type: STRING(20),
         allowNull: false,
@@ -69,15 +65,6 @@ module.exports = {
       type: "check",
       where: Sequelize.literal('char_length("nationality") BETWEEN 2 AND 50'),
       name: "check_nationality_length",
-    });
-
-    await queryInterface.addConstraint("guests", {
-      fields: ["countryFlag"],
-      type: "check",
-      where: Sequelize.literal(
-        '("countryFlag" IS NULL OR "countryFlag" ~ \'^https?://\')'
-      ),
-      name: "check_countryFlag_url",
     });
 
     await queryInterface.addConstraint("guests", {

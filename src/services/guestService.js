@@ -92,7 +92,7 @@ async function getGuestById(id) {
 }
 
 async function createGuest(data) {
-  const { fullName, email, nationality, countryFlag, nationalIdNumber } = data;
+  const { fullName, email, nationality, nationalIdNumber } = data;
 
   const existingGuest = await Guest.findOne({
     where: {
@@ -112,7 +112,7 @@ async function createGuest(data) {
     fullName,
     email,
     nationality,
-    countryFlag,
+
     nationalIdNumber,
   });
   const guestObj = guest.toJSON();
@@ -121,7 +121,7 @@ async function createGuest(data) {
 }
 
 async function updateGuest(id, data) {
-  const { fullName, email, nationality, countryFlag, nationalIdNumber } = data;
+  const { fullName, email, nationality, nationalIdNumber } = data;
 
   const existingGuest = await findById(Guest, id);
   if (!existingGuest) {
@@ -152,13 +152,7 @@ async function updateGuest(id, data) {
     };
   }
 
-  const fields = [
-    "fullName",
-    "email",
-    "nationality",
-    "countryFlag",
-    "nationalIdNumber",
-  ];
+  const fields = ["fullName", "email", "nationality", "nationalIdNumber"];
 
   const updatedData = updatedFields(data, fields);
 

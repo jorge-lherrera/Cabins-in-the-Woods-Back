@@ -58,13 +58,11 @@ class GuestController {
 
   async createGuest(req, res, next) {
     try {
-      const { fullName, email, nationality, countryFlag, nationalIdNumber } =
-        req.body;
+      const { fullName, email, nationality, nationalIdNumber } = req.body;
       const { resource, error, status } = await guestService.createGuest({
         fullName,
         email,
         nationality,
-        countryFlag,
         nationalIdNumber,
       });
       if (error) {
@@ -85,13 +83,11 @@ class GuestController {
   async updateGuest(req, res, next) {
     try {
       const { id } = req.params;
-      const { fullName, email, nationality, countryFlag, nationalIdNumber } =
-        req.body;
+      const { fullName, email, nationality, nationalIdNumber } = req.body;
       const { resource, error, status } = await guestService.updateGuest(id, {
         fullName,
         email,
         nationality,
-        countryFlag,
         nationalIdNumber,
       });
       if (error) {

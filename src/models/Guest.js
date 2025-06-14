@@ -40,16 +40,6 @@ const Guest = connection.define("guest", {
       },
     },
   },
-  countryFlag: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    validate: {
-      isUrl: { msg: "A URL da bandeira do país não é válida." },
-      noEmojis(value) {
-        noEmojis(value, "bandeira do país");
-      },
-    },
-  },
   nationalIdNumber: {
     type: DataTypes.STRING(20),
     allowNull: false,
