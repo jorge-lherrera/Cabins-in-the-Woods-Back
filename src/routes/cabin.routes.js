@@ -6,6 +6,7 @@ const cabinValidation = require("../validations/cabinValidation");
 const auth = require("../middleware/auth");
 const upload = require("../middleware/upload");
 const makeAllFieldsOptional = require("../utils/yupUtils");
+const normalizeNumericFields = require("../middleware/normalizeNumericFields");
 
 cabinRoutes.get("/", auth, CabinController.getAllCabins);
 cabinRoutes.get("/:id", auth, CabinController.getCabinById);
@@ -13,6 +14,7 @@ cabinRoutes.post(
   "/",
   auth,
   upload.single("file"),
+  normalizeNumericFields(["maxCapacity", "regularPrice", "discount"]),
   validate(cabinValidation),
   CabinController.createCabin
 );
