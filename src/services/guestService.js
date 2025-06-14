@@ -21,60 +21,58 @@ async function getAllGuests({
     nationality: "nationality",
   };
 
-  const orderField = allowedOrderFields[orderBy] || "fullName";
-  const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
-
   if (nationality === "all") {
     const { count, rows } = await Guest.findAndCountAll({
       limit: parsedLimit,
       offset,
-      order: [[orderField, orderDirection]],
+      order: [
+        [
+          allowedOrderFields[orderBy] || "fullName",
+          order.toUpperCase() === "DESC" ? "DESC" : "ASC",
+        ],
+      ],
       include: [{ model: Booking, as: "bookings" }],
     });
 
-    return {
-      resource: {
-        guests: rows,
-        total: count,
-        page,
-        pageCount: Math.ceil(count / parsedLimit),
-      },
-      error: null,
-      status: 200,
+    const guestsObj = {
+      guests: rows,
+      total: count,
+      page,
+      pageCount: Math.ceil(count / parsedLimit),
+      grouped: false,
     };
+
+    return { resource: guestsObj, error: null, status: 200 };
   }
 
-  const allGuests = await Guest.findAll({
-    order: [[orderField, orderDirection]],
+  const where = {};
+  if (nationality !== "all") {
+    where.nationality = nationality;
+  }
+
+  const { count, rows } = await Guest.findAndCountAll({
+    where,
+    limit: parsedLimit,
+    offset,
+    order: [
+      ["nationality", "ASC"],
+      [
+        allowedOrderFields[orderBy] || "fullName",
+        order.toUpperCase() === "DESC" ? "DESC" : "ASC",
+      ],
+    ],
     include: [{ model: Booking, as: "bookings" }],
   });
 
-  const grouped = allGuests.reduce((acc, guest) => {
-    const country = guest.nationality || "Unknown";
-    if (!acc[country]) acc[country] = [];
-    acc[country].push(guest);
-    return acc;
-  }, {});
-
-  const countries = Object.keys(grouped).sort();
-
-  const pagedCountries = countries.slice(offset, offset + parsedLimit);
-
-  const result = {};
-  pagedCountries.forEach((country) => {
-    result[country] = grouped[country];
-  });
-
-  return {
-    resource: {
-      groupedGuests: result,
-      totalCountries: countries.length,
-      page,
-      pageCount: Math.ceil(countries.length / parsedLimit),
-    },
-    error: null,
-    status: 200,
+  const guestsObj = {
+    guests: rows,
+    total: count,
+    page,
+    pageCount: Math.ceil(count / parsedLimit),
+    grouped: false,
   };
+
+  return { resource: guestsObj, error: null, status: 200 };
 }
 
 async function getGuestById(id) {
