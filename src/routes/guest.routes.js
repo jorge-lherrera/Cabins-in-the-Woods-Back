@@ -6,6 +6,7 @@ const guestValidation = require("../validations/guestValidation");
 const auth = require("../middleware/auth");
 const makeAllFieldsOptional = require("../utils/yupUtils");
 
+guestRoutes.get("/", auth, GuestController.getAllGuests);
 guestRoutes.get("/:id", auth, GuestController.getGuestById);
 guestRoutes.post(
   "/",

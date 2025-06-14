@@ -5,6 +5,78 @@ const MESSAGES = require("../utils/messages");
 const findById = require("../utils/findById");
 const updatedFields = require("../utils/updatedFields");
 
+async function getAllGuests({
+  page = 1,
+  limit = 10,
+  orderBy = "name",
+  order = "ASC",
+  nationality = "all",
+}) {
+  const parsedLimit = parseInt(limit);
+  const offset = (page - 1) * parsedLimit;
+
+  const allowedOrderFields = {
+    name: "fullName",
+    email: "email",
+    nationality: "nationality",
+  };
+
+  const orderField = allowedOrderFields[orderBy] || "fullName";
+  const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
+
+  if (nationality === "all") {
+    const { count, rows } = await Guest.findAndCountAll({
+      limit: parsedLimit,
+      offset,
+      order: [[orderField, orderDirection]],
+      include: [{ model: Booking, as: "bookings" }],
+    });
+
+    return {
+      resource: {
+        guests: rows,
+        total: count,
+        page,
+        pageCount: Math.ceil(count / parsedLimit),
+      },
+      error: null,
+      status: 200,
+    };
+  }
+
+  const allGuests = await Guest.findAll({
+    order: [[orderField, orderDirection]],
+    include: [{ model: Booking, as: "bookings" }],
+  });
+
+  const grouped = allGuests.reduce((acc, guest) => {
+    const country = guest.nationality || "Unknown";
+    if (!acc[country]) acc[country] = [];
+    acc[country].push(guest);
+    return acc;
+  }, {});
+
+  const countries = Object.keys(grouped).sort();
+
+  const pagedCountries = countries.slice(offset, offset + parsedLimit);
+
+  const result = {};
+  pagedCountries.forEach((country) => {
+    result[country] = grouped[country];
+  });
+
+  return {
+    resource: {
+      groupedGuests: result,
+      totalCountries: countries.length,
+      page,
+      pageCount: Math.ceil(countries.length / parsedLimit),
+    },
+    error: null,
+    status: 200,
+  };
+}
+
 async function getGuestById(id) {
   const guest = await Guest.findByPk(id, {
     include: [{ model: Booking, as: "bookings" }],
@@ -124,6 +196,7 @@ async function deleteGuest(id) {
 }
 
 module.exports = {
+  getAllGuests,
   getGuestById,
   createGuest,
   updateGuest,

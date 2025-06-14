@@ -3,6 +3,38 @@ const MESSAGES = require("../utils/messages");
 const successResponse = require("../utils/successResponse");
 
 class GuestController {
+  async getAllGuests(req, res, next) {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        orderBy = "name",
+        order = "ASC",
+        nationality = "all",
+      } = req.query;
+
+      const { resource, error, status } = await guestService.getAllGuests({
+        page,
+        limit,
+        orderBy,
+        order,
+        nationality,
+      });
+
+      if (error) {
+        return res.status(status || 400).json({ error });
+      }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Hóspede"),
+        resource,
+        "guests"
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
   async getGuestById(req, res, next) {
     try {
       const { id } = req.params;
