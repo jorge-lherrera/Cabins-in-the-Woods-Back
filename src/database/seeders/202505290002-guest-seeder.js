@@ -7,7 +7,7 @@ module.exports = {
       {
         fullName: "João Silva",
         email: "joao.silva@email.com",
-        nationality: "Brazilian",
+        nationality: "Brazil",
         nationalIdNumber: "123456789",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -15,7 +15,7 @@ module.exports = {
       {
         fullName: "Maria Oliveira",
         email: "maria.oliveira@email.com",
-        nationality: "Portuguese",
+        nationality: "Portugal",
         nationalIdNumber: "987654321",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -23,7 +23,7 @@ module.exports = {
       {
         fullName: "John Smith",
         email: "john.smith@email.com",
-        nationality: "American",
+        nationality: "United States",
         nationalIdNumber: "111222333",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -31,7 +31,7 @@ module.exports = {
       {
         fullName: "Sophie Dubois",
         email: "sophie.dubois@email.com",
-        nationality: "French",
+        nationality: "France",
         nationalIdNumber: "444555666",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -39,7 +39,7 @@ module.exports = {
       {
         fullName: "Akira Tanaka",
         email: "akira.tanaka@email.com",
-        nationality: "Japanese",
+        nationality: "Japan",
         nationalIdNumber: "777888999",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -47,7 +47,7 @@ module.exports = {
       {
         fullName: "Liam O'Connor",
         email: "liam.oconnor@email.com",
-        nationality: "Irish",
+        nationality: "Ireland",
         nationalIdNumber: "222333444",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -55,7 +55,7 @@ module.exports = {
       {
         fullName: "Fatima Zahra",
         email: "fatima.zahra@email.com",
-        nationality: "Moroccan",
+        nationality: "Morocco",
         nationalIdNumber: "555666777",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -63,7 +63,7 @@ module.exports = {
       {
         fullName: "Hans Müller",
         email: "hans.muller@email.com",
-        nationality: "German",
+        nationality: "Germany",
         nationalIdNumber: "888999000",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -71,7 +71,7 @@ module.exports = {
       {
         fullName: "Elena Rossi",
         email: "elena.rossi@email.com",
-        nationality: "Italian",
+        nationality: "Italy",
         nationalIdNumber: "333444555",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -79,7 +79,7 @@ module.exports = {
       {
         fullName: "Chen Wei",
         email: "chen.wei@email.com",
-        nationality: "Chinese",
+        nationality: "China",
         nationalIdNumber: "666777888",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -87,7 +87,7 @@ module.exports = {
       {
         fullName: "Ahmed Hassan",
         email: "ahmed.hassan@email.com",
-        nationality: "Egyptian",
+        nationality: "Egypt",
         nationalIdNumber: "101010101",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -95,7 +95,7 @@ module.exports = {
       {
         fullName: "Olga Ivanova",
         email: "olga.ivanova@email.com",
-        nationality: "Russian",
+        nationality: "Russia",
         nationalIdNumber: "202020202",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -103,7 +103,7 @@ module.exports = {
       {
         fullName: "Priya Patel",
         email: "priya.patel@email.com",
-        nationality: "Indian",
+        nationality: "India",
         nationalIdNumber: "303030303",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -111,7 +111,7 @@ module.exports = {
       {
         fullName: "Carlos García",
         email: "carlos.garcia@email.com",
-        nationality: "Spanish",
+        nationality: "Spain",
         nationalIdNumber: "404040404",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -119,7 +119,7 @@ module.exports = {
       {
         fullName: "Anna Svensson",
         email: "anna.svensson@email.com",
-        nationality: "Swedish",
+        nationality: "Sweden",
         nationalIdNumber: "505050505",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -127,7 +127,7 @@ module.exports = {
       {
         fullName: "Marta Kowalska",
         email: "marta.kowalska@email.com",
-        nationality: "Polish",
+        nationality: "Poland",
         nationalIdNumber: "606060606",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -135,7 +135,7 @@ module.exports = {
       {
         fullName: "George Papadopoulos",
         email: "george.papadopoulos@email.com",
-        nationality: "Greek",
+        nationality: "Greece",
         nationalIdNumber: "707070707",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -143,7 +143,7 @@ module.exports = {
       {
         fullName: "Kim Min-ji",
         email: "kim.minji@email.com",
-        nationality: "South Korean",
+        nationality: "South Korea",
         nationalIdNumber: "808080808",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -151,7 +151,7 @@ module.exports = {
       {
         fullName: "Lucas Dupont",
         email: "lucas.dupont@email.com",
-        nationality: "Belgian",
+        nationality: "Belgium",
         nationalIdNumber: "909090909",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -159,7 +159,7 @@ module.exports = {
       {
         fullName: "Emily Brown",
         email: "emily.brown@email.com",
-        nationality: "Canadian",
+        nationality: "Canada",
         nationalIdNumber: "112233445",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -167,7 +167,7 @@ module.exports = {
       {
         fullName: "Isabella Rossi",
         email: "isabella.rossi@email.com",
-        nationality: "Italian",
+        nationality: "Italy",
         nationalIdNumber: "223344556",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -175,7 +175,7 @@ module.exports = {
       {
         fullName: "Mohammed Al-Farsi",
         email: "mohammed.alfarsi@email.com",
-        nationality: "Omani",
+        nationality: "Oman",
         nationalIdNumber: "334455667",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -183,7 +183,7 @@ module.exports = {
       {
         fullName: "Sven Jansen",
         email: "sven.jansen@email.com",
-        nationality: "Dutch",
+        nationality: "Netherlands",
         nationalIdNumber: "445566778",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -191,7 +191,7 @@ module.exports = {
       {
         fullName: "Linda Müller",
         email: "linda.muller@email.com",
-        nationality: "German",
+        nationality: "Germany",
         nationalIdNumber: "556677889",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -199,7 +199,7 @@ module.exports = {
       {
         fullName: "Yara Haddad",
         email: "yara.haddad@email.com",
-        nationality: "Lebanese",
+        nationality: "Lebanon",
         nationalIdNumber: "667788990",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -207,7 +207,7 @@ module.exports = {
       {
         fullName: "Lucas Silva",
         email: "lucas.silva@email.com",
-        nationality: "Brazilian",
+        nationality: "Brazil",
         nationalIdNumber: "778899001",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -215,7 +215,7 @@ module.exports = {
       {
         fullName: "Sofia Costa",
         email: "sofia.costa@email.com",
-        nationality: "Portuguese",
+        nationality: "Portugal",
         nationalIdNumber: "889900112",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -223,7 +223,7 @@ module.exports = {
       {
         fullName: "David Cohen",
         email: "david.cohen@email.com",
-        nationality: "Israeli",
+        nationality: "Israel",
         nationalIdNumber: "990011223",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -231,7 +231,7 @@ module.exports = {
       {
         fullName: "Ava Wilson",
         email: "ava.wilson@email.com",
-        nationality: "Australian",
+        nationality: "Australia",
         nationalIdNumber: "101112131",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -239,7 +239,7 @@ module.exports = {
       {
         fullName: "Mateo Fernández",
         email: "mateo.fernandez@email.com",
-        nationality: "Argentinian",
+        nationality: "Argentina",
         nationalIdNumber: "121314151",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -247,7 +247,7 @@ module.exports = {
       {
         fullName: "Nina Novak",
         email: "nina.novak@email.com",
-        nationality: "Czech",
+        nationality: "Czech Republic",
         nationalIdNumber: "131415161",
         createdAt: new Date(),
         updatedAt: new Date(),
