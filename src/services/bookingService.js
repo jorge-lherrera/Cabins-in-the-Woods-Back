@@ -7,6 +7,7 @@ const findById = require("../utils/findById");
 const updatedFields = require("../utils/updatedFields");
 const checkOverlap = require("../utils/checkOverlap");
 const validateBusinessRules = require("../utils/validateBusinessRules");
+const calculateNumNights = require("../utils/calculateNumNights");
 
 async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
@@ -173,7 +174,6 @@ async function createBooking(data) {
     guestId,
     startDate,
     endDate,
-    numNights,
     numGuests,
     extrasPrice,
     hasBreakfast,
@@ -181,6 +181,8 @@ async function createBooking(data) {
     isPaid,
     status,
   } = data;
+
+  const numNights = calculateNumNights(startDate, endDate);
 
   const cabin = await Cabin.findByPk(cabinId);
   const guest = await Guest.findByPk(guestId);
