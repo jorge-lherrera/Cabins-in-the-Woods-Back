@@ -22,23 +22,29 @@ async function getAllBookingsDashboard({ days = 7 }) {
     include: [{ model: Guest, as: "guest", attributes: ["fullName", "email"] }],
   });
 
-  const bookingsToday = await Booking.findAll({
+  const bookingsTodayRaw = await Booking.findAll({
     where: {
       startDate: { [Op.eq]: today },
     },
-    include: [{ model: Guest, as: "guest", attributes: ["fullName", "email"] }],
+    attributes: ["guestId", "numNights", "status"],
   });
 
-  const bookingsTodayWithDays = bookingsToday.map((booking) => ({
-    cabinId: booking.cabinId,
-    "guest.fullName": booking.guest?.fullName,
-    "guest.email": booking.guest?.email,
-    daysUntilStart: getDaysUntilStart(booking.startDate),
-    numNights: booking.numNights,
-    startDate: booking.startDate,
-    endDate: booking.endDate,
-    status: booking.status,
-    totalPrice: booking.totalPrice,
+  const guestIdsToday = bookingsTodayRaw.map((b) => b.guestId);
+  const guestsToday = await Guest.findAll({
+    where: { id: { [Op.in]: guestIdsToday } },
+    attributes: ["id", "fullName", "nationality"],
+  });
+
+  const guestMap = {};
+  guestsToday.forEach((g) => {
+    guestMap[g.id] = { fullName: g.fullName, nationality: g.nationality };
+  });
+
+  const bookingsToday = bookingsTodayRaw.map((b) => ({
+    nationality: guestMap[b.guestId]?.nationality || null,
+    fullName: guestMap[b.guestId]?.fullName || null,
+    numNights: b.numNights,
+    status: b.status,
   }));
 
   const total = bookingsForStats.length;
@@ -82,7 +88,7 @@ async function getAllBookingsDashboard({ days = 7 }) {
       totalRevenue: Number(totalRevenue.toFixed(2)),
       checkedInBookings,
       occupancyRate: Math.round(occupancyRate * 100) / 100,
-      bookingsToday: bookingsTodayWithDays,
+      bookingsToday,
       nightRanges,
       salesChart: salesData,
     },
@@ -94,129 +100,49 @@ async function getAllBookingsDashboard({ days = 7 }) {
 async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
     where,
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
+    include: [{ model: Guest, as: "guest", attributes: ["fullName", "email"] }],
+    order: [
+      [orderBy, order && order.toUpperCase() === "DESC" ? "DESC" : "ASC"],
     ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
     limit,
     offset,
-  });
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const bookingsToday = await Booking.findAll({
-    where: {
-      ...where,
-      startDate: { [Op.between]: [todayStart, todayEnd] },
-    },
-    include: [
-      { model: Cabin, as: "cabin" },
-      { model: Guest, as: "guest" },
-    ],
-    order: [[orderBy, order.toUpperCase() === "DESC" ? "DESC" : "ASC"]],
-  });
-
-  const totalRevenue = await Booking.sum("totalPrice", { where });
-
-  const checkedInBookings = await Booking.count({
-    where: { ...where, status: "checked-in" },
-  });
-
-  const totalCabins = await Cabin.count();
-  const activeBookings = await Booking.count({
-    where: {
-      ...where,
-      status: ["checked-in", "unconfirmed"],
-    },
-  });
-  const occupancyRate =
-    totalCabins > 0 ? (activeBookings / totalCabins) * 100 : 0;
-
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const salesData = await Booking.findAll({
-    where: {
-      ...where,
-      startDate: {
-        [Op.gte]: thirtyDaysAgo,
-      },
-    },
-    attributes: [
-      [Sequelize.fn("DATE", Sequelize.col("startDate")), "date"],
-      [Sequelize.fn("SUM", Sequelize.col("totalPrice")), "revenue"],
-    ],
-    group: [Sequelize.fn("DATE", Sequelize.col("startDate"))],
-    order: [[Sequelize.fn("DATE", Sequelize.col("startDate")), "ASC"]],
-    raw: true,
   });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const bookingsWithDays = bookings.rows.map((booking) => {
+  const bookingsList = bookings.rows.map((booking) => {
     const startDate = new Date(booking.startDate);
     startDate.setHours(0, 0, 0, 0);
-
-    const timeDiff = startDate.getTime() - today.getTime();
-    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const daysUntilStart = Math.ceil((startDate - today) / (1000 * 3600 * 24));
 
     return {
-      ...booking.toJSON(),
-      daysUntilStart: daysUntilStart,
-    };
-  });
-
-  const bookingsTodayWithDays = bookingsToday.map((booking) => {
-    const startDate = new Date(booking.startDate);
-    startDate.setHours(0, 0, 0, 0);
-
-    const timeDiff = startDate.getTime() - today.getTime();
-    const daysUntilStart = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-    return {
-      ...booking.toJSON(),
+      cabinId: booking.cabinId,
+      "guest.fullName": booking.guest?.fullName,
+      "guest.email": booking.guest?.email,
       daysUntilStart,
+      numNights: booking.numNights,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      status: booking.status,
+      totalPrice: booking.totalPrice,
     };
   });
 
-  const nightRanges = {
-    "2-3": 0,
-    "4-5": 0,
-    "8-14": 0,
+  const pageCount = limit > 0 ? Math.ceil(bookings.count / limit) : 1;
+
+  return {
+    resource: {
+      bookings: bookingsList,
+      page,
+      limit,
+      pageCount,
+    },
+    error: null,
+    status: 200,
   };
-
-  bookings.rows.forEach((booking) => {
-    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
-    else if (booking.numNights >= 4 && booking.numNights <= 5)
-      nightRanges["4-5"]++;
-    else if (booking.numNights >= 8 && booking.numNights <= 14)
-      nightRanges["8-14"]++;
-  });
-
-  const totalBookings = await Booking.count({ where });
-  const pageCount = limit > 0 ? Math.ceil(totalBookings / limit) : 1;
-
-  const bookingStats = {
-    total: bookings.count,
-    bookings: bookingsWithDays,
-    bookingsToday: bookingsTodayWithDays,
-    nightRanges,
-    totalRevenue: totalRevenue || 0,
-    checkedInBookings,
-    occupancyRate: Math.round(occupancyRate * 100) / 100,
-    salesChart: salesData,
-    page,
-    limit,
-    pageCount,
-  };
-
-  return { resource: bookingStats, error: null, status: 200 };
 }
+
 async function getBookingById(id) {
   const existingBooking = await Booking.findByPk(id, {
     include: [

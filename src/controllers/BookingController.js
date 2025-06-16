@@ -33,13 +33,11 @@ class BookingController {
 
   async getAllBookings(req, res, next) {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        orderBy = "startDate",
-        order = "ASC",
-        status,
-      } = req.query;
+      let { page = 1, limit = 10, orderBy, order, status } = req.query;
+
+      if (!status) status = "all";
+      if (!orderBy) orderBy = "startDate";
+      if (!order) order = "DESC";
 
       const parsedLimit = parseInt(limit, 10);
       const offset = (Number(page) - 1) * parsedLimit;
@@ -48,7 +46,13 @@ class BookingController {
       if (status) {
         where.status = status.split(",");
       }
-
+      if (where.status && Array.isArray(where.status)) {
+        if (where.status.length === 1 && where.status[0] === "all") {
+          delete where.status;
+        } else {
+          where.status = { [Op.in]: where.status };
+        }
+      }
       const {
         resource,
         error,
@@ -60,7 +64,6 @@ class BookingController {
         limit: parsedLimit,
         offset,
         page: Number(page),
-        days,
       });
 
       if (error) {
