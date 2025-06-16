@@ -12,6 +12,7 @@ class BookingController {
         orderBy = "startDate",
         order = "ASC",
         status,
+        days = 7,
       } = req.query;
 
       const parsedLimit = parseInt(limit, 10);
@@ -33,6 +34,7 @@ class BookingController {
         limit: parsedLimit,
         offset,
         page: Number(page),
+        days: Number(days),
       });
 
       if (error) {
