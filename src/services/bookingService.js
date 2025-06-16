@@ -236,7 +236,7 @@ async function updateBooking(id, data) {
     guestId,
     startDate,
     endDate,
-    numNights,
+
     numGuests,
     extrasPrice,
     hasBreakfast,
@@ -261,7 +261,11 @@ async function updateBooking(id, data) {
   const finalGuestId = getFinal(guestId, existingBooking.guestId);
   const finalStartDate = getFinal(startDate, existingBooking.startDate);
   const finalEndDate = getFinal(endDate, existingBooking.endDate);
-  const finalNumNights = getFinal(numNights, existingBooking.numNights);
+  let finalNumNights = existingBooking.numNights;
+  if (startDate !== undefined || endDate !== undefined) {
+    finalNumNights = calculateNumNights(finalStartDate, finalEndDate);
+  }
+
   const finalNumGuests = getFinal(numGuests, existingBooking.numGuests);
   const finalExtrasPrice = getFinal(extrasPrice, existingBooking.extrasPrice);
   const finalHasBreakfast = getFinal(

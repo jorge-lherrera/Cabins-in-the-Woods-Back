@@ -1,180 +1,88 @@
 // Seeder for Booking model
 "use strict";
 
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert("bookings", [
-      {
-        cabinId: 1,
-        guestId: 1,
-        startDate: new Date("2025-07-01"),
-        endDate: new Date("2025-07-05"),
-        numNights: 4,
-        numGuests: 2,
-        cabinPrice: 350.0,
-        extrasPrice: 50.0,
-        totalPrice: 400.0,
-        hasBreakfast: true,
-        observations: "Reserva para casal.",
-        isPaid: true,
-        status: "checked-in",
+    const baseDate = new Date("2025-07-01");
+    const statuses = ["unconfirmed", "checked-in", "checked-out"];
+    const nightRanges = [
+      { min: 2, max: 3, count: 10 },
+      { min: 4, max: 5, count: 15 },
+      { min: 8, max: 14, count: 5 },
+    ];
+    const numNightsArr = [];
+    nightRanges.forEach((range) => {
+      for (let i = 0; i < range.count; i++) {
+        numNightsArr.push(
+          Math.floor(Math.random() * (range.max - range.min + 1)) + range.min
+        );
+      }
+    });
+    // Shuffle numNightsArr for randomness
+    for (let i = numNightsArr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numNightsArr[i], numNightsArr[j]] = [numNightsArr[j], numNightsArr[i]];
+    }
+    const bookings = Array.from({ length: 30 }, (_, i) => {
+      const cabinId = i + 1;
+      const guestId = i + 1;
+      const startDate = addDays(baseDate, i * 5);
+      const numNights = numNightsArr[i];
+      const endDate = addDays(startDate, numNights);
+      const numGuests = Math.floor(Math.random() * 6) + 1;
+      const cabinPrice = 200 + Math.floor(Math.random() * 350); // 200–550
+      const extrasPrice = Math.floor(Math.random() * 100); // 0–99
+      const totalPrice = cabinPrice + extrasPrice;
+      const hasBreakfast = Math.random() < 0.5;
+      const isPaid = Math.random() < 0.6;
+      const status = statuses[Math.floor(Math.random() * statuses.length)];
+      const observations = [
+        "Reserva para casal.",
+        "Família com crianças.",
+        "Viagem solo.",
+        "Grupo de amigos.",
+        "Lua de mel.",
+        "Férias em família.",
+        "Viagem de amigos.",
+        "Casal em férias.",
+        "Viagem de negócios.",
+        "Descanso de fim de semana.",
+        "Aventura na natureza.",
+        "Trabalho remoto.",
+        "Retiro espiritual.",
+        "Comemoração de aniversário.",
+        "Viagem internacional.",
+        "Evento corporativo.",
+        "Férias escolares.",
+        "Viagem cultural.",
+        "Descanso prolongado.",
+        "Viagem gastronômica.",
+      ];
+      return {
+        cabinId,
+        guestId,
+        startDate,
+        endDate,
+        numNights,
+        numGuests,
+        cabinPrice,
+        extrasPrice,
+        totalPrice,
+        hasBreakfast,
+        observations: observations[i % observations.length],
+        isPaid,
+        status,
         createdAt: new Date(),
         updatedAt: new Date(),
-      },
-      {
-        cabinId: 2,
-        guestId: 2,
-        startDate: new Date("2025-08-10"),
-        endDate: new Date("2025-08-15"),
-        numNights: 5,
-        numGuests: 4,
-        cabinPrice: 500.0,
-        extrasPrice: 100.0,
-        totalPrice: 600.0,
-        hasBreakfast: false,
-        observations: "Família com crianças.",
-        isPaid: false,
-        status: "unconfirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 3,
-        guestId: 3,
-        startDate: new Date("2025-09-01"),
-        endDate: new Date("2025-09-04"),
-        numNights: 3,
-        numGuests: 1,
-        cabinPrice: 250.0,
-        extrasPrice: 0.0,
-        totalPrice: 250.0,
-        hasBreakfast: false,
-        observations: "Viagem solo.",
-        isPaid: true,
-        status: "checked-out",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 4,
-        guestId: 4,
-        startDate: new Date("2025-10-10"),
-        endDate: new Date("2025-10-15"),
-        numNights: 5,
-        numGuests: 3,
-        cabinPrice: 400.0,
-        extrasPrice: 60.0,
-        totalPrice: 460.0,
-        hasBreakfast: true,
-        observations: "Grupo de amigos.",
-        isPaid: false,
-        status: "unconfirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 5,
-        guestId: 5,
-        startDate: new Date("2025-11-01"),
-        endDate: new Date("2025-11-03"),
-        numNights: 2,
-        numGuests: 2,
-        cabinPrice: 200.0,
-        extrasPrice: 20.0,
-        totalPrice: 220.0,
-        hasBreakfast: true,
-        observations: "Lua de mel.",
-        isPaid: true,
-        status: "checked-in",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 6,
-        guestId: 6,
-        startDate: new Date("2025-12-05"),
-        endDate: new Date("2025-12-10"),
-        numNights: 5,
-        numGuests: 4,
-        cabinPrice: 370.0,
-        extrasPrice: 80.0,
-        totalPrice: 450.0,
-        hasBreakfast: false,
-        observations: "Férias em família.",
-        isPaid: false,
-        status: "unconfirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 7,
-        guestId: 7,
-        startDate: new Date("2026-01-10"),
-        endDate: new Date("2026-01-15"),
-        numNights: 5,
-        numGuests: 3,
-        cabinPrice: 260.0,
-        extrasPrice: 30.0,
-        totalPrice: 290.0,
-        hasBreakfast: true,
-        observations: "Viagem de amigos.",
-        isPaid: true,
-        status: "checked-in",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 8,
-        guestId: 8,
-        startDate: new Date("2026-02-01"),
-        endDate: new Date("2026-02-06"),
-        numNights: 5,
-        numGuests: 2,
-        cabinPrice: 420.0,
-        extrasPrice: 90.0,
-        totalPrice: 510.0,
-        hasBreakfast: false,
-        observations: "Casal em férias.",
-        isPaid: false,
-        status: "unconfirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 9,
-        guestId: 9,
-        startDate: new Date("2026-03-10"),
-        endDate: new Date("2026-03-13"),
-        numNights: 3,
-        numGuests: 1,
-        cabinPrice: 210.0,
-        extrasPrice: 10.0,
-        totalPrice: 220.0,
-        hasBreakfast: true,
-        observations: "Viagem de negócios.",
-        isPaid: true,
-        status: "checked-out",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        cabinId: 10,
-        guestId: 10,
-        startDate: new Date("2026-04-01"),
-        endDate: new Date("2026-04-05"),
-        numNights: 4,
-        numGuests: 2,
-        cabinPrice: 330.0,
-        extrasPrice: 40.0,
-        totalPrice: 370.0,
-        hasBreakfast: false,
-        observations: "Descanso de fim de semana.",
-        isPaid: false,
-        status: "unconfirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ]);
+      };
+    });
+    await queryInterface.bulkInsert("bookings", bookings);
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete("bookings", null, {});
