@@ -4,6 +4,33 @@ const bookingService = require("../services/bookingService");
 const successResponse = require("../utils/successResponse");
 
 class BookingController {
+  async getAllBookingsDashboard(req, res, next) {
+    try {
+      const { days } = req.query;
+
+      const {
+        resource,
+        error,
+        status: serviceStatus,
+      } = await bookingService.getAllBookingsDashboard({
+        days,
+      });
+
+      if (error) {
+        return res.status(serviceStatus || 400).json({ error });
+      }
+      return successResponse(
+        res,
+        200,
+        MESSAGES.GENERAL.FOUND("Dashboard de reservas"),
+        resource,
+        "bookingsDashboard"
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getAllBookings(req, res, next) {
     try {
       const {
@@ -33,6 +60,7 @@ class BookingController {
         limit: parsedLimit,
         offset,
         page: Number(page),
+        days,
       });
 
       if (error) {

@@ -8,6 +8,11 @@ const normalizeBookingDates = require("../middleware/normalizeBookingDates");
 const makeAllFieldsOptional = require("../utils/yupUtils");
 const normalizeNumericFields = require("../middleware/normalizeNumericFields");
 
+bookingRoutes.get(
+  "/dashboard",
+  auth,
+  BookingController.getAllBookingsDashboard
+);
 bookingRoutes.get("/", auth, BookingController.getAllBookings);
 bookingRoutes.get("/:id", auth, BookingController.getBookingById);
 bookingRoutes.post(

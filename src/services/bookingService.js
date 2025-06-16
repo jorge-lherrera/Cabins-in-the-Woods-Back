@@ -9,6 +9,88 @@ const checkOverlap = require("../utils/checkOverlap");
 const validateBusinessRules = require("../utils/validateBusinessRules");
 const calculateNumNights = require("../utils/calculateNumNights");
 
+async function getAllBookingsDashboard({ days = 7 }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const filterStart = new Date(today);
+  filterStart.setDate(filterStart.getDate() - days + 1);
+
+  const bookingsForStats = await Booking.findAll({
+    where: {
+      startDate: { [Op.gte]: filterStart, [Op.lte]: today },
+    },
+    include: [{ model: Guest, as: "guest", attributes: ["fullName", "email"] }],
+  });
+
+  const bookingsToday = await Booking.findAll({
+    where: {
+      startDate: { [Op.eq]: today },
+    },
+    include: [{ model: Guest, as: "guest", attributes: ["fullName", "email"] }],
+  });
+
+  const bookingsTodayWithDays = bookingsToday.map((booking) => ({
+    cabinId: booking.cabinId,
+    "guest.fullName": booking.guest?.fullName,
+    "guest.email": booking.guest?.email,
+    daysUntilStart: getDaysUntilStart(booking.startDate),
+    numNights: booking.numNights,
+    startDate: booking.startDate,
+    endDate: booking.endDate,
+    status: booking.status,
+    totalPrice: booking.totalPrice,
+  }));
+
+  const total = bookingsForStats.length;
+  const totalRevenue = bookingsForStats.reduce(
+    (sum, b) => sum + Number(b.totalPrice),
+    0
+  );
+  const checkedInBookings = bookingsForStats.filter(
+    (b) => b.status === "checked-in"
+  ).length;
+
+  const totalCabins = await Cabin.count();
+  const activeBookings = bookingsForStats.filter(
+    (b) => b.status === "checked-in" || b.status === "unconfirmed"
+  ).length;
+  const occupancyRate =
+    totalCabins > 0 ? (activeBookings / totalCabins) * 100 : 0;
+
+  const nightRanges = { "2-3": 0, "4-5": 0, "8-14": 0 };
+  bookingsForStats.forEach((booking) => {
+    if (booking.numNights >= 2 && booking.numNights <= 3) nightRanges["2-3"]++;
+    else if (booking.numNights >= 4 && booking.numNights <= 5)
+      nightRanges["4-5"]++;
+    else if (booking.numNights >= 8 && booking.numNights <= 14)
+      nightRanges["8-14"]++;
+  });
+
+  const salesMap = {};
+  bookingsForStats.forEach((b) => {
+    const date = b.startDate.toISOString().slice(0, 10);
+    if (!salesMap[date]) salesMap[date] = 0;
+    salesMap[date] += Number(b.totalPrice);
+  });
+  const salesData = Object.entries(salesMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, revenue]) => ({ date, revenue: revenue.toFixed(2) }));
+
+  return {
+    resource: {
+      total,
+      totalRevenue: Number(totalRevenue.toFixed(2)),
+      checkedInBookings,
+      occupancyRate: Math.round(occupancyRate * 100) / 100,
+      bookingsToday: bookingsTodayWithDays,
+      nightRanges,
+      salesChart: salesData,
+    },
+    error: null,
+    status: 200,
+  };
+}
+
 async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
   const bookings = await Booking.findAndCountAll({
     where,
@@ -135,7 +217,6 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
 
   return { resource: bookingStats, error: null, status: 200 };
 }
-
 async function getBookingById(id) {
   const existingBooking = await Booking.findByPk(id, {
     include: [
@@ -349,6 +430,7 @@ async function deleteBooking(id) {
 }
 
 module.exports = {
+  getAllBookingsDashboard,
   getAllBookings,
   getBookingById,
   createBooking,
