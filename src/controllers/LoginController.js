@@ -14,19 +14,23 @@ class LoginController {
       });
 
       if (!worker) {
-        return res.status(401).json({
-          resource: null,
-          error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+        return next({
           status: 401,
+          errorCode: "USER_NOT_FOUND",
+          message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+          source: "auth - login",
+          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 
       const isPasswordCorrect = await bcrypt.compare(password, worker.password);
       if (!isPasswordCorrect) {
-        return res.status(401).json({
-          resource: null,
-          error: MESSAGES.INVALID("Senha ou email"),
+        return next({
           status: 401,
+          errorCode: "INVALID_PASSWORD",
+          message: MESSAGES.GENERAL.INVALID("Senha"),
+          source: "auth - login",
+          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 
@@ -50,9 +54,6 @@ class LoginController {
         token: token,
       });
     } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log(error.message);
-      }
       next(error);
     }
   }

@@ -8,10 +8,12 @@ class SessionController {
       const worker = await Worker.findByPk(req.user.id);
 
       if (!worker) {
-        return res.status(401).json({
-          resource: null,
-          error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+        return next({
           status: 401,
+          errorCode: "USER_NOT_FOUND",
+          message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+          source: "auth - session",
+          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 
