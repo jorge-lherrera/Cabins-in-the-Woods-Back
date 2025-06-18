@@ -60,7 +60,6 @@ async function createCabin(data) {
   let imageUrl = null;
   if (file) {
     imageUrl = await uploadFileCloudinary(file, "cabins");
-    console.log("URL de imagen subida:", imageUrl);
   }
 
   const existingCabin = await Cabin.findOne({ where: { name } });

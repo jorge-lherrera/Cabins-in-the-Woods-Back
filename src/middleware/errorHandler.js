@@ -6,8 +6,6 @@ const {
 const MESSAGES = require("../utils/messages");
 
 function errorHandler(err, req, res, next) {
-  console.error(err);
-
   function sendError({ status, errorCode, message, source, detalhes }) {
     return res.status(status).json({
       status,

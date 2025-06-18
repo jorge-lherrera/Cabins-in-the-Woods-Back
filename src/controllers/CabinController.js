@@ -72,15 +72,6 @@ class CabinController {
         return next(error);
       }
 
-      console.log("Datos recibidos:", {
-        name,
-        maxCapacity,
-        regularPrice,
-        discount,
-        description,
-        file: req.file,
-      });
-
       return successResponse(
         res,
         201,
