@@ -19,7 +19,12 @@ class SessionController {
         res,
         200,
         MESSAGES.GENERAL.FOUND("Funcionário"),
-        { id: worker.id, name: worker.name },
+        {
+          id: worker.id,
+          name: worker.name,
+          avatar: worker.avatar,
+          email: worker.email,
+        },
         "worker"
       );
     } catch (error) {

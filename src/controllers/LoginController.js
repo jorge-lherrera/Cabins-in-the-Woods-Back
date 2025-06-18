@@ -44,6 +44,8 @@ class LoginController {
         worker: {
           id: worker.id,
           name: worker.name,
+          avatar: worker.avatar,
+          email: worker.email,
         },
         token: token,
       });
