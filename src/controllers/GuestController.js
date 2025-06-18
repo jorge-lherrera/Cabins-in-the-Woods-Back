@@ -22,7 +22,7 @@ class GuestController {
       });
 
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -40,9 +40,7 @@ class GuestController {
       const { id } = req.params;
       const { resource, error, status } = await guestService.getGuestById(id);
       if (error) {
-        return res
-          .status(status || 404)
-          .json({ error: MESSAGES.GENERAL.NOT_FOUND("Hóspede") });
+        return next(error);
       }
       return successResponse(
         res,
@@ -66,7 +64,7 @@ class GuestController {
         nationalIdNumber,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -91,7 +89,7 @@ class GuestController {
         nationalIdNumber,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -110,7 +108,7 @@ class GuestController {
       const { id } = req.params;
       const { resource, error, status } = await guestService.deleteGuest(id);
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
 
       return successResponse(

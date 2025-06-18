@@ -8,7 +8,7 @@ class WorkerController {
       const { id } = req.params;
       const { resource, error, status } = await workerService.getWorkerById(id);
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -32,7 +32,7 @@ class WorkerController {
         file: req.file,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -58,7 +58,7 @@ class WorkerController {
         file: req.file,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -77,7 +77,7 @@ class WorkerController {
       const { id } = req.params;
       const { resource, error, status } = await workerService.deleteWorker(id);
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
 
       res.clearCookie("authToken", {

@@ -17,7 +17,7 @@ class BookingController {
       });
 
       if (error) {
-        return res.status(serviceStatus || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -67,7 +67,7 @@ class BookingController {
       });
 
       if (error) {
-        return res.status(serviceStatus || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -89,7 +89,7 @@ class BookingController {
         id
       );
       if (error) {
-        return res.status(status || 404).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -136,7 +136,7 @@ class BookingController {
         status,
       });
       if (error) {
-        return res.status(createStatus || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -185,7 +185,7 @@ class BookingController {
         status,
       });
       if (error) {
-        return res.status(updateStatus || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -207,7 +207,7 @@ class BookingController {
         id
       );
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,

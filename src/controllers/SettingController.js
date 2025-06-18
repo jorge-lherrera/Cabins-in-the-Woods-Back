@@ -8,9 +8,7 @@ class SettingController {
       const { resource, error, status } =
         await settingService.getUniqueSetting();
       if (error) {
-        return res
-          .status(status || 400)
-          .json({ error: MESSAGES.SETTINGS.CONFIG_NOT_FOUND });
+        return next(error);
       }
       return successResponse(
         res,
@@ -42,7 +40,7 @@ class SettingController {
         });
 
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
 
       return successResponse(
@@ -73,7 +71,7 @@ class SettingController {
           breakfastPrice,
         });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,

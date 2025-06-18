@@ -22,7 +22,7 @@ class CabinController {
       });
 
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -41,7 +41,7 @@ class CabinController {
       const { id } = req.params;
       const { resource, error, status } = await cabinService.getCabinById(id);
       if (error) {
-        return res.status(status || 404).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -69,7 +69,7 @@ class CabinController {
         file: req.file,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
 
       console.log("Datos recibidos:", {
@@ -98,7 +98,7 @@ class CabinController {
       const { id } = req.params;
       const { resource, error, status } = await cabinService.duplicateCabin(id);
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -127,7 +127,7 @@ class CabinController {
         file: req.file,
       });
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
@@ -147,7 +147,7 @@ class CabinController {
 
       const { resource, error, status } = await cabinService.deleteCabin(id);
       if (error) {
-        return res.status(status || 400).json({ error });
+        return next(error);
       }
       return successResponse(
         res,
