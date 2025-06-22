@@ -248,7 +248,6 @@ async function updateBooking(id, data) {
     guestId,
     startDate,
     endDate,
-
     numGuests,
     extrasPrice,
     hasBreakfast,
