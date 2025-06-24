@@ -7,7 +7,7 @@ const auth = require("../middleware/auth");
 const makeAllFieldsOptional = require("../utils/yupUtils");
 const upload = require("../middleware/upload");
 
-workerRoutes.get("/:id", WorkerController.getWorkerById);
+workerRoutes.get("/me", auth, WorkerController.getWorkerById);
 workerRoutes.post(
   "/",
   upload.single("file"),
@@ -15,12 +15,12 @@ workerRoutes.post(
   WorkerController.createWorker
 );
 workerRoutes.put(
-  "/:id",
+  "/me",
   auth,
   upload.single("file"),
   validate(makeAllFieldsOptional(workerValidation)),
   WorkerController.updateWorker
 );
-workerRoutes.delete("/:id", auth, WorkerController.deleteWorker);
+workerRoutes.delete("/me", auth, WorkerController.deleteWorker);
 
 module.exports = workerRoutes;

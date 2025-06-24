@@ -5,7 +5,7 @@ const successResponse = require("../utils/successResponse");
 class WorkerController {
   async getWorkerById(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = req.user.id;
       const { resource, error, status } = await workerService.getWorkerById(id);
       if (error) {
         return next(error);
@@ -48,7 +48,7 @@ class WorkerController {
 
   async updateWorker(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = req.user.id;
       const { name, email, password, currentPassword } = req.body;
       const { resource, error, status } = await workerService.updateWorker(id, {
         name,
@@ -74,7 +74,7 @@ class WorkerController {
 
   async deleteWorker(req, res, next) {
     try {
-      const { id } = req.params;
+      const id = req.user.id;
       const { resource, error, status } = await workerService.deleteWorker(id);
       if (error) {
         return next(error);
