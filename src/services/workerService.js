@@ -28,7 +28,13 @@ async function createWorker(data) {
   if (existingWorker) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
+      error: {
+        status: 409,
+        errorCode: "EMAIL_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
+        source: "workerService - createWorker",
+        detalhes: null,
+      },
       status: 409,
     };
   }
