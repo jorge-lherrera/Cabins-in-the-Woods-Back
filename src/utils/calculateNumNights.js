@@ -5,4 +5,4 @@ function calculateNumNights(startDate, endDate) {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
-export default calculateNumNights;
+module.exports = calculateNumNights;

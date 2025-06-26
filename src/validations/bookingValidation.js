@@ -20,7 +20,6 @@ const bookingValidation = applyNoUnknown(
         "A data de término deve ser posterior à data de início"
       )
       .required("A data de término é obrigatória"),
-    numNights: positiveInteger("número de noites"),
     numGuests: positiveInteger("número de hóspedes"),
     extrasPrice: positiveNumber("preço dos extras").nullable(),
     hasBreakfast: Yup.boolean()

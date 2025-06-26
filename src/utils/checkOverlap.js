@@ -23,7 +23,13 @@ async function checkOverlap({ cabinId, startDate, endDate, excludeId = null }) {
   if (overlappingBooking) {
     return {
       resource: null,
-      error: MESSAGES.BOOKING.DUPLICATE_BOOKING,
+      error: {
+        status: 409,
+        errorCode: "BOOKING_OVERLAP",
+        message: MESSAGES.BOOKING.DUPLICATE_BOOKING,
+        source: "checkOverlap",
+        detalhes: null,
+      },
       status: 409,
     };
   }
