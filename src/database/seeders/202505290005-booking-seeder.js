@@ -5,7 +5,6 @@ module.exports = {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 4 bookings para hoy
     const bookingsToday = [1, 2, 3, 4].map((i) => ({
       cabinId: i,
       guestId: i,
