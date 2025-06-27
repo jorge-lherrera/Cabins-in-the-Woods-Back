@@ -44,13 +44,15 @@ async function getAllBookingsDashboard({ days = 7 }) {
     };
   });
 
-  const bookingsToday = bookingsTodayRaw.map((b) => ({
-    id: guestMap[b.guestId]?.id || null,
-    nationality: guestMap[b.guestId]?.nationality || null,
-    fullName: guestMap[b.guestId]?.fullName || null,
-    numNights: b.numNights,
-    status: b.status,
-  }));
+  const bookingsToday = bookingsTodayRaw
+    .filter((b) => b.status === "checked-in" || b.status === "unconfirmed")
+    .map((b) => ({
+      id: guestMap[b.guestId]?.id || null,
+      nationality: guestMap[b.guestId]?.nationality || null,
+      fullName: guestMap[b.guestId]?.fullName || null,
+      numNights: b.numNights,
+      status: b.status,
+    }));
 
   const total = bookingsForStats.length;
   const totalRevenue = bookingsForStats.reduce(
