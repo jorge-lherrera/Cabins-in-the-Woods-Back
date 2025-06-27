@@ -32,7 +32,7 @@ async function getAllCabins({
     where.discount = 0;
   }
 
-  const cabins = await Cabin.findAll({
+  const { count, rows } = await Cabin.findAndCountAll({
     limit: parsedLimit,
     offset,
     order: [[orderField, orderDirection]],
@@ -40,7 +40,15 @@ async function getAllCabins({
     include: [{ model: Booking, as: "bookings" }],
   });
 
-  return { resource: cabins, error: null, status: 200 };
+  const cabinsObj = {
+    cabins: rows,
+    total: count,
+    page,
+    limit: parsedLimit,
+    pageCount: Math.ceil(count / parsedLimit),
+  };
+
+  return { resource: cabinsObj, error: null, status: 200 };
 }
 
 async function getCabinById(id) {

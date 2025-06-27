@@ -21,30 +21,6 @@ async function getAllGuests({
     nationality: "nationality",
   };
 
-  if (nationality === "all") {
-    const { count, rows } = await Guest.findAndCountAll({
-      limit: parsedLimit,
-      offset,
-      order: [
-        [
-          allowedOrderFields[orderBy] || "fullName",
-          order.toUpperCase() === "DESC" ? "DESC" : "ASC",
-        ],
-      ],
-      include: [{ model: Booking, as: "bookings" }],
-    });
-
-    const guestsObj = {
-      guests: rows,
-      total: count,
-      page,
-      pageCount: Math.ceil(count / parsedLimit),
-      grouped: false,
-    };
-
-    return { resource: guestsObj, error: null, status: 200 };
-  }
-
   const where = {};
   if (nationality !== "all") {
     where.nationality = nationality;
@@ -68,8 +44,8 @@ async function getAllGuests({
     guests: rows,
     total: count,
     page,
+    limit: parsedLimit,
     pageCount: Math.ceil(count / parsedLimit),
-    grouped: false,
   };
 
   return { resource: guestsObj, error: null, status: 200 };
