@@ -1,5 +1,5 @@
 const MESSAGES = require("../utils/messages");
-
+const { Op } = require("sequelize");
 const bookingService = require("../services/bookingService");
 const successResponse = require("../utils/successResponse");
 
