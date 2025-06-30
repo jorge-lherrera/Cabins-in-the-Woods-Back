@@ -85,6 +85,10 @@ async function updateWorker(id, data) {
 
   const updatedData = updatedFields(data, fields);
 
+  if (file) {
+    updatedData.avatar = avatarUrl;
+  }
+
   if (password !== undefined && password !== "") {
     if (!currentPassword) {
       return {
