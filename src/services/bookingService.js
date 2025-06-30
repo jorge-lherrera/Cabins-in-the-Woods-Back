@@ -124,6 +124,7 @@ async function getAllBookings({ where, orderBy, order, limit, offset, page }) {
     const daysUntilStart = Math.ceil((startDate - today) / (1000 * 3600 * 24));
 
     return {
+      id: booking.id,
       cabinId: booking.cabinId,
       "guest.fullName": booking.guest?.fullName,
       "guest.email": booking.guest?.email,
