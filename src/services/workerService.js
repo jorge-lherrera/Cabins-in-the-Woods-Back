@@ -60,7 +60,13 @@ async function updateWorker(id, data) {
   if (!existingWorker) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      error: {
+        status: 404,
+        errorCode: "USUARIO_INVALIDO",
+        message: MESSAGES.GENERAL.INVALID("Usuário"),
+        source: "workerService - updateWorker",
+        detalhes: null,
+      },
       status: 404,
     };
   }
@@ -75,7 +81,13 @@ async function updateWorker(id, data) {
     if (emailExists) {
       return {
         resource: null,
-        error: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
+        error: {
+          status: 409,
+          errorCode: "EMAIL_INVALIDO",
+          message: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
+          source: "workerService - updateWorker",
+          detalhes: null,
+        },
         status: 409,
       };
     }
@@ -93,7 +105,13 @@ async function updateWorker(id, data) {
     if (!currentPassword) {
       return {
         resource: null,
-        error: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED,
+        error: {
+          status: 400,
+          errorCode: "SENHA_INVALIDA",
+          message: MESSAGES.WORKER.CURRENT_PASSWORD_REQUIRED,
+          source: "workerService - updateWorker",
+          detalhes: null,
+        },
         status: 400,
       };
     }
@@ -104,7 +122,13 @@ async function updateWorker(id, data) {
     if (!isPasswordCorrect) {
       return {
         resource: null,
-        error: MESSAGES.GENERAL.INVALID("Senha"),
+        error: {
+          status: 401,
+          errorCode: "SENHA_INVALIDA",
+          message: MESSAGES.GENERAL.INVALID("Senha atual"),
+          source: "workerService - updateWorker",
+          detalhes: null,
+        },
         status: 401,
       };
     }
@@ -125,7 +149,13 @@ async function deleteWorker(id) {
   if (!existingWorker) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      error: {
+        status: 404,
+        errorCode: "USUARIO_INVALIDO",
+        message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+        source: "workerService - updateWorker",
+        detalhes: null,
+      },
       status: 404,
     };
   }
