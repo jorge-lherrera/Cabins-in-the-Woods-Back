@@ -11,6 +11,7 @@ class GuestController {
         orderBy = "name",
         order = "ASC",
         nationality = "all",
+        search = "",
       } = req.query;
 
       const { resource, error, status } = await guestService.getAllGuests({
@@ -19,6 +20,7 @@ class GuestController {
         orderBy,
         order,
         nationality,
+        search,
       });
 
       if (error) {

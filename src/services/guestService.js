@@ -11,6 +11,7 @@ async function getAllGuests({
   orderBy = "name",
   order = "ASC",
   nationality = "all",
+  search = "",
 }) {
   const parsedLimit = parseInt(limit);
   const offset = (page - 1) * parsedLimit;
@@ -24,6 +25,10 @@ async function getAllGuests({
   const where = {};
   if (nationality !== "all") {
     where.nationality = nationality;
+  }
+
+  if (search) {
+    where.fullName = { [Op.iLike]: `%${search}%` };
   }
 
   const { count, rows } = await Guest.findAndCountAll({
