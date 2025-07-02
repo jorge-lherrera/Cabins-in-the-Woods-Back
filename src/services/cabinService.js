@@ -8,13 +8,14 @@ const updatedFields = require("../utils/updatedFields");
 
 async function getAllCabins({
   page = 1,
-  limit = 10,
+  limit,
   orderBy = "name",
   order = "ASC",
   discountFilter = "all",
+  search = "",
 }) {
-  const parsedLimit = parseInt(limit);
-  const offset = (page - 1) * parsedLimit;
+  let parsedLimit = limit !== undefined ? parseInt(limit) : undefined;
+  const offset = parsedLimit ? (page - 1) * parsedLimit : undefined;
 
   const allowedOrderFields = {
     name: "name",
@@ -32,20 +33,30 @@ async function getAllCabins({
     where.discount = 0;
   }
 
-  const { count, rows } = await Cabin.findAndCountAll({
-    limit: parsedLimit,
-    offset,
+  if (search) {
+    where.name = { [Op.iLike]: `%${search}%` };
+    parsedLimit = undefined;
+  }
+
+  const queryOptions = {
     order: [[orderField, orderDirection]],
     where,
     include: [{ model: Booking, as: "bookings" }],
-  });
+  };
+
+  if (parsedLimit) {
+    queryOptions.limit = parsedLimit;
+    queryOptions.offset = offset;
+  }
+
+  const { count, rows } = await Cabin.findAndCountAll(queryOptions);
 
   const cabinsObj = {
     cabins: rows,
     total: count,
     page,
     limit: parsedLimit,
-    pageCount: Math.ceil(count / parsedLimit),
+    pageCount: parsedLimit ? Math.ceil(count / parsedLimit) : 1,
   };
 
   return { resource: cabinsObj, error: null, status: 200 };

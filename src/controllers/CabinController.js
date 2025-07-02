@@ -7,10 +7,11 @@ class CabinController {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit,
         orderBy = "name",
         order = "ASC",
         discountFilter = "all",
+        search = "",
       } = req.query;
 
       const { resource, error, status } = await cabinService.getAllCabins({
@@ -19,6 +20,7 @@ class CabinController {
         orderBy,
         order,
         discountFilter,
+        search,
       });
 
       if (error) {

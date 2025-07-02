@@ -7,14 +7,14 @@ const updatedFields = require("../utils/updatedFields");
 
 async function getAllGuests({
   page = 1,
-  limit = 10,
+  limit,
   orderBy = "name",
   order = "ASC",
   nationality = "all",
   search = "",
 }) {
-  const parsedLimit = parseInt(limit);
-  const offset = (page - 1) * parsedLimit;
+  let parsedLimit = limit !== undefined ? parseInt(limit) : undefined;
+  const offset = parsedLimit ? (page - 1) * parsedLimit : undefined;
 
   const allowedOrderFields = {
     name: "fullName",
@@ -29,12 +29,11 @@ async function getAllGuests({
 
   if (search) {
     where.fullName = { [Op.iLike]: `%${search}%` };
+    parsedLimit = undefined;
   }
 
-  const { count, rows } = await Guest.findAndCountAll({
+  const queryOptions = {
     where,
-    limit: parsedLimit,
-    offset,
     order: [
       ["nationality", "ASC"],
       [
@@ -43,14 +42,21 @@ async function getAllGuests({
       ],
     ],
     include: [{ model: Booking, as: "bookings" }],
-  });
+  };
+
+  if (parsedLimit) {
+    queryOptions.limit = parsedLimit;
+    queryOptions.offset = offset;
+  }
+
+  const { count, rows } = await Guest.findAndCountAll(queryOptions);
 
   const guestsObj = {
     guests: rows,
     total: count,
     page,
     limit: parsedLimit,
-    pageCount: Math.ceil(count / parsedLimit),
+    pageCount: parsedLimit ? Math.ceil(count / parsedLimit) : 1,
   };
 
   return { resource: guestsObj, error: null, status: 200 };
