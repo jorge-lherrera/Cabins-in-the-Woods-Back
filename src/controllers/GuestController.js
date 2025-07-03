@@ -7,7 +7,7 @@ class GuestController {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit,
         orderBy = "name",
         order = "ASC",
         nationality = "all",

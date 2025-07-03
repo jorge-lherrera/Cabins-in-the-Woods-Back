@@ -13,7 +13,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert("cabins", [
       {
-        name: "Cabana do Lago",
+        name: "Lago Sereno",
         maxCapacity: 4,
         regularPrice: 350.0,
         discount: 10.0,
@@ -22,7 +22,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana da Montanha",
+        name: "Montanha Alta",
         maxCapacity: 6,
         regularPrice: 500.0,
         discount: 15.0,
@@ -31,7 +31,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Bosque",
+        name: "Bosque Tranquilo",
         maxCapacity: 3,
         regularPrice: 250.0,
         discount: 5.0,
@@ -40,7 +40,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Vale",
+        name: "Vale Encantado",
         maxCapacity: 5,
         regularPrice: 400.0,
         discount: 12.0,
@@ -49,7 +49,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Rio",
+        name: "Refúgio do Rio",
         maxCapacity: 2,
         regularPrice: 200.0,
         discount: 0.0,
@@ -58,7 +58,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Pôr do Sol",
+        name: "Pôr do Sol",
         maxCapacity: 4,
         regularPrice: 370.0,
         discount: 8.0,
@@ -67,7 +67,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Campo",
+        name: "Campo Verde",
         maxCapacity: 3,
         regularPrice: 260.0,
         discount: 6.0,
@@ -76,7 +76,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Mirante",
+        name: "Mirante das Estrelas",
         maxCapacity: 5,
         regularPrice: 420.0,
         discount: 10.0,
@@ -85,7 +85,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Jardim",
+        name: "Jardim Secreto",
         maxCapacity: 2,
         regularPrice: 210.0,
         discount: 3.0,
@@ -94,7 +94,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Sossego",
+        name: "Sossego Verde",
         maxCapacity: 4,
         regularPrice: 330.0,
         discount: 7.0,
@@ -103,7 +103,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana da Cachoeira",
+        name: "Cachoeira Azul",
         maxCapacity: 3,
         regularPrice: 390.0,
         discount: 9.0,
@@ -112,7 +112,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Pinhal",
+        name: "Pinhal Fresco",
         maxCapacity: 4,
         regularPrice: 340.0,
         discount: 6.0,
@@ -121,7 +121,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Refúgio",
+        name: "Refúgio do Bosque",
         maxCapacity: 5,
         regularPrice: 410.0,
         discount: 11.0,
@@ -130,7 +130,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Horizonte",
+        name: "Horizonte Livre",
         maxCapacity: 6,
         regularPrice: 520.0,
         discount: 14.0,
@@ -139,7 +139,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Cedro",
+        name: "Cedro Dourado",
         maxCapacity: 2,
         regularPrice: 230.0,
         discount: 2.0,
@@ -148,7 +148,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Sol Nascente",
+        name: "Sol Nascente",
         maxCapacity: 3,
         regularPrice: 280.0,
         discount: 4.0,
@@ -157,7 +157,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Mirante Azul",
+        name: "Mirante Azul",
         maxCapacity: 5,
         regularPrice: 430.0,
         discount: 13.0,
@@ -166,7 +166,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Vale Verde",
+        name: "Vale Verdejante",
         maxCapacity: 4,
         regularPrice: 360.0,
         discount: 8.0,
@@ -175,7 +175,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Bosque Encantado",
+        name: "Bosque Encantado",
         maxCapacity: 3,
         regularPrice: 270.0,
         discount: 5.0,
@@ -184,7 +184,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Refúgio Secreto",
+        name: "Refúgio Secreto",
         maxCapacity: 2,
         regularPrice: 220.0,
         discount: 1.0,
@@ -193,7 +193,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Vale Azul",
+        name: "Vale Azul",
         maxCapacity: 5,
         regularPrice: 440.0,
         discount: 12.0,
@@ -202,7 +202,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Bosque Real",
+        name: "Bosque Real",
         maxCapacity: 4,
         regularPrice: 350.0,
         discount: 10.0,
@@ -211,7 +211,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Horizonte Verde",
+        name: "Horizonte Verde",
         maxCapacity: 6,
         regularPrice: 530.0,
         discount: 15.0,
@@ -220,7 +220,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Lago Azul",
+        name: "Lago Azul",
         maxCapacity: 3,
         regularPrice: 260.0,
         discount: 6.0,
@@ -229,7 +229,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Bosque Alto",
+        name: "Bosque Alto",
         maxCapacity: 5,
         regularPrice: 420.0,
         discount: 10.0,
@@ -238,7 +238,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Jardim Secreto",
+        name: "Jardim Escondido",
         maxCapacity: 2,
         regularPrice: 210.0,
         discount: 3.0,
@@ -247,7 +247,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Sossego Verde",
+        name: "Sossego do Vale",
         maxCapacity: 4,
         regularPrice: 330.0,
         discount: 7.0,
@@ -256,7 +256,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Refúgio Azul",
+        name: "Refúgio Azul",
         maxCapacity: 3,
         regularPrice: 390.0,
         discount: 9.0,
@@ -265,7 +265,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Pinhal Verde",
+        name: "Pinhal Verde",
         maxCapacity: 4,
         regularPrice: 340.0,
         discount: 6.0,
@@ -274,7 +274,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Horizonte Azul",
+        name: "Horizonte Azul",
         maxCapacity: 5,
         regularPrice: 410.0,
         discount: 11.0,
@@ -283,7 +283,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Sol Poente",
+        name: "Sol Poente",
         maxCapacity: 6,
         regularPrice: 520.0,
         discount: 14.0,
@@ -292,7 +292,7 @@ module.exports = {
         updatedAt: randomDate(),
       },
       {
-        name: "Cabana do Cedro Azul",
+        name: "Cedro Azul",
         maxCapacity: 2,
         regularPrice: 230.0,
         discount: 2.0,

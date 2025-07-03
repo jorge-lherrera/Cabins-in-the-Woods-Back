@@ -19,7 +19,6 @@ async function getAllGuests({
   const allowedOrderFields = {
     name: "fullName",
     email: "email",
-    nationality: "nationality",
   };
 
   const where = {};
@@ -35,7 +34,6 @@ async function getAllGuests({
   const queryOptions = {
     where,
     order: [
-      ["nationality", "ASC"],
       [
         allowedOrderFields[orderBy] || "fullName",
         order.toUpperCase() === "DESC" ? "DESC" : "ASC",

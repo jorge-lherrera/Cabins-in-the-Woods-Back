@@ -19,8 +19,8 @@ async function getAllCabins({
 
   const allowedOrderFields = {
     name: "name",
-    value: "regularPrice",
-    guests: "maxCapacity",
+    regularPrice: "regularPrice",
+    maxCapacity: "maxCapacity",
   };
   const orderField = allowedOrderFields[orderBy] || "name";
   const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
