@@ -10,6 +10,7 @@ async function getAllGuests({
   limit,
   orderBy = "name",
   order = "ASC",
+  nationality = "",
   search = "",
   searchNation = "",
 }) {
@@ -25,6 +26,9 @@ async function getAllGuests({
   const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
   const where = {};
+  if (nationality) {
+    where.nationality = nationality;
+  }
 
   if (search) {
     (where.fullName = { [Op.iLike]: `%${search}%` }), (parsedLimit = undefined);

@@ -10,6 +10,7 @@ class GuestController {
         limit,
         orderBy = "name",
         order = "ASC",
+        nationality = "",
         search = "",
         searchNation = "",
       } = req.query;
@@ -19,6 +20,7 @@ class GuestController {
         limit,
         orderBy,
         order,
+        nationality,
         search,
         searchNation,
       });
