@@ -10,8 +10,8 @@ async function getAllGuests({
   limit,
   orderBy = "name",
   order = "ASC",
-  nationality = "all",
   search = "",
+  searchNation = "",
 }) {
   let parsedLimit = limit !== undefined ? parseInt(limit) : undefined;
   const offset = parsedLimit ? (page - 1) * parsedLimit : undefined;
@@ -21,24 +21,23 @@ async function getAllGuests({
     email: "email",
   };
 
+  const orderField = allowedOrderFields[orderBy] || "name";
+  const orderDirection = order.toUpperCase() === "DESC" ? "DESC" : "ASC";
+
   const where = {};
-  if (nationality !== "all") {
-    where.nationality = nationality;
-  }
 
   if (search) {
-    where.fullName = { [Op.iLike]: `%${search}%` };
-    parsedLimit = undefined;
+    (where.fullName = { [Op.iLike]: `%${search}%` }), (parsedLimit = undefined);
+  }
+
+  if (searchNation) {
+    (where.nationality = { [Op.iLike]: `%${searchNation}%` }),
+      (parsedLimit = undefined);
   }
 
   const queryOptions = {
+    order: [[orderField, orderDirection]],
     where,
-    order: [
-      [
-        allowedOrderFields[orderBy] || "fullName",
-        order.toUpperCase() === "DESC" ? "DESC" : "ASC",
-      ],
-    ],
     include: [{ model: Booking, as: "bookings" }],
   };
 
