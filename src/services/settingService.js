@@ -30,7 +30,6 @@ async function createUniqueSetting(data) {
 
   const existingSetting = await Setting.findOne();
 
-
   if (existingSetting) {
     return {
       status: 409,
@@ -64,7 +63,6 @@ async function updateUniqueSetting(data) {
 
   const existingSetting = await Setting.findOne();
 
-
   if (!existingSetting) {
     return {
       status: 404,
@@ -88,7 +86,6 @@ async function updateUniqueSetting(data) {
     ...updatedFields(data, fields),
   };
 
-
   if (
     combined.maxBookingLength !== undefined &&
     combined.minBookingLength !== undefined &&
@@ -96,7 +93,16 @@ async function updateUniqueSetting(data) {
   ) {
     return {
       resource: null,
-      error: "A duração máxima deve ser maior que a duração mínima.",
+      error: {
+        status: 400,
+        errorCode: "INVALID_BOOKING_LENGTH",
+        message: "A duração máxima deve ser maior que a duração mínima.",
+        source: "settingService.updateUniqueSetting",
+        detalhes: {
+          minBookingLength: combined.minBookingLength,
+          maxBookingLength: combined.maxBookingLength,
+        },
+      },
       status: 400,
     };
   }
