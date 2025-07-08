@@ -160,9 +160,12 @@ async function getBookingById(id) {
   });
   if (!existingBooking) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
       status: 404,
+      errorCode: "BOOKING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+      source: "bookingService.getBookingById",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -202,12 +205,24 @@ async function createBooking(data) {
   const cabin = await Cabin.findByPk(cabinId);
   const guest = await Guest.findByPk(guestId);
 
-  if (!cabin || !guest) {
+  if (!cabin) {
     return {
-      error: !cabin
-        ? MESSAGES.GENERAL.NOT_FOUND("Cabana")
-        : MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
-      status: 409,
+      status: 404,
+      errorCode: "CABIN_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+      source: "bookingService.createBooking - cabin",
+      detalhes: null,
+      resource: null,
+    };
+  }
+  if (!guest) {
+    return {
+      status: 404,
+      errorCode: "GUEST_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      source: "bookingService.createBooking - guest",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -262,9 +277,12 @@ async function updateBooking(id, data) {
   const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
       status: 404,
+      errorCode: "BOOKING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+      source: "bookingService.updateBooking",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -353,9 +371,12 @@ async function deleteBooking(id) {
   const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
       status: 404,
+      errorCode: "BOOKING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+      source: "bookingService.deleteBooking",
+      detalhes: null,
+      resource: null,
     };
   }
   await Booking.destroy({ where: { id } });

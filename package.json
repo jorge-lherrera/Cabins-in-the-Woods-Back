@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all --seeders-path src/database/seeders"
   },
   "repository": {
     "type": "git",

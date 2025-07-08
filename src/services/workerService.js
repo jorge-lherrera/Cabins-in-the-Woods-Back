@@ -10,7 +10,13 @@ async function getWorkerById(id) {
   if (!existingWorker) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+      error: {
+        status: 404,
+        errorCode: "USUARIO_INVALIDO",
+        message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+        source: "workerService - getWorkerById",
+        detalhes: null,
+      },
       status: 404,
     };
   }
@@ -83,7 +89,7 @@ async function updateWorker(id, data) {
         resource: null,
         error: {
           status: 409,
-          errorCode: "EMAIL_INVALIDO",
+          errorCode: "EMAIL_ALREADY_EXISTS",
           message: MESSAGES.GENERAL.ALREADY_EXISTS("esse email"),
           source: "workerService - updateWorker",
           detalhes: null,
@@ -153,7 +159,7 @@ async function deleteWorker(id) {
         status: 404,
         errorCode: "USUARIO_INVALIDO",
         message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
-        source: "workerService - updateWorker",
+        source: "workerService - deleteWorker",
         detalhes: null,
       },
       status: 404,

@@ -16,9 +16,12 @@ async function validateBusinessRules(data) {
   const setting = await Setting.findOne();
   if (!setting) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
       status: 500,
+      errorCode: "SETTING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+      source: "validateBusinessRules.setting",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -27,34 +30,53 @@ async function validateBusinessRules(data) {
     numNights > setting.maxBookingLength
   ) {
     return {
-      resource: null,
-      error: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
       status: 400,
+      errorCode: "INVALID_BOOKING_LENGTH",
+      message: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
+      source: "validateBusinessRules.numNights",
+      detalhes: {
+        minBookingLength: setting.minBookingLength,
+        maxBookingLength: setting.maxBookingLength,
+        numNights,
+      },
+      resource: null,
     };
   }
   if (numGuests > setting.maxGuestsPerBooking) {
     return {
-      resource: null,
-      error: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
       status: 400,
+      errorCode: "MAX_GUESTS_EXCEEDED",
+      message: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
+      source: "validateBusinessRules.numGuests",
+      detalhes: {
+        maxGuestsPerBooking: setting.maxGuestsPerBooking,
+        numGuests,
+      },
+      resource: null,
     };
   }
 
   const cabin = await Cabin.findByPk(cabinId);
   if (!cabin) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
       status: 404,
+      errorCode: "CABIN_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+      source: "validateBusinessRules.cabin",
+      detalhes: { cabinId },
+      resource: null,
     };
   }
 
   const guest = await Guest.findByPk(guestId);
   if (!guest) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
       status: 404,
+      errorCode: "GUEST_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      source: "validateBusinessRules.guest",
+      detalhes: { guestId },
+      resource: null,
     };
   }
 

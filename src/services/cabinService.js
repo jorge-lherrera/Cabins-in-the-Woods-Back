@@ -67,7 +67,17 @@ async function getCabinById(id) {
     include: [{ model: Booking, as: "bookings" }],
   });
   if (!cabin) {
-    return { resource: null, error: MESSAGES.CABIN.NOT_FOUND, status: 404 };
+    return {
+      resource: null,
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.NOT_FOUND("Cabana"),
+        source: "cabinService - getCabinById",
+        detalhes: null,
+      },
+      status: 404,
+    };
   }
   const cabinObj = cabin.toJSON();
   return { resource: cabinObj, error: null, status: 200 };
@@ -85,7 +95,13 @@ async function createCabin(data) {
   if (existingCabin) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
+      error: {
+        status: 409,
+        errorCode: "CABIN_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
+        source: "cabinService - createCabin",
+        detalhes: null,
+      },
       status: 409,
     };
   }
@@ -108,7 +124,13 @@ async function duplicateCabin(id) {
   if (!existingCabin) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+        source: "cabinService - duplicateCabin",
+        detalhes: null,
+      },
       status: 404,
     };
   }
@@ -120,7 +142,13 @@ async function duplicateCabin(id) {
   if (nameExists) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
+      error: {
+        status: 409,
+        errorCode: "CABIN_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("essa cabana"),
+        source: "cabinService - duplicateCabin",
+        detalhes: null,
+      },
       status: 409,
     };
   }
@@ -145,7 +173,13 @@ async function updateCabin(id, data) {
   if (!existingCabin) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+        source: "cabinService - updateCabin",
+        detalhes: null,
+      },
       status: 404,
     };
   }
@@ -165,7 +199,13 @@ async function updateCabin(id, data) {
   if (nameConflict) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("Cabana"),
+      error: {
+        status: 409,
+        errorCode: "CABIN_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("Cabana"),
+        source: "cabinService - updateCabin",
+        detalhes: null,
+      },
       status: 409,
     };
   }
@@ -195,7 +235,13 @@ async function deleteCabin(id) {
   if (!existingCabin) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+        source: "cabinService - deleteCabin",
+        detalhes: null,
+      },
       status: 404,
     };
   }
@@ -203,7 +249,13 @@ async function deleteCabin(id) {
   if (bookingsCount > 0) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ASSOCIATED("Cabana"),
+      error: {
+        status: 409,
+        errorCode: "CABIN_ASSOCIATED",
+        message: MESSAGES.GENERAL.ASSOCIATED("Cabana"),
+        source: "cabinService - deleteCabin",
+        detalhes: null,
+      },
       status: 409,
     };
   }

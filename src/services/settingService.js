@@ -4,11 +4,15 @@ const updatedFields = require("../utils/updatedFields");
 
 async function getUniqueSetting() {
   const setting = await Setting.findOne();
+
   if (!setting) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
       status: 404,
+      errorCode: "SETTING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+      source: "settingService.getUniqueSetting",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -26,11 +30,15 @@ async function createUniqueSetting(data) {
 
   const existingSetting = await Setting.findOne();
 
+
   if (existingSetting) {
     return {
-      resource: null,
-      error: MESSAGES.SETTINGS.CONFIG_EXISTS,
       status: 409,
+      errorCode: "SETTING_ALREADY_EXISTS",
+      message: MESSAGES.SETTINGS.CONFIG_EXISTS,
+      source: "settingService.createUniqueSetting",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -56,11 +64,15 @@ async function updateUniqueSetting(data) {
 
   const existingSetting = await Setting.findOne();
 
+
   if (!existingSetting) {
     return {
-      resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
       status: 404,
+      errorCode: "SETTING_NOT_FOUND",
+      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+      source: "settingService.updateUniqueSetting",
+      detalhes: null,
+      resource: null,
     };
   }
 
@@ -75,6 +87,7 @@ async function updateUniqueSetting(data) {
     ...existingSetting.toJSON(),
     ...updatedFields(data, fields),
   };
+
 
   if (
     combined.maxBookingLength !== undefined &&
