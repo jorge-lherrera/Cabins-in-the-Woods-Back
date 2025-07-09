@@ -189,25 +189,28 @@ async function updateCabin(id, data) {
     imageUrl = await uploadFileCloudinary(file, "cabins");
   }
 
-  const nameConflict = await Cabin.findOne({
-    where: {
-      name,
-      id: { [Op.ne]: id },
-    },
-  });
-
-  if (nameConflict) {
-    return {
-      resource: null,
-      error: {
-        status: 409,
-        errorCode: "CABIN_ALREADY_EXISTS",
-        message: MESSAGES.GENERAL.ALREADY_EXISTS("Cabana"),
-        source: "cabinService - updateCabin",
-        detalhes: null,
+  // Solo busca conflicto si se está cambiando el nombre
+  if (name !== undefined) {
+    const nameConflict = await Cabin.findOne({
+      where: {
+        name,
+        id: { [Op.ne]: id },
       },
-      status: 409,
-    };
+    });
+
+    if (nameConflict) {
+      return {
+        resource: null,
+        error: {
+          status: 409,
+          errorCode: "CABIN_ALREADY_EXISTS",
+          message: MESSAGES.GENERAL.ALREADY_EXISTS("Cabana"),
+          source: "cabinService - updateCabin",
+          detalhes: null,
+        },
+        status: 409,
+      };
+    }
   }
 
   const fields = [
