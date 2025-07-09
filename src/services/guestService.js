@@ -70,7 +70,13 @@ async function getGuestById(id) {
   if (!guest) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      error: {
+        status: 404,
+        errorCode: "GUEST_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+        source: "guestService.getGuestById",
+        detalhes: { id },
+      },
       status: 404,
     };
   }
@@ -91,7 +97,13 @@ async function createGuest(data) {
   if (existingGuest) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+      error: {
+        status: 409,
+        errorCode: "GUEST_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+        source: "guestService.createGuest",
+        detalhes: { email, nationalIdNumber },
+      },
       status: 409,
     };
   }
@@ -115,7 +127,13 @@ async function updateGuest(id, data) {
   if (!existingGuest) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      error: {
+        status: 404,
+        errorCode: "GUEST_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+        source: "guestService.updateGuest",
+        detalhes: { id },
+      },
       status: 404,
     };
   }
@@ -135,7 +153,13 @@ async function updateGuest(id, data) {
   if (duplicateGuest) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+      error: {
+        status: 409,
+        errorCode: "GUEST_ALREADY_EXISTS",
+        message: MESSAGES.GENERAL.ALREADY_EXISTS("Hóspede ou nationalId"),
+        source: "guestService.updateGuest",
+        detalhes: { email, nationalIdNumber },
+      },
       status: 409,
     };
   }
@@ -157,7 +181,13 @@ async function deleteGuest(id) {
   if (!existingGuest) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+      error: {
+        status: 404,
+        errorCode: "GUEST_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+        source: "guestService.deleteGuest",
+        detalhes: { id },
+      },
       status: 404,
     };
   }
@@ -166,7 +196,13 @@ async function deleteGuest(id) {
   if (bookingsCount > 0) {
     return {
       resource: null,
-      error: MESSAGES.GENERAL.ASSOCIATED("Hóspede"),
+      error: {
+        status: 409,
+        errorCode: "GUEST_HAS_BOOKINGS",
+        message: MESSAGES.GENERAL.ASSOCIATED("Hóspede"),
+        source: "guestService.deleteGuest",
+        detalhes: { id },
+      },
       status: 409,
     };
   }
