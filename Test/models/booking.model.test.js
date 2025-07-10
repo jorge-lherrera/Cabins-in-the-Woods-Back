@@ -1,4 +1,4 @@
-const BookingModel = require("../src/models/Booking");
+const BookingModel = require("../../src/models/Booking");
 
 describe("Booking Model", () => {
   it("deve ter as associações corretas", () => {

@@ -1,4 +1,4 @@
-const bookingValidation = require("../src/validations/bookingValidation");
+const bookingValidation = require("../../src/validations/bookingValidation");
 
 describe("Validação de bookingValidation (Yup)", () => {
   it("deve aceitar dados válidos", async () => {

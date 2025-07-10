@@ -1,4 +1,4 @@
-const successResponse = require("../src/utils/successResponse");
+const successResponse = require("../../src/utils/successResponse");
 
 describe("successResponse", () => {
   it("deve retornar resposta com sucesso e mensagem", () => {

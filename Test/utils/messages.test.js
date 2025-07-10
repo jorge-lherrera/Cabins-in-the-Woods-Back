@@ -1,4 +1,4 @@
-const MESSAGES = require("../src/utils/messages");
+const MESSAGES = require("../../src/utils/messages");
 
 describe("MESSAGES util", () => {
   it("deve retornar mensagem de sucesso de criação", () => {

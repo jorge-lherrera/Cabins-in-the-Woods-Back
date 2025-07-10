@@ -1,4 +1,4 @@
-const findById = require("../src/utils/findById");
+const findById = require("../../src/utils/findById");
 
 describe("findById util", () => {
   it("deve retornar null se id não for número", async () => {

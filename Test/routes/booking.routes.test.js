@@ -1,12 +1,12 @@
 const request = require("supertest");
-const app = require("../src/server");
+const app = require("../../src/server");
 
 describe("Booking routes", () => {
   let token;
   let createdBookingId;
 
   beforeAll(async () => {
-    // Realiza login para obtener un token válido
+    // Realiza login para obter um token válido
     const loginRes = await request(app)
       .post("/login")
       .send({ email: "admin@email.com", password: "senha123" });

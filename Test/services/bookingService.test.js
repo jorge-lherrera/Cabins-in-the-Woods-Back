@@ -1,13 +1,13 @@
-const bookingService = require("../src/services/bookingService");
-const Booking = require("../src/models/Booking");
-const Cabin = require("../src/models/Cabin");
-const Guest = require("../src/models/Guest");
-const Setting = require("../src/models/Setting");
+const bookingService = require("../../src/services/bookingService");
+const Booking = require("../../src/models/Booking");
+const Cabin = require("../../src/models/Cabin");
+const Guest = require("../../src/models/Guest");
+const Setting = require("../../src/models/Setting");
 
-jest.mock("../src/models/Booking");
-jest.mock("../src/models/Cabin");
-jest.mock("../src/models/Guest");
-jest.mock("../src/models/Setting");
+jest.mock("../../src/models/Booking");
+jest.mock("../../src/models/Cabin");
+jest.mock("../../src/models/Guest");
+jest.mock("../../src/models/Setting");
 
 describe("bookingService", () => {
   beforeEach(() => {
@@ -33,5 +33,5 @@ describe("bookingService", () => {
     expect(result.error).toMatch(/Cabana não encontrado/);
   });
 
-  // Agrega más tests para solapamiento, regras de negócio, criação, etc.
+  // Agrega mais testes para sobreposição, regras de negócio, criação, etc.
 });

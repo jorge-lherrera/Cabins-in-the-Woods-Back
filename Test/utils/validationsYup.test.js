@@ -1,4 +1,4 @@
-const validationsYup = require("../src/middleware/validationsYup");
+const validationsYup = require("../../src/middleware/validationsYup");
 const Yup = require("yup");
 
 describe("validationsYup middleware", () => {

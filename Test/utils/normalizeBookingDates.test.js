@@ -1,4 +1,4 @@
-const normalizeBookingDates = require("../src/middleware/normalizeBookingDates");
+const normalizeBookingDates = require("../../src/middleware/normalizeBookingDates");
 
 describe("normalizeBookingDates middleware", () => {
   it("deve converter startDate e endDate para Date se forem string", () => {
