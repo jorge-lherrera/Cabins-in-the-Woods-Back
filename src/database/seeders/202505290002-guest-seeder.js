@@ -23,7 +23,7 @@ module.exports = {
       {
         fullName: "John Smith",
         email: "john.smith@email.com",
-        nationality: "United States",
+        nationality: "United States of America",
         nationalIdNumber: "111222333",
         createdAt: new Date(),
         updatedAt: new Date(),

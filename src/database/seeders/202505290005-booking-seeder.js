@@ -16,7 +16,7 @@ module.exports = {
       extrasPrice: 50,
       totalPrice: 350 + i * 10,
       hasBreakfast: i % 2 === 0,
-      observations: `Reserva de hoy #${i}`,
+      observations: `Reserva de hoje #${i}`,
       isPaid: i % 2 === 1,
       status:
         i % 3 === 0
@@ -46,7 +46,7 @@ module.exports = {
         extrasPrice: 20 + (idx % 3) * 10,
         totalPrice: 220 + idx * 10,
         hasBreakfast: idx % 2 === 0,
-        observations: `Reserva pasada #${idx + 1}`,
+        observations: `Reserva passada #${idx + 1}`,
         isPaid: idx % 2 === 1,
         status:
           idx % 3 === 0
