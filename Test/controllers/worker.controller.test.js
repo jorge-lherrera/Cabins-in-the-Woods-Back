@@ -15,7 +15,10 @@ describe("WorkerController", () => {
   afterEach(() => jest.clearAllMocks());
 
   it("should return worker by id", async () => {
-    workerService.getWorkerById.mockResolvedValue({ resource: { id: 1 }, error: null });
+    workerService.getWorkerById.mockResolvedValue({
+      resource: { id: 1 },
+      error: null,
+    });
     const req = mockReq({}, {}, { id: 1 });
     const res = mockRes();
     await WorkerController.getWorkerById(req, res, jest.fn());
@@ -25,7 +28,10 @@ describe("WorkerController", () => {
 
   it("should handle error from service in getWorkerById", async () => {
     const next = jest.fn();
-    workerService.getWorkerById.mockResolvedValue({ resource: null, error: { status: 404 } });
+    workerService.getWorkerById.mockResolvedValue({
+      resource: null,
+      error: { status: 404 },
+    });
     const req = mockReq({}, {}, { id: 1 });
     const res = mockRes();
     await WorkerController.getWorkerById(req, res, next);
