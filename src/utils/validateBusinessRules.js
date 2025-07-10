@@ -16,12 +16,15 @@ async function validateBusinessRules(data) {
   const setting = await Setting.findOne();
   if (!setting) {
     return {
-      status: 500,
-      errorCode: "SETTING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
-      source: "validateBusinessRules.setting",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 500,
+        errorCode: "SETTING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+        source: "validateBusinessRules.setting",
+        detalhes: null,
+      },
+      status: 500,
     };
   }
 
@@ -30,53 +33,65 @@ async function validateBusinessRules(data) {
     numNights > setting.maxBookingLength
   ) {
     return {
-      status: 400,
-      errorCode: "INVALID_BOOKING_LENGTH",
-      message: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
-      source: "validateBusinessRules.numNights",
-      detalhes: {
-        minBookingLength: setting.minBookingLength,
-        maxBookingLength: setting.maxBookingLength,
-        numNights,
-      },
       resource: null,
+      error: {
+        status: 400,
+        errorCode: "INVALID_BOOKING_LENGTH",
+        message: `O número de noites deve estar entre ${setting.minBookingLength} e ${setting.maxBookingLength}.`,
+        source: "validateBusinessRules.numNights",
+        detalhes: {
+          minBookingLength: setting.minBookingLength,
+          maxBookingLength: setting.maxBookingLength,
+          numNights,
+        },
+      },
+      status: 400,
     };
   }
   if (numGuests > setting.maxGuestsPerBooking) {
     return {
-      status: 400,
-      errorCode: "MAX_GUESTS_EXCEEDED",
-      message: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
-      source: "validateBusinessRules.numGuests",
-      detalhes: {
-        maxGuestsPerBooking: setting.maxGuestsPerBooking,
-        numGuests,
-      },
       resource: null,
+      error: {
+        status: 400,
+        errorCode: "MAX_GUESTS_EXCEEDED",
+        message: `O número máximo de hóspedes por reserva é ${setting.maxGuestsPerBooking}.`,
+        source: "validateBusinessRules.numGuests",
+        detalhes: {
+          maxGuestsPerBooking: setting.maxGuestsPerBooking,
+          numGuests,
+        },
+      },
+      status: 400,
     };
   }
 
   const cabin = await Cabin.findByPk(cabinId);
   if (!cabin) {
     return {
-      status: 404,
-      errorCode: "CABIN_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
-      source: "validateBusinessRules.cabin",
-      detalhes: { cabinId },
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+        source: "validateBusinessRules.cabin",
+        detalhes: { cabinId },
+      },
+      status: 404,
     };
   }
 
   const guest = await Guest.findByPk(guestId);
   if (!guest) {
     return {
-      status: 404,
-      errorCode: "GUEST_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
-      source: "validateBusinessRules.guest",
-      detalhes: { guestId },
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "GUEST_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+        source: "validateBusinessRules.guest",
+        detalhes: { guestId },
+      },
+      status: 404,
     };
   }
 
