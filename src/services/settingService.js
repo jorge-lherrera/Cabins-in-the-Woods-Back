@@ -7,12 +7,15 @@ async function getUniqueSetting() {
 
   if (!setting) {
     return {
-      status: 404,
-      errorCode: "SETTING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
-      source: "settingService.getUniqueSetting",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "SETTING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+        source: "settingService.getUniqueSetting",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
 
@@ -32,12 +35,15 @@ async function createUniqueSetting(data) {
 
   if (existingSetting) {
     return {
-      status: 409,
-      errorCode: "SETTING_ALREADY_EXISTS",
-      message: MESSAGES.SETTINGS.CONFIG_EXISTS,
-      source: "settingService.createUniqueSetting",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 409,
+        errorCode: "SETTING_ALREADY_EXISTS",
+        message: MESSAGES.SETTINGS.CONFIG_EXISTS,
+        source: "settingService.createUniqueSetting",
+        detalhes: null,
+      },
+      status: 409,
     };
   }
 
@@ -65,12 +71,15 @@ async function updateUniqueSetting(data) {
 
   if (!existingSetting) {
     return {
-      status: 404,
-      errorCode: "SETTING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
-      source: "settingService.updateUniqueSetting",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "SETTING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Configuração"),
+        source: "settingService.updateUniqueSetting",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
 

@@ -160,12 +160,15 @@ async function getBookingById(id) {
   });
   if (!existingBooking) {
     return {
-      status: 404,
-      errorCode: "BOOKING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
-      source: "bookingService.getBookingById",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+        source: "bookingService.getBookingById",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
 
@@ -203,26 +206,31 @@ async function createBooking(data) {
   const numNights = calculateNumNights(startDate, endDate);
 
   const cabin = await Cabin.findByPk(cabinId);
-  const guest = await Guest.findByPk(guestId);
-
   if (!cabin) {
     return {
-      status: 404,
-      errorCode: "CABIN_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
-      source: "bookingService.createBooking - cabin",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "CABIN_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Cabana"),
+        source: "bookingService.createBooking - cabin",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
+  const guest = await Guest.findByPk(guestId);
   if (!guest) {
     return {
-      status: 404,
-      errorCode: "GUEST_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
-      source: "bookingService.createBooking - guest",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "GUEST_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Hóspede"),
+        source: "bookingService.createBooking - guest",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
 
@@ -277,12 +285,15 @@ async function updateBooking(id, data) {
   const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return {
-      status: 404,
-      errorCode: "BOOKING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
-      source: "bookingService.updateBooking",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+        source: "bookingService.updateBooking",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
 
@@ -371,12 +382,15 @@ async function deleteBooking(id) {
   const existingBooking = await findById(Booking, id);
   if (!existingBooking) {
     return {
-      status: 404,
-      errorCode: "BOOKING_NOT_FOUND",
-      message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
-      source: "bookingService.deleteBooking",
-      detalhes: null,
       resource: null,
+      error: {
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: MESSAGES.GENERAL.NOT_FOUND("Reserva"),
+        source: "bookingService.deleteBooking",
+        detalhes: null,
+      },
+      status: 404,
     };
   }
   await Booking.destroy({ where: { id } });

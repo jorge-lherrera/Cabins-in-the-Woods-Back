@@ -189,7 +189,6 @@ async function updateCabin(id, data) {
     imageUrl = await uploadFileCloudinary(file, "cabins");
   }
 
-  // Solo busca conflicto si se está cambiando el nombre
   if (name !== undefined) {
     const nameConflict = await Cabin.findOne({
       where: {
