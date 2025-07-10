@@ -25,7 +25,9 @@ const bookingValidation = applyNoUnknown(
     hasBreakfast: Yup.boolean()
       .typeError("O campo de café da manhã deve ser verdadeiro ou falso")
       .required("O campo de café da manhã é obrigatório"),
-    observations: validateStringLength("observações", 0, 255).nullable(),
+    observations: Yup.string()
+      .max(255, "O campo observações não pode ter mais de 255 caracteres")
+      .nullable(),
     isPaid: Yup.boolean()
       .typeError("O campo de pagamento deve ser verdadeiro ou falso")
       .required("O campo de pagamento é obrigatório"),
