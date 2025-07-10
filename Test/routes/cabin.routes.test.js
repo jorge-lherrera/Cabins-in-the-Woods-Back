@@ -16,7 +16,9 @@ afterAll(async () => {
 
 describe("Cabin API routes", () => {
   it("GET /cabins should return empty list initially", async () => {
-    const res = await request(app).get("/cabins").set("Authorization", "Bearer testtoken");
+    const res = await request(app)
+      .get("/cabins")
+      .set("Authorization", "Bearer testtoken");
     expect(res.status).toBe(200);
     expect(res.body.resource.cabins).toBeDefined();
   });
