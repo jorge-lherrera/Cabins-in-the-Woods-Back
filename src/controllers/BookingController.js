@@ -8,11 +8,7 @@ class BookingController {
     try {
       const { days } = req.query;
 
-      const {
-        resource,
-        error,
-        status: serviceStatus,
-      } = await bookingService.getAllBookingsDashboard({
+      const { resource, error } = await bookingService.getAllBookingsDashboard({
         days,
       });
 
@@ -53,11 +49,7 @@ class BookingController {
           where.status = { [Op.in]: where.status };
         }
       }
-      const {
-        resource,
-        error,
-        status: serviceStatus,
-      } = await bookingService.getAllBookings({
+      const { resource, error } = await bookingService.getAllBookings({
         where,
         orderBy,
         order,
@@ -117,11 +109,7 @@ class BookingController {
         isPaid,
         status,
       } = req.body;
-      const {
-        resource,
-        error,
-        status: createStatus,
-      } = await bookingService.createBooking({
+      const { resource, error } = await bookingService.createBooking({
         cabinId,
         guestId,
         startDate,
@@ -165,11 +153,7 @@ class BookingController {
         isPaid,
         status,
       } = req.body;
-      const {
-        resource,
-        error,
-        status: updateStatus,
-      } = await bookingService.updateBooking(id, {
+      const { resource, error } = await bookingService.updateBooking(id, {
         cabinId,
         guestId,
         startDate,
