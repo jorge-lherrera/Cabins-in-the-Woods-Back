@@ -19,13 +19,7 @@ bookingRoutes.post(
   "/",
   auth,
   normalizeBookingDates,
-  normalizeNumericFields([
-    "cabinId",
-    "guestId",
-    "numNights",
-    "numGuests",
-    "extrasPrice",
-  ]),
+  normalizeNumericFields(["cabinId", "guestId", "numGuests", "extrasPrice"]),
   validate(bookingValidation),
   BookingController.createBooking
 );
@@ -33,13 +27,7 @@ bookingRoutes.put(
   "/:id",
   auth,
   normalizeBookingDates,
-  normalizeNumericFields([
-    "cabinId",
-    "guestId",
-    "numNights",
-    "numGuests",
-    "extrasPrice",
-  ]),
+  normalizeNumericFields(["cabinId", "guestId", "numGuests", "extrasPrice"]),
   validate(makeAllFieldsOptional(bookingValidation)),
   BookingController.updateBooking
 );
