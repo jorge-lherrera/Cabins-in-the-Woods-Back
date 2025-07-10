@@ -6,7 +6,7 @@ class WorkerController {
   async getWorkerById(req, res, next) {
     try {
       const id = req.user.id;
-      const { resource, error, status } = await workerService.getWorkerById(id);
+      const { resource, error } = await workerService.getWorkerById(id);
       if (error) {
         return next(error);
       }
@@ -25,7 +25,7 @@ class WorkerController {
   async createWorker(req, res, next) {
     try {
       const { name, email, password } = req.body;
-      const { resource, error, status } = await workerService.createWorker({
+      const { resource, error } = await workerService.createWorker({
         name,
         email,
         password,
@@ -50,7 +50,7 @@ class WorkerController {
     try {
       const id = req.user.id;
       const { name, email, password, currentPassword } = req.body;
-      const { resource, error, status } = await workerService.updateWorker(id, {
+      const { resource, error } = await workerService.updateWorker(id, {
         name,
         email,
         password,
@@ -75,7 +75,7 @@ class WorkerController {
   async deleteWorker(req, res, next) {
     try {
       const id = req.user.id;
-      const { resource, error, status } = await workerService.deleteWorker(id);
+      const { resource, error } = await workerService.deleteWorker(id);
       if (error) {
         return next(error);
       }

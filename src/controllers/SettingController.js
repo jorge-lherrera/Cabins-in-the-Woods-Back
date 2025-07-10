@@ -5,8 +5,7 @@ const successResponse = require("../utils/successResponse");
 class SettingController {
   async getSettings(req, res, next) {
     try {
-      const { resource, error, status } =
-        await settingService.getUniqueSetting();
+      const { resource, error } = await settingService.getUniqueSetting();
       if (error) {
         return next(error);
       }
@@ -31,13 +30,12 @@ class SettingController {
         breakfastPrice,
       } = req.body;
 
-      const { resource, error, status } =
-        await settingService.createUniqueSetting({
-          minBookingLength,
-          maxBookingLength,
-          maxGuestsPerBooking,
-          breakfastPrice,
-        });
+      const { resource, error } = await settingService.createUniqueSetting({
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      });
 
       if (error) {
         return next(error);
@@ -63,13 +61,12 @@ class SettingController {
         maxGuestsPerBooking,
         breakfastPrice,
       } = req.body;
-      const { resource, error, status } =
-        await settingService.updateUniqueSetting({
-          minBookingLength,
-          maxBookingLength,
-          maxGuestsPerBooking,
-          breakfastPrice,
-        });
+      const { resource, error } = await settingService.updateUniqueSetting({
+        minBookingLength,
+        maxBookingLength,
+        maxGuestsPerBooking,
+        breakfastPrice,
+      });
       if (error) {
         return next(error);
       }

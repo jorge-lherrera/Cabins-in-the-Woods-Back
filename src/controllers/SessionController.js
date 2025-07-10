@@ -9,11 +9,15 @@ class SessionController {
 
       if (!worker) {
         return next({
+          resource: null,
+          error: {
+            status: 401,
+            errorCode: "USER_NOT_FOUND",
+            message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+            source: "auth - session",
+            detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
+          },
           status: 401,
-          errorCode: "USER_NOT_FOUND",
-          message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
-          source: "auth - session",
-          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 

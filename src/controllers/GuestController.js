@@ -15,7 +15,7 @@ class GuestController {
         searchNation = "",
       } = req.query;
 
-      const { resource, error, status } = await guestService.getAllGuests({
+      const { resource, error } = await guestService.getAllGuests({
         page,
         limit,
         orderBy,
@@ -42,7 +42,7 @@ class GuestController {
   async getGuestById(req, res, next) {
     try {
       const { id } = req.params;
-      const { resource, error, status } = await guestService.getGuestById(id);
+      const { resource, error } = await guestService.getGuestById(id);
       if (error) {
         return next(error);
       }
@@ -61,7 +61,7 @@ class GuestController {
   async createGuest(req, res, next) {
     try {
       const { fullName, email, nationality, nationalIdNumber } = req.body;
-      const { resource, error, status } = await guestService.createGuest({
+      const { resource, error } = await guestService.createGuest({
         fullName,
         email,
         nationality,
@@ -86,7 +86,7 @@ class GuestController {
     try {
       const { id } = req.params;
       const { fullName, email, nationality, nationalIdNumber } = req.body;
-      const { resource, error, status } = await guestService.updateGuest(id, {
+      const { resource, error } = await guestService.updateGuest(id, {
         fullName,
         email,
         nationality,
@@ -110,7 +110,7 @@ class GuestController {
   async deleteGuest(req, res, next) {
     try {
       const { id } = req.params;
-      const { resource, error, status } = await guestService.deleteGuest(id);
+      const { resource, error } = await guestService.deleteGuest(id);
       if (error) {
         return next(error);
       }

@@ -15,22 +15,30 @@ class LoginController {
 
       if (!worker) {
         return next({
+          resource: null,
+          error: {
+            status: 401,
+            errorCode: "USER_NOT_FOUND",
+            message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
+            source: "auth - login",
+            detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
+          },
           status: 401,
-          errorCode: "USER_NOT_FOUND",
-          message: MESSAGES.GENERAL.NOT_FOUND("Funcionário"),
-          source: "auth - login",
-          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 
       const isPasswordCorrect = await bcrypt.compare(password, worker.password);
       if (!isPasswordCorrect) {
         return next({
+          resource: null,
+          error: {
+            status: 401,
+            errorCode: "INVALID_PASSWORD",
+            message: MESSAGES.GENERAL.INVALID("Senha"),
+            source: "auth - login",
+            detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
+          },
           status: 401,
-          errorCode: "INVALID_PASSWORD",
-          message: MESSAGES.GENERAL.INVALID("Senha"),
-          source: "auth - login",
-          detalhes: MESSAGES.LOGIN.AUTHENTICATION_FAILED,
         });
       }
 

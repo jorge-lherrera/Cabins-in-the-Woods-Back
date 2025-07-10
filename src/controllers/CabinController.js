@@ -14,7 +14,7 @@ class CabinController {
         search = "",
       } = req.query;
 
-      const { resource, error, status } = await cabinService.getAllCabins({
+      const { resource, error } = await cabinService.getAllCabins({
         page,
         limit,
         orderBy,
@@ -41,7 +41,7 @@ class CabinController {
   async getCabinById(req, res, next) {
     try {
       const { id } = req.params;
-      const { resource, error, status } = await cabinService.getCabinById(id);
+      const { resource, error } = await cabinService.getCabinById(id);
       if (error) {
         return next(error);
       }
@@ -62,7 +62,7 @@ class CabinController {
       const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
 
-      const { resource, error, status } = await cabinService.createCabin({
+      const { resource, error } = await cabinService.createCabin({
         name,
         maxCapacity,
         regularPrice,
@@ -89,7 +89,7 @@ class CabinController {
   async duplicateCabin(req, res, next) {
     try {
       const { id } = req.params;
-      const { resource, error, status } = await cabinService.duplicateCabin(id);
+      const { resource, error } = await cabinService.duplicateCabin(id);
       if (error) {
         return next(error);
       }
@@ -111,7 +111,7 @@ class CabinController {
       const { name, maxCapacity, regularPrice, discount, description } =
         req.body;
 
-      const { resource, error, status } = await cabinService.updateCabin(id, {
+      const { resource, error } = await cabinService.updateCabin(id, {
         name,
         maxCapacity,
         regularPrice,
@@ -138,7 +138,7 @@ class CabinController {
     try {
       const { id } = req.params;
 
-      const { resource, error, status } = await cabinService.deleteCabin(id);
+      const { resource, error } = await cabinService.deleteCabin(id);
       if (error) {
         return next(error);
       }
