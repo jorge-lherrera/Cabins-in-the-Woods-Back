@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "swagger": "node ./swagger.js",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all --seeders-path src/database/seeders"
@@ -39,6 +40,9 @@
     "jest": "^29.7.0",
     "nodemon": "^3.1.10",
     "sequelize-cli": "^6.6.2",
-    "supertest": "^7.1.1"
+    "supertest": "^7.1.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

@@ -8,8 +8,12 @@ const loginRoutes = require("./login.routes");
 const sessionRoutes = require("./session.route");
 const logoutRoutes = require("./logout.routes");
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+
 const routes = Router();
 
+routes.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 routes.use("/session", sessionRoutes);
 routes.use("/login", loginRoutes);
 routes.use("/logout", logoutRoutes);
