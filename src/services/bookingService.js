@@ -37,15 +37,10 @@ async function getAllBookingsDashboard({ days = 7 }) {
 
   const guestMap = {};
   guestsToday.forEach((g) => {
-    guestMap[g.id] = {
-      id: g.id,
-      fullName: g.fullName,
-      nationality: g.nationality,
-    };
+    guestMap[g.id] = { fullName: g.fullName, nationality: g.nationality };
   });
 
   const bookingsToday = bookingsTodayRaw.map((b) => ({
-    id: guestMap[b.guestId]?.id || null,
     nationality: guestMap[b.guestId]?.nationality || null,
     fullName: guestMap[b.guestId]?.fullName || null,
     numNights: b.numNights,
