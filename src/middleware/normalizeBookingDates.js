@@ -1,21 +1,8 @@
 function normalizeBookingDates(req, res, next) {
   try {
-    const offsetHours = -3;
-
-    function toUtcDate(dateStr, offset = offsetHours) {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return null;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-        date.setHours(0, 0, 0, 0);
-      }
-
-      return new Date(date.getTime() - offset * 60 * 60 * 1000);
-    }
-
     if (req.body.startDate && typeof req.body.startDate === "string") {
-      const startDate = toUtcDate(req.body.startDate);
-      if (!startDate) {
+      const startDate = new Date(req.body.startDate);
+      if (isNaN(startDate.getTime())) {
         return res.status(400).json({
           error: "Data de início inválida",
           details: ["Formato de data não reconhecido"],
@@ -25,8 +12,8 @@ function normalizeBookingDates(req, res, next) {
     }
 
     if (req.body.endDate && typeof req.body.endDate === "string") {
-      const endDate = toUtcDate(req.body.endDate);
-      if (!endDate) {
+      const endDate = new Date(req.body.endDate);
+      if (isNaN(endDate.getTime())) {
         return res.status(400).json({
           error: "Data de término inválida",
           details: ["Formato de data não reconhecido"],
