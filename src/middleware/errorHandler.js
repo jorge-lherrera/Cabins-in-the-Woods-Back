@@ -66,6 +66,23 @@ function errorHandler(err, req, res, next) {
     });
   }
 
+  // Manejo de errores con formato anidado en err.error
+  if (
+    err.error &&
+    err.error.errorCode &&
+    err.error.status &&
+    err.error.message
+  ) {
+    return sendError({
+      status: err.error.status,
+      errorCode: err.error.errorCode,
+      message: err.error.message,
+      source: err.error.source || "server - custom",
+      detalhes: err.error.detalhes || null,
+    });
+  }
+
+  // Manejo de errores con formato plano
   if (err.errorCode && err.status && err.message) {
     return sendError({
       status: err.status,
